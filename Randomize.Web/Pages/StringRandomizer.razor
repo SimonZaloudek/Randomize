@@ -1,0 +1,24 @@
+﻿@page "/string"
+@using Randomize.Core.Services
+@inject StringRandomizerService StringService
+
+<h3>String Randomizer</h3>
+
+<textarea class="form-control" rows="5" @bind="inputText" placeholder="Enter items, one per line"></textarea>
+<button class="btn btn-primary mt-2" @onclick="Randomize">Randomize</button>
+
+@if (!string.IsNullOrWhiteSpace(result))
+{
+    <p class="mt-3"><strong>🎯 Result:</strong> @result</p>
+}
+
+@code {
+    string inputText = "";
+    string? result;
+
+    void Randomize()
+    {
+        var list = inputText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        result = StringService.PickRandom(list);
+    }
+}
