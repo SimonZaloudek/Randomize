@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Randomize.Web",
   "resources": {
-    "hash": "sha256-MCy/dg1DFqAEMaKrs5Minu2vySXwq3xmuYhTOAVPVfc=",
+    "hash": "sha256-b37IFrm4IqciAggvyXTGJhcOf1guNs44yHSNM4azNDM=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.phaa9r44xv.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.4o2vz6uw5j.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -201,10 +201,10 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "Randomize.Core.g71ag4ua9r.wasm": "Randomize.Core.wasm",
-      "Randomize.Core.ha1byh8spy.pdb": "Randomize.Core.pdb",
-      "Randomize.Web.30g70v9f5y.wasm": "Randomize.Web.wasm",
-      "Randomize.Web.0wpu8tddff.pdb": "Randomize.Web.pdb"
+      "Randomize.Core.xtcfqojxy5.wasm": "Randomize.Core.wasm",
+      "Randomize.Core.9vv73pf5nw.pdb": "Randomize.Core.pdb",
+      "Randomize.Web.rnxzc4gsqk.wasm": "Randomize.Web.wasm",
+      "Randomize.Web.bnltiv6ryr.pdb": "Randomize.Web.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.rtblh4npr3.js": "sha256-HyBzcYNpT2l19+f1bpjNOa1oFoLe3K4JIQ6GsFK5m6I="
@@ -414,12 +414,12 @@
       "WindowsBase.u25hol0de4.wasm": "sha256-CgB28KCiYKHd4yK6IM0PJ526P7IbRCpNkGTqn+cLwxs=",
       "mscorlib.brg9pkj3je.wasm": "sha256-FzZwzxUYYyg3qxc7Km8r50UKAmRWrIeckSFG1NTHKNU=",
       "netstandard.wuzd3f1y6v.wasm": "sha256-yAXc0deBIRkWTVXqADZfhgZtrxGgJCIbZYVtA0NjvdM=",
-      "Randomize.Core.g71ag4ua9r.wasm": "sha256-ZNucnSNZC1DRR5zTFkShnxM733wEgps0Z71+9ifKWm0=",
-      "Randomize.Web.30g70v9f5y.wasm": "sha256-w3i5vUalOBkzw/Bgmzoi8xkHWHyA+go2W6qb4vDsKac="
+      "Randomize.Core.xtcfqojxy5.wasm": "sha256-S+ew+EllWdqqiTq/bhM6mcwoQYkx5I1p7Mmkzz28Vig=",
+      "Randomize.Web.rnxzc4gsqk.wasm": "sha256-2U4OFzpxQinn75IoHz6ebj/Jejk5QB05Ogap3lehh18="
     },
     "pdb": {
-      "Randomize.Core.ha1byh8spy.pdb": "sha256-t17jxbzRKXO5BLKfKmeGJcP9ETdRO44ZTjRESMYJ634=",
-      "Randomize.Web.0wpu8tddff.pdb": "sha256-kIpv+ygCapFoT58COHGUfjEj6peWOQAStuwDpWo8s4o="
+      "Randomize.Core.9vv73pf5nw.pdb": "sha256-FbR8puHOTp5FnXE5Jq0x3HoiQ9MDb/JN51Zyrk3IRTE=",
+      "Randomize.Web.bnltiv6ryr.pdb": "sha256-12BVg/bZ1a1UJjwCW2b+gXVqwX3hyChJbrmN28cMK3o="
     }
   },
   "cacheBootResources": true,

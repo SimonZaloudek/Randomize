@@ -1,30 +1,42 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\",
+  "WorkspaceRootPath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\pages\\stringrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\stringrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\pages\\numberrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\numberrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\layout\\navmenu.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\navmenu.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize.web\\randomize.web\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\pages\\stringrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\stringrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\pages\\numberrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\numberrandomizer.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\c#\\randomize\\randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,50 +58,85 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "NumberRandomizer.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\NumberRandomizer.razor",
-              "RelativeDocumentMoniker": "Randomize.Web\\Pages\\NumberRandomizer.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\NumberRandomizer.razor",
-              "RelativeToolTip": "Randomize.Web\\Pages\\NumberRandomizer.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-01T07:13:30.261Z",
+              "DocumentIndex": 0,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "Randomize.Web\\wwwroot\\index.html",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\wwwroot\\index.html",
+              "RelativeToolTip": "Randomize.Web\\wwwroot\\index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-07-02T19:53:39.844Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Program.cs",
+              "RelativeDocumentMoniker": "Randomize.Web\\Program.cs",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Program.cs",
+              "RelativeToolTip": "Randomize.Web\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T19:34:28.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NavMenu.razor.css",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\NavMenu.razor.css",
+              "RelativeDocumentMoniker": "Randomize.Web\\Layout\\NavMenu.razor.css",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\NavMenu.razor.css",
+              "RelativeToolTip": "Randomize.Web\\Layout\\NavMenu.razor.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-07-02T19:30:28.951Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "NumberRandomizer.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\NumberRandomizer.razor",
+              "RelativeDocumentMoniker": "Randomize.Web\\Pages\\NumberRandomizer.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\NumberRandomizer.razor",
+              "RelativeToolTip": "Randomize.Web\\Pages\\NumberRandomizer.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-01T07:13:30.261Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "StringRandomizer.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\StringRandomizer.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\StringRandomizer.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\Pages\\StringRandomizer.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\StringRandomizer.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\StringRandomizer.razor",
               "RelativeToolTip": "Randomize.Web\\Pages\\StringRandomizer.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-01T07:12:06.684Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-01T07:12:06.684Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "Randomize.Web\\Layout\\MainLayout.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "Randomize.Web\\Layout\\MainLayout.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-01T07:00:32.941Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "MainLayout.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Layout\\MainLayout.razor",
-              "RelativeDocumentMoniker": "Randomize.Web\\Layout\\MainLayout.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Layout\\MainLayout.razor",
-              "RelativeToolTip": "Randomize.Web\\Layout\\MainLayout.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-01T07:00:32.941Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
               "Title": "App.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\App.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\App.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\App.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\App.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\App.razor",
               "RelativeToolTip": "Randomize.Web\\App.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -97,24 +144,23 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "NavMenu.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Layout\\NavMenu.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\NavMenu.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\Layout\\NavMenu.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Layout\\NavMenu.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Layout\\NavMenu.razor",
               "RelativeToolTip": "Randomize.Web\\Layout\\NavMenu.razor",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-01T06:00:09.177Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-01T06:00:09.177Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "Home.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\Home.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\Home.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\Pages\\Home.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Pages\\Home.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\Home.razor",
               "RelativeToolTip": "Randomize.Web\\Pages\\Home.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",

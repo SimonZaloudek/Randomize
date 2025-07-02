@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0kG52LSk7vs=",
+  "dgSpecHash": "uoVxAZkD+g0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize.Web\\Randomize.Web\\Randomize.Web.csproj",
+  "projectFilePath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Randomize.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.aspnetcore.authorization\\9.0.6\\microsoft.aspnetcore.authorization.9.0.6.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.aspnetcore.components\\9.0.6\\microsoft.aspnetcore.components.9.0.6.nupkg.sha512",

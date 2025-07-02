@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "SDJVWLZe",
+  "version": "f/Axvkaw",
   "assets": [
     {
       "hash": "sha256-uupQ34fDmXow9xYtYckMkt2aybu554BZg3LaTKru4xk=",
@@ -114,20 +114,20 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.Win32.Registry.ykr6iyjchr.wasm"
     },
     {
-      "hash": "sha256-ZNucnSNZC1DRR5zTFkShnxM733wEgps0Z71+9ifKWm0=",
-      "url": "_framework/Randomize.Core.g71ag4ua9r.wasm"
+      "hash": "sha256-FbR8puHOTp5FnXE5Jq0x3HoiQ9MDb/JN51Zyrk3IRTE=",
+      "url": "_framework/Randomize.Core.9vv73pf5nw.pdb"
     },
     {
-      "hash": "sha256-t17jxbzRKXO5BLKfKmeGJcP9ETdRO44ZTjRESMYJ634=",
-      "url": "_framework/Randomize.Core.ha1byh8spy.pdb"
+      "hash": "sha256-S+ew+EllWdqqiTq/bhM6mcwoQYkx5I1p7Mmkzz28Vig=",
+      "url": "_framework/Randomize.Core.xtcfqojxy5.wasm"
     },
     {
-      "hash": "sha256-kIpv+ygCapFoT58COHGUfjEj6peWOQAStuwDpWo8s4o=",
-      "url": "_framework/Randomize.Web.0wpu8tddff.pdb"
+      "hash": "sha256-12BVg/bZ1a1UJjwCW2b+gXVqwX3hyChJbrmN28cMK3o=",
+      "url": "_framework/Randomize.Web.bnltiv6ryr.pdb"
     },
     {
-      "hash": "sha256-w3i5vUalOBkzw/Bgmzoi8xkHWHyA+go2W6qb4vDsKac=",
-      "url": "_framework/Randomize.Web.30g70v9f5y.wasm"
+      "hash": "sha256-2U4OFzpxQinn75IoHz6ebj/Jejk5QB05Ogap3lehh18=",
+      "url": "_framework/Randomize.Web.rnxzc4gsqk.wasm"
     },
     {
       "hash": "sha256-sC0P7uC3EvWWteKC6iB/1tlhe1Y/+ftqvLVOZqJfoxs=",
@@ -778,7 +778,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.u25hol0de4.wasm"
     },
     {
-      "hash": "sha256-QI47Ale7DbR8mspW8WqC9/8J9L/WBgiy8FfqCbOFPjg=",
+      "hash": "sha256-eUAecHB6gFUZscbfBH7JLBti+wgoZdfV30PejSkvgO4=",
       "url": "_framework/blazor.boot.json"
     },
     {
@@ -830,7 +830,7 @@ self.assetsManifest = {
       "url": "_framework/netstandard.wuzd3f1y6v.wasm"
     },
     {
-      "hash": "sha256-4OhnwDwSMKtpskvTjydmsNdzlvkYdfbEn/f+IPMuKdE=",
+      "hash": "sha256-M/6aXp8ZhJaeMQ9Re6uLxalHZZle9lSuPcwQYhZflxw=",
       "url": "brand/randicon.png"
     },
     {
@@ -842,10 +842,6 @@ self.assetsManifest = {
       "url": "css/app.css"
     },
     {
-      "hash": "sha256-4mWsDy3aHl36ZbGt8zByK7Pvd4kRUoNgTYzRnwmPHwg=",
-      "url": "favicon.png"
-    },
-    {
       "hash": "sha256-DbpQaq68ZSb5IoPosBErM1QWBfsbTxpJqhU0REi6wP4=",
       "url": "icon-192.png"
     },
@@ -854,7 +850,7 @@ self.assetsManifest = {
       "url": "icon-512.png"
     },
     {
-      "hash": "sha256-xEd3zL84TZrcaIhPpEwQSIJq2oUOn/lp8ahYRqReRZg=",
+      "hash": "sha256-HSyy8kuX4ua3eJYQLNGF5aqx+tvpmKyA6ofOfLEzTDQ=",
       "url": "index.html"
     },
     {
