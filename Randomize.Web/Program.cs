@@ -11,4 +11,5 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<StringRandomizerService>();
 builder.Services.AddSingleton<NumberRandomizerService>();
 
+
 await builder.Build().RunAsync();

@@ -40,6 +40,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3RyaW5nUmFuZG9taXplci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/simon/source/repos/C\#/Randomize/Randomize.Web/Pages/Wheel.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV2hlZWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/simon/source/repos/C\#/Randomize/Randomize.Web/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 

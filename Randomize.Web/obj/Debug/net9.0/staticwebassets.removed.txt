@@ -1,1 +1,1 @@
-C:\Users\simon\source\repos\C#\Randomize\Randomize.Web\wwwroot\favicon.ico
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Web\wwwroot\brand\randicon.png

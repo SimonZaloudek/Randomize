@@ -1,0 +1,98 @@
+﻿@page "/wheel"
+@inject IJSRuntime JS
+
+<h3>Custom Spinning Wheel</h3>
+
+
+<div style="display:flex; gap:2rem;">
+    <!-- Controls -->
+    <div>
+        <label>Number of options:</label><br />
+        <input type="number" min="2" max="15" @bind="count" @bind:event="oninput" />
+        <br /><br />
+        <button @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
+    </div>
+
+    <!-- Wheel + Inputs -->
+    <div>
+        <canvas id="wheelCanvas" width="320" height="450"></canvas>
+        <div style="margin-top:1rem;">
+            @for (int i = 0; i < items.Count; i++)
+            {
+                var currentIndex = i;
+                <input value="@items[currentIndex].Label" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="Label" style="margin:2px;" />
+            }
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(selectedResult))
+{
+    <h4>🎉 Result: @selectedResult</h4>
+}
+
+@code {
+    @using Randomize.Core.Wheel
+
+    private int _count = 2;
+    private int count
+    {
+        get => _count;
+        set
+        {
+            int newValue = Math.Clamp(value, 2, 15);
+            if (_count != newValue)
+            {
+                _count = newValue;
+                InitItems();
+                InvokeAsync(RenderWheel);
+            }
+        }
+    }
+
+    private List<WheelItem> items = new();
+    private string selectedResult = "";
+
+
+    protected override void OnInitialized()
+    {
+        InitItems();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RenderWheel();
+        }
+    }
+
+    private void InitItems()
+    {
+        items = Enumerable.Range(1, count)
+            .Select(i => new WheelItem { Label = $"Option {i}" })
+            .ToList();
+    }
+
+    private async Task RenderWheel()
+    {
+        await JS.InvokeVoidAsync("renderWheel", items.Select(i => i.Label));
+    }
+
+    private async Task SpinWheel()
+    {
+        selectedResult = await JS.InvokeAsync<string>("spinWheel", items.Select(i => i.Label));
+        StateHasChanged();
+    }
+
+    private async Task OnLabelInput(ChangeEventArgs e, int index)
+    {
+        if (index < 0 || index >= items.Count)
+            return;
+
+        items[index].Label = e.Value?.ToString() ?? string.Empty;
+        await RenderWheel();
+    }
+
+    private bool IsValid => items.Count >= 2 && items.All(i => !string.IsNullOrWhiteSpace(i.Label));
+}

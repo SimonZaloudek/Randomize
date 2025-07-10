@@ -141,6 +141,10 @@
               "target": "Package",
               "version": "[9.0.6, )",
               "autoReferenced": true
+            },
+            "ServiceStack.Common": {
+              "target": "Package",
+              "version": "[8.8.0, )"
             }
           },
           "imports": [
