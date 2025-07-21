@@ -1,0 +1,12 @@
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\bin\Release\net9.0\Randomize.Core.deps.json
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\bin\Release\net9.0\Randomize.Core.dll
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\bin\Release\net9.0\Randomize.Core.pdb
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.AssemblyInfoInputs.cache
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.AssemblyInfo.cs
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.csproj.CoreCompileInputs.cache
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.sourcelink.json
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.dll
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\refint\Randomize.Core.dll
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\Randomize.Core.pdb
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Release\net9.0\ref\Randomize.Core.dll

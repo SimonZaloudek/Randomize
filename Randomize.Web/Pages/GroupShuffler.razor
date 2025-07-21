@@ -1,0 +1,39 @@
+﻿@page "/groupshuffler"
+@using Randomize.Core.Services
+@inject IJSRuntime JS
+<textarea @bind="input" rows="10"></textarea>
+<input type="number" min="1" @bind="groupCount" />
+<button @onclick="Shuffle">Shuffle</button>
+
+@if (groups.Any())
+{
+    @for (int i = 0; i < groups.Count; i++)
+    {
+        <h4>Group @(i + 1)</h4>
+        <ul>
+            @foreach (var person in groups[i])
+            {
+                <li>@person</li>
+            }
+        </ul>
+    }
+}
+
+@code {
+    private string input = "";
+    private int groupCount = 2;
+    private List<List<string>> groups = new();
+
+    private async Task Shuffle()
+    {
+        if (groupCount < 1 || groupCount > 15)
+        {
+            await JS.InvokeVoidAsync("alert", "Group count must be greater than 0 and smaller than 16.");
+            return;
+        }
+        else
+        {
+            groups = GroupShufflerCore.ShuffleIntoGroups(input, groupCount);
+        }
+    }
+}
