@@ -1,6 +1,9 @@
 ﻿@page "/groupshuffler"
 @using Randomize.Core.Services
 @inject IJSRuntime JS
+
+<h3>Group Shuffler</h3>
+
 <textarea @bind="input" rows="10"></textarea>
 <input type="number" min="1" @bind="groupCount" />
 <button @onclick="Shuffle">Shuffle</button>
@@ -29,6 +32,11 @@
         if (groupCount < 1 || groupCount > 15)
         {
             await JS.InvokeVoidAsync("alert", "Group count must be greater than 0 and smaller than 16.");
+            return;
+        }
+        else if (groupCount > GroupShufflerCore.InputCount(input))
+        {
+            await JS.InvokeVoidAsync("alert", "Group count cannot be higher than input count..");
             return;
         }
         else

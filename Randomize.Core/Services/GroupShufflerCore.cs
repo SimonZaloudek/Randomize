@@ -26,5 +26,11 @@ namespace Randomize.Core.Services
 
             return groups;
         }
+
+        public static int InputCount(string input)
+        {
+            var people = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return people.Length;
+        }
     }
 }

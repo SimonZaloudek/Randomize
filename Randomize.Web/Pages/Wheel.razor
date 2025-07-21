@@ -1,7 +1,7 @@
 ﻿@page "/wheel"
 @inject IJSRuntime JS
 
-<h3>Custom Spinning Wheel</h3>
+<h3 style="margin-bottom:1rem">Custom Spinning Wheel</h3>
 
 
 <div style="display:flex; gap:2rem;">
@@ -12,8 +12,12 @@
         <br /><br />
         <button @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
     </div>
-
+  
     <!-- Wheel + Inputs -->
+    <div>
+        <input type="text" @bind="wheelQuestion" @bind:event="oninput" placeholder="Enter your wheel question..."
+               style="margin-bottom: 0.5rem; width: 100%; max-width: 100%;" />
+    </div>
     <div>
         <canvas id="wheelCanvas" width="320" height="450"></canvas>
         <div style="margin-top:1rem;">
@@ -28,12 +32,14 @@
 
 @if (!string.IsNullOrEmpty(selectedResult))
 {
-    <h4>🎉 Result: @selectedResult</h4>
+    <h4 style="margin-top:1rem">🎉 @_wheelQuestion: @selectedResult</h4>
 }
 
 @code {
-    @using Randomize.Core.Wheel
+@using Randomize.Core.Wheel
 
+    private string wheelQuestion = "Enter your wheel question...";
+    private string? _wheelQuestion;
     private int _count = 2;
     private int count
     {
@@ -81,6 +87,7 @@
 
     private async Task SpinWheel()
     {
+        _wheelQuestion = wheelQuestion;
         selectedResult = await JS.InvokeAsync<string>("spinWheel", items.Select(i => i.Label));
         StateHasChanged();
     }
