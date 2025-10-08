@@ -1,16 +1,30 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
+
+<div class="app-container">
+    <!-- Sidebar -->
     <div class="sidebar">
-        <NavMenu />
+        <img src="brand/RANDLOGO1.png" alt="Randomize Icon" class="logo" />
+
+        <NavLink href="/" class="nav-item" Match="NavLinkMatch.All">
+            <i class="bi bi-house"></i> Home
+        </NavLink>
+        <NavLink href="/string" class="nav-item">
+            <i class="bi bi-type"></i> String Randomizer
+        </NavLink>
+        <NavLink href="/number" class="nav-item">
+            <i class="bi bi-123"></i> Number Randomizer
+        </NavLink>
+        <NavLink href="/wheel" class="nav-item">
+            <i class="bi bi-123"></i> Spinning Wheel
+        </NavLink>
+        <NavLink href="/groupshuffler" class="nav-item">
+            <i class="bi bi-123"></i> Group Shuffler
+        </NavLink>
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <!-- Main content -->
+    <div class="content">
+        <a href="https://github.com/SimonZaloudek" class="header-link">About</a>
+        @Body
+    </div>
 </div>

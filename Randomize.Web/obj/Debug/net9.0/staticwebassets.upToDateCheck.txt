@@ -50,6 +50,8 @@ C:\Users\simon\source\repos\RandomizeProject\Randomize.Web\wwwroot\lib\bootstrap
 wwwroot\brand\RANDLOGO1.png
 wwwroot\brand\RANDLOGO2.png
 wwwroot\brand\randlogofull.png
+wwwroot\brand\randlogofull2.png
+wwwroot\brand\randlogofull3.png
 wwwroot\css\app.css
 wwwroot\icon-192.png
 wwwroot\icon-512.png
