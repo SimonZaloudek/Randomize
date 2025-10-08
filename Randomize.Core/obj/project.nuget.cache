@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "LWhjZ92epEA=",
+  "dgSpecHash": "RguheSQHows=",
   "success": true,
-  "projectFilePath": "C:\\Users\\simon\\source\\repos\\RandomizeProject\\Randomize.Core\\Randomize.Core.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Core\\Randomize.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\simon\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.6\\microsoft.net.illink.tasks.9.0.6.nupkg.sha512"
+  ],
   "logs": []
 }

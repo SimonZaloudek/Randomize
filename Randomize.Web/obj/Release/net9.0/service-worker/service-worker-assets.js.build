@@ -1,8 +1,8 @@
 self.assetsManifest = {
-  "version": "omGG+nW/",
+  "version": "RJQvMZK2",
   "assets": [
     {
-      "hash": "sha256-uupQ34fDmXow9xYtYckMkt2aybu554BZg3LaTKru4xk=",
+      "hash": "sha256-GIqcs7FZMDEUPDTrLVd3AkZIUfyxNtHP+db7LYyrCnE=",
       "url": "Randomize.Web.styles.css"
     },
     {
@@ -114,20 +114,20 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.Win32.Registry.ykr6iyjchr.wasm"
     },
     {
-      "hash": "sha256-PHcKri3O5ArlUSbxrt+hvScSWR3LBgTpsbFFLrGaOro=",
-      "url": "_framework/Randomize.Core.cmqwy6kzjt.pdb"
+      "hash": "sha256-aC8UgwYi/CtXzTqoaHgsPlag2i30tiU5lIm5VzsovrA=",
+      "url": "_framework/Randomize.Core.4d1ycez94s.pdb"
     },
     {
-      "hash": "sha256-M5snORPsMMhK5YJlKB5lqs9KqoglYL0ptSLjHXg7yKo=",
-      "url": "_framework/Randomize.Core.r6wxmt5fab.wasm"
+      "hash": "sha256-O4LVSDmjLXx2iUL+pDC+T28MSkYqcf+UbADlee4Q2yQ=",
+      "url": "_framework/Randomize.Core.rcrn0yhbuc.wasm"
     },
     {
-      "hash": "sha256-iTlRWEmNbJaWagf6OPTFp7QqJjJkhQVr4nAmiB/WgpQ=",
-      "url": "_framework/Randomize.Web.3hpa3t3mzn.wasm"
+      "hash": "sha256-hLn4YoTvckn64rnJO4SW9Z8cBGG8pR27sf3yeteZkBc=",
+      "url": "_framework/Randomize.Web.cgnn8iapjr.wasm"
     },
     {
-      "hash": "sha256-J1hwGKzGL9wKwYWmDfqol+0decypo5vmF79/KpKw1pw=",
-      "url": "_framework/Randomize.Web.vu95zt0wfg.pdb"
+      "hash": "sha256-ulfknvez3eNUoTu+c/4UlgEBnosT+1+yu9Q3NeS8kBQ=",
+      "url": "_framework/Randomize.Web.iuvmtwpj5n.pdb"
     },
     {
       "hash": "sha256-IjmnNlelpEtZI96gN5XWWl6TJxlDgR7L3bNbofzOdwA=",
@@ -790,7 +790,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.u25hol0de4.wasm"
     },
     {
-      "hash": "sha256-68KuM42U1iB64uMYV1Qoq4n7Ut10sVlvbdHX2k+mEjA=",
+      "hash": "sha256-gqX93cOU+RoAeoSxDWI0jdFXYHS+OleHMIV5Jlx5SUc=",
       "url": "_framework/blazor.boot.json"
     },
     {
@@ -854,7 +854,15 @@ self.assetsManifest = {
       "url": "brand/randlogofull.png"
     },
     {
-      "hash": "sha256-vGbjgqEqv4y3q5OB8W2R9LthkuF8mQfHFeNdKSReSmU=",
+      "hash": "sha256-zCbfEdACqf9juC1T0lcQXCXb/M8eI9pIBLgfCBs9U6c=",
+      "url": "brand/randlogofull2.png"
+    },
+    {
+      "hash": "sha256-9m3xdM1C56/kMRgi9Bkn6P3tMjvnZjXRJ4U2VTyPQOQ=",
+      "url": "brand/randlogofull3.png"
+    },
+    {
+      "hash": "sha256-nBrkzSwDPH69+2mGAFZMxTWuoJ304Z5td/SnNkiaznE=",
       "url": "css/app.css"
     },
     {

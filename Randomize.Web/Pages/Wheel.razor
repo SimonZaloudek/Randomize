@@ -1,45 +1,45 @@
 ﻿@page "/wheel"
 @inject IJSRuntime JS
 
-<h3 style="margin-bottom:1rem">Custom Spinning Wheel</h3>
+<div class="content">
 
+    <h2>Custom Spinning Wheel</h2>
+    
+        <!-- Controls -->
+        <div>
+            <p style="margin-top: 2rem; margin-bottom: 0px">Number of options:</p><br/>
+            <input class="textfield-num" style="width: 8%" type="number" min="2" max="15" @bind="count" @bind:event="oninput" />
+            <br /><br />
 
-<div style="display:flex; gap:2rem;">
-    <!-- Controls -->
-    <div>
-        <label>Number of options:</label><br />
-        <input type="number" min="2" max="15" @bind="count" @bind:event="oninput" />
-        <br /><br />
-        <button @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
-    </div>
-  
-    <!-- Wheel + Inputs -->
-    <div>
-        <input type="text" @bind="wheelQuestion" @bind:event="oninput" placeholder="Enter your wheel question..."
-               style="margin-bottom: 0.5rem; width: 100%; max-width: 100%;" />
-    </div>
-    <div>
-        <canvas id="wheelCanvas" width="320" height="450"></canvas>
-        <div style="margin-top:1rem;">
-            @for (int i = 0; i < items.Count; i++)
-            {
-                var currentIndex = i;
-                <input value="@items[currentIndex].Label" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="Label" style="margin:2px;" />
-            }
+            <p style="margin-top: 0rem; margin-bottom: 0px">Wheel question?</p><br />
+        <input class="textfield-main" rows="1" type="text" @bind="wheelQuestion" @bind:event="oninput"
+               style="margin-bottom: 0.5rem; padding: 0; margin-top: 0px; width: 100%; max-width: 100%; max-height: 12px" />
+
+            <button class="button-main" @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
         </div>
-    </div>
+      
+        <!-- Wheel + Inputs -->
+        <div>
+            <canvas id="wheelCanvas" width="320" height="450"></canvas>
+            <div style="margin-top:1rem;">
+                @for (int i = 0; i < items.Count; i++)
+                {
+                    var currentIndex = i;
+                    <input value="@items[currentIndex].Label" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="Label" style="margin:2px;" />
+                }
+            </div>
+        </div>
 </div>
 
 @if (!string.IsNullOrEmpty(selectedResult))
 {
-    <h4 style="margin-top:1rem">🎉 @_wheelQuestion: @selectedResult</h4>
+    <p>🎉 @wheelQuestion: @selectedResult</p>
 }
 
 @code {
 @using Randomize.Core.Wheel
 
-    private string wheelQuestion = "Enter your wheel question...";
-    private string? _wheelQuestion;
+    private string? wheelQuestion;
     private int _count = 2;
     private int count
     {
@@ -87,7 +87,10 @@
 
     private async Task SpinWheel()
     {
-        _wheelQuestion = wheelQuestion;
+        if (string.IsNullOrEmpty(wheelQuestion))
+        {
+            wheelQuestion = "Result";
+        }
         selectedResult = await JS.InvokeAsync<string>("spinWheel", items.Select(i => i.Label));
         StateHasChanged();
     }

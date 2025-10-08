@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Randomize.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7162a4e7a04f194d32a0807296cb84d276984896")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ecc63b9e26f1f1891cb1e75913c7635f9a14bca")]
 [assembly: System.Reflection.AssemblyProductAttribute("Randomize.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Randomize.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

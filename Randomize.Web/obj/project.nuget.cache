@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9YrVe+Fyfyc=",
+  "dgSpecHash": "zbh7IU2T2+A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\simon\\source\\repos\\RandomizeProject\\Randomize.Web\\Randomize.Web.csproj",
+  "projectFilePath": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Randomize.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.aspnetcore.authorization\\9.0.6\\microsoft.aspnetcore.authorization.9.0.6.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.aspnetcore.components\\9.0.6\\microsoft.aspnetcore.components.9.0.6.nupkg.sha512",
@@ -29,14 +29,13 @@
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.6\\microsoft.extensions.primitives.9.0.6.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.jsinterop\\9.0.6\\microsoft.jsinterop.9.0.6.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\microsoft.jsinterop.webassembly\\9.0.6\\microsoft.jsinterop.webassembly.9.0.6.nupkg.sha512",
-    "C:\\Users\\simon\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.1\\microsoft.net.illink.tasks.9.0.1.nupkg.sha512",
-    "C:\\Users\\simon\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.1\\microsoft.net.sdk.webassembly.pack.9.0.1.nupkg.sha512",
+    "C:\\Users\\simon\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.6\\microsoft.net.illink.tasks.9.0.6.nupkg.sha512",
+    "C:\\Users\\simon\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.6\\microsoft.net.sdk.webassembly.pack.9.0.6.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\servicestack.common\\8.8.0\\servicestack.common.8.8.0.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\servicestack.interfaces\\8.8.0\\servicestack.interfaces.8.8.0.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\servicestack.text\\8.8.0\\servicestack.text.8.8.0.nupkg.sha512",
     "C:\\Users\\simon\\.nuget\\packages\\system.diagnostics.diagnosticsource\\8.0.0\\system.diagnostics.diagnosticsource.8.0.0.nupkg.sha512",
-    "C:\\Users\\simon\\.nuget\\packages\\system.memory\\4.6.0\\system.memory.4.6.0.nupkg.sha512",
-    "C:\\Users\\simon\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\9.0.1\\microsoft.netcore.app.runtime.mono.browser-wasm.9.0.1.nupkg.sha512"
+    "C:\\Users\\simon\\.nuget\\packages\\system.memory\\4.6.0\\system.memory.4.6.0.nupkg.sha512"
   ],
   "logs": []
 }

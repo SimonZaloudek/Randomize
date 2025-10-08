@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Randomize.Web",
   "resources": {
-    "hash": "sha256-1du1PScJm/94kP8uYvR+r/32euiQLcBU0mj/B5+fwUM=",
+    "hash": "sha256-wnUOkBD8HNHIz8xP6AjS4g51vxhv9CorYATwA99qG+o=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Components.7ivtmxeaas.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Web.vn7cjv3pw5.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
@@ -18,8 +18,8 @@
       "Microsoft.Extensions.Primitives.ivrbo4p2mr.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.trga4cqfu3.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.ynpjm7kaw7.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
-      "Randomize.Core.r6wxmt5fab.wasm": "Randomize.Core.wasm",
-      "Randomize.Web.3hpa3t3mzn.wasm": "Randomize.Web.wasm",
+      "Randomize.Core.rcrn0yhbuc.wasm": "Randomize.Core.wasm",
+      "Randomize.Web.cgnn8iapjr.wasm": "Randomize.Web.wasm",
       "ServiceStack.Common.y47ozvehyh.wasm": "ServiceStack.Common.wasm",
       "ServiceStack.Interfaces.r28bwqbei9.wasm": "ServiceStack.Interfaces.wasm",
       "ServiceStack.Text.63lpmndeff.wasm": "ServiceStack.Text.wasm",
@@ -117,8 +117,8 @@
       "Microsoft.Extensions.Primitives.ivrbo4p2mr.wasm": "sha256-IuaenpYMh7L1lBxF0ipi4BqLJIarq8zPH49edWgK8H0=",
       "Microsoft.JSInterop.trga4cqfu3.wasm": "sha256-aQeliH0ZpGoqPJG6wf7fVBBQYe7PJFAIvBED+ssY7J4=",
       "Microsoft.JSInterop.WebAssembly.ynpjm7kaw7.wasm": "sha256-rhpkBOcrE3Jka5EriY0f6+d/lxnwAWpcDQrLBwRBYfg=",
-      "Randomize.Core.r6wxmt5fab.wasm": "sha256-M5snORPsMMhK5YJlKB5lqs9KqoglYL0ptSLjHXg7yKo=",
-      "Randomize.Web.3hpa3t3mzn.wasm": "sha256-iTlRWEmNbJaWagf6OPTFp7QqJjJkhQVr4nAmiB/WgpQ=",
+      "Randomize.Core.rcrn0yhbuc.wasm": "sha256-O4LVSDmjLXx2iUL+pDC+T28MSkYqcf+UbADlee4Q2yQ=",
+      "Randomize.Web.cgnn8iapjr.wasm": "sha256-hLn4YoTvckn64rnJO4SW9Z8cBGG8pR27sf3yeteZkBc=",
       "ServiceStack.Common.y47ozvehyh.wasm": "sha256-IjmnNlelpEtZI96gN5XWWl6TJxlDgR7L3bNbofzOdwA=",
       "ServiceStack.Interfaces.r28bwqbei9.wasm": "sha256-XQqsFFyzO0yDYMqUiXOR9XAJfNINPRhLT+pve0naFso=",
       "ServiceStack.Text.63lpmndeff.wasm": "sha256-/uaO6j+Hks3pXxcEVJAnI1zmjIpj2qadyNNXhVwWGso=",

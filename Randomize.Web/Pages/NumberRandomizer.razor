@@ -2,21 +2,24 @@
 @using Randomize.Core.Services
 @inject NumberRandomizerService NumberService
 
-<h3>Number Randomizer</h3>
+<div class="content">
+    <h3>Number Randomizer</h3>
 
-<div class="row">
-    <div class="col">
-        <input class="form-control" type="number" @bind="min" placeholder="Min" />
+    <div class="row">
+        <div class="col">
+            <input class="textfield-num" type="number" @bind="min" placeholder="Min" />
+        </div>
+        <div class="col">
+            <input class="textfield-num" type="number" @bind="max" placeholder="Max" />
+        </div>
     </div>
-    <div class="col">
-        <input class="form-control" type="number" @bind="max" placeholder="Max" />
-    </div>
+    <button class="button-main" @onclick="Randomize">Randomize</button>
+
+
 </div>
-<button class="btn btn-primary mt-2" @onclick="Randomize">Randomize</button>
-
 @if (result is not null)
 {
-    <p class="mt-3"><strong>🎲 Result:</strong> @result</p>
+    <p class="content p"><strong>🎲 Result:</strong> @result</p>
 }
 
 @code {
