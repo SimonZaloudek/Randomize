@@ -2,7 +2,7 @@
 
 <div class="app-container">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar @(isSidebarOpen ? "open" : "closed")">
         <img src="brand/RANDLOGO1.png" alt="Randomize Icon" class="logo" />
 
         <NavLink href="/" class="nav-item" Match="NavLinkMatch.All">
@@ -24,8 +24,33 @@
 
     <!-- Main content -->
     <div class="content">
+        <button class="sidebar-toggle" @onclick="ToggleSidebar">
+            @if (isSidebarOpen)
+            {
+                <svg viewBox="0 0 24 24" width="25" height="25" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+            }
+            else
+            {
+                <svg viewBox="0 0 24 24" width="25" height="25" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
+                </svg>
+            }
+        </button>
+
         <p class="content header-version">Beta v0.2</p>
         <a href="https://github.com/SimonZaloudek" class="header-link">About</a>
+
         @Body
     </div>
 </div>
+
+@code {
+    private bool isSidebarOpen = false;
+
+    private void ToggleSidebar()
+    {
+        isSidebarOpen = !isSidebarOpen;
+    }
+}

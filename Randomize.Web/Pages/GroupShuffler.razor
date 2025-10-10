@@ -2,25 +2,32 @@
 @using Randomize.Core.Services
 @inject IJSRuntime JS
 
-<h3>Group Shuffler</h3>
+<div class="content">
 
-<textarea @bind="input" rows="10"></textarea>
-<input type="number" min="1" @bind="groupCount" />
-<button @onclick="Shuffle">Shuffle</button>
-
-@if (groups.Any())
-{
-    @for (int i = 0; i < groups.Count; i++)
+    <h2>Group Shuffler</h2>
+    
+    <textarea class="textfield-main" style="width: 30%" @bind ="input" rows="10" placeholder="Enter names/items to shuffle... (separated by enter)"></textarea>
+    <br/>
+    <p style="margin-bottom: 4px">Number of groups:</p>
+    <input class="textfield-num" type="number" style="width: 8%; min-width: 45px;" placeholder="2" min="1" @bind="groupCount" />
+    <br />
+    <button class="button-main" style="margin-top: 10px" @onclick="Shuffle">Shuffle</button>
+    
+    @if (groups.Any())
     {
-        <h4>Group @(i + 1)</h4>
-        <ul>
-            @foreach (var person in groups[i])
-            {
-                <li>@person</li>
-            }
-        </ul>
+        @for (int i = 0; i < groups.Count; i++)
+        {
+            <p>Group @(i + 1)</p>
+            <ul>
+                @foreach (var person in groups[i])
+                {
+                    <li>@person</li>
+                }
+            </ul>
+        }
     }
-}
+
+</div>
 
 @code {
     private string input = "";

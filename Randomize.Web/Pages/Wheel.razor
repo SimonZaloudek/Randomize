@@ -5,48 +5,42 @@
 
     <h2>Custom Spinning Wheel</h2>
     
-        <!-- Controls -->
-        <div>
-            <p style="margin-top: 2rem; margin-bottom: 0px">Number of options:</p><br/>
-            <input class="textfield-num" style="width: 8%" type="number" min="2" max="15" @bind="count" @bind:event="oninput" />
-            <br /><br />
+    <!-- Controls -->
+    <div>
+        <p style="margin-top: 2rem; margin-bottom: 4px">Number of options:</p>
+        <input class="textfield-num" style="width: 8%; min-width: 45px; margin-bottom: 15px" type="number" min="2" max="16" @bind="count" @bind:event="oninput" />
+    </div>
+  
+    <!-- Wheel + Inputs -->
+    <div>
+    <canvas id="wheelCanvas" width="320" height="320"></canvas>
+    </div><br/>
 
-            <p style="margin-top: 0rem; margin-bottom: 0px">Wheel question?</p><br />
-        <input class="textfield-main" rows="1" type="text" @bind="wheelQuestion" @bind:event="oninput"
-               style="margin-bottom: 0.5rem; padding: 0; margin-top: 0px; width: 100%; max-width: 100%; max-height: 12px" />
+    @for (int i = 0; i < items.Count; i++)
+    {
+        var currentIndex = i;
+        <input class="textfield-num" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="@items[currentIndex].Placeholder" style="margin:2px; width: 20%; min-width: 15%" />
+    }
+    <br/>
 
-            <button class="button-main" @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
-        </div>
-      
-        <!-- Wheel + Inputs -->
-        <div>
-            <canvas id="wheelCanvas" width="320" height="450"></canvas>
-            <div style="margin-top:1rem;">
-                @for (int i = 0; i < items.Count; i++)
-                {
-                    var currentIndex = i;
-                    <input value="@items[currentIndex].Label" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="Label" style="margin:2px;" />
-                }
-            </div>
-        </div>
+    <button style="margin-top: 15px" class="button-main" @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
 </div>
 
 @if (!string.IsNullOrEmpty(selectedResult))
 {
-    <p>🎉 @wheelQuestion: @selectedResult</p>
+    <p>🎉 Result: @selectedResult</p>
 }
 
 @code {
 @using Randomize.Core.Wheel
 
-    private string? wheelQuestion;
     private int _count = 2;
     private int count
     {
         get => _count;
         set
         {
-            int newValue = Math.Clamp(value, 2, 15);
+            int newValue = Math.Clamp(value, 2, 16);
             if (_count != newValue)
             {
                 _count = newValue;
@@ -57,7 +51,9 @@
     }
 
     private List<WheelItem> items = new();
+    private List<WheelItem> itemsUpdated = new(); 
     private string selectedResult = "";
+
 
 
     protected override void OnInitialized()
@@ -75,9 +71,19 @@
 
     private void InitItems()
     {
-        items = Enumerable.Range(1, count)
-            .Select(i => new WheelItem { Label = $"Option {i}" })
-            .ToList();
+    var currentItems = items.ToList();
+
+    items = Enumerable.Range(1, count)
+        .Select(i =>
+        {
+            var existing = currentItems.ElementAtOrDefault(i - 1);
+            return new WheelItem
+            {
+                Label = existing?.Label ?? string.Empty,
+                Placeholder = $"Option {i}"
+            };
+        })
+        .ToList();
     }
 
     private async Task RenderWheel()
@@ -87,10 +93,6 @@
 
     private async Task SpinWheel()
     {
-        if (string.IsNullOrEmpty(wheelQuestion))
-        {
-            wheelQuestion = "Result";
-        }
         selectedResult = await JS.InvokeAsync<string>("spinWheel", items.Select(i => i.Label));
         StateHasChanged();
     }

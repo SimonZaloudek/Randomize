@@ -9,6 +9,6 @@ namespace Randomize.Core.Wheel
     public class WheelItem
     {
         public string Label { get; set; } = String.Empty;
-        public string Color { get; set; } = "#ffffff";
+        public string Placeholder { get; set; } = String.Empty;
     }
 }
