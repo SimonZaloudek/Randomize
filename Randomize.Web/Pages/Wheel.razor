@@ -8,7 +8,9 @@
     <!-- Controls -->
     <div>
         <p style="margin-top: 2rem; margin-bottom: 4px">Number of options:</p>
-        <input class="textfield-num" style="width: 8%; min-width: 45px; margin-bottom: 15px" type="number" min="2" max="16" @bind="count" @bind:event="oninput" />
+        <input class="textfield-num" style="width: 8%; min-width: 45px; margin-bottom: 15px" type="number" min="2" max="16" @bind-value="rawCountInput"
+               @oninput="HandleInput"
+               @onblur="HandleBlur" />
     </div>
   
     <!-- Wheel + Inputs -->
@@ -34,18 +36,26 @@
 @code {
 @using Randomize.Core.Wheel
 
-    private int _count = 2;
-    private int count
+    private string rawCountInput = "2";
+    private int? _count = null;
+    private int? count
     {
         get => _count;
         set
         {
-            int newValue = Math.Clamp(value, 2, 16);
-            if (_count != newValue)
+            if (value.HasValue)
             {
-                _count = newValue;
-                InitItems();
-                InvokeAsync(RenderWheel);
+                int newValue = Math.Clamp(value.Value, 2, 16);
+                if (_count != newValue)
+                {
+                    _count = newValue;
+                    InitItems();
+                    InvokeAsync(RenderWheel);
+                }
+            }
+            else
+            {
+                _count = null;
             }
         }
     }
@@ -69,11 +79,39 @@
         }
     }
 
+    private void HandleInput(ChangeEventArgs e)
+    {
+        rawCountInput = e.Value?.ToString() ?? string.Empty;
+    
+        if (int.TryParse(rawCountInput, out int parsed) && parsed >= 2 && parsed <= 16)
+        {
+            count = parsed;
+        }
+    }
+
+    private void HandleBlur()
+    {
+        if (int.TryParse(rawCountInput, out int parsed))
+        {
+            count = parsed;
+        }
+        else
+        {
+            count = 2;
+        }
+    }
+
     private void InitItems()
     {
-    var currentItems = items.ToList();
+        var currentItems = items.ToList();
 
-    items = Enumerable.Range(1, count)
+        if (!count.HasValue)
+        {
+            count = 2;
+            return;     
+        }
+
+        items = Enumerable.Range(1, count.Value)
         .Select(i =>
         {
             var existing = currentItems.ElementAtOrDefault(i - 1);

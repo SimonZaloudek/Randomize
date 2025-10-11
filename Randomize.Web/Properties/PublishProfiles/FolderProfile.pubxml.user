@@ -3,7 +3,7 @@
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\simon\source\repos\C#\Randomize\Randomize.Web\bin\Release\net9.0\browser-wasm\publish\</_PublishTargetUrl>
-    <History>True|2025-10-08T20:50:31.9865563Z||;True|2025-10-08T22:35:19.1575101+02:00||;True|2025-10-08T22:29:39.6597504+02:00||;True|2025-10-08T20:46:37.4242583+02:00||;True|2025-07-21T11:56:03.4560400+02:00||;True|2025-07-21T10:54:50.8466382+02:00||;True|2025-07-10T17:13:42.5284909+02:00||;</History>
+    <History>True|2025-10-10T02:35:23.9912024Z||;True|2025-10-08T22:50:31.9865563+02:00||;True|2025-10-08T22:35:19.1575101+02:00||;True|2025-10-08T22:29:39.6597504+02:00||;True|2025-10-08T20:46:37.4242583+02:00||;True|2025-07-21T11:56:03.4560400+02:00||;True|2025-07-21T10:54:50.8466382+02:00||;True|2025-07-10T17:13:42.5284909+02:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
