@@ -58,8 +58,7 @@
               "RelativeToolTip": "Randomize.Web\\wwwroot\\js\\wheel.js",
               "ViewState": "AgIAAHQAAAAAAAAAAAAUwJMAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-11T02:38:51.814Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-11T02:38:51.814Z"
             },
             {
               "$type": "Document",
@@ -69,7 +68,7 @@
               "RelativeDocumentMoniker": "Randomize.Web\\Pages\\Wheel.razor",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\C#\\Randomize\\Randomize.Web\\Pages\\Wheel.razor",
               "RelativeToolTip": "Randomize.Web\\Pages\\Wheel.razor",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAQwIQAAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAADcAAAAAAAAAAAAQwIQAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-10-10T02:21:40.473Z",
               "EditorCaption": ""
@@ -84,8 +83,7 @@
               "RelativeToolTip": "Randomize.Web\\Pages\\GroupShuffler.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-10T02:19:16.208Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T02:19:16.208Z"
             },
             {
               "$type": "Document",
@@ -121,8 +119,7 @@
               "RelativeToolTip": "Randomize.Web\\wwwroot\\css\\app.css",
               "ViewState": "AgIAAB4AAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-08T13:36:33.052Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-08T13:36:33.052Z"
             },
             {
               "$type": "Document",
@@ -134,8 +131,7 @@
               "RelativeToolTip": "Randomize.Web\\Layout\\MainLayout.razor",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAACoAAAA8AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-08T11:26:13.701Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-08T11:26:13.701Z"
             }
           ]
         }
