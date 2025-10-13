@@ -2,46 +2,80 @@
 @using Randomize.Core.Services
 @inject IJSRuntime JS
 
-<div class="content">
+<h2>Group Shuffler</h2>
 
-    <h2>Group Shuffler</h2>
-    
-    <textarea class="textfield-main" style="width: 30%" @bind ="input" rows="10" placeholder="Enter names/items to shuffle... (separated by enter)"></textarea>
-    <br/>
-    <p style="margin-bottom: 4px">Number of groups:</p>
-    <input class="textfield-num" type="number" style="width: 8%; min-width: 45px;" placeholder="2" min="1" @bind="groupCount" />
-    <br />
-    <button class="button-main" style="margin-top: 10px" @onclick="Shuffle">Shuffle</button>
-    
+<textarea class="textfield-main" @bind="input" rows="10" placeholder="Enter names/items to shuffle... (separated by enter)"></textarea>
+<br />
+<p style="margin-bottom: 10px">Number of groups:</p>
+<input class="textfield-num"
+       style="width: 8%; min-width: 45px;"
+       type="number"
+       @bind-value="rawGroupCount"
+       @oninput="HandleInput"
+       @onblur="HandleBlur" />
+<br />
+<button class="button-main" style="margin-top: 10px; margin-bottom: 20px" @onclick="Shuffle">Shuffle</button>
+
+<div style="display: flex; justify-content: center; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
     @if (groups.Any())
     {
         @for (int i = 0; i < groups.Count; i++)
         {
-            <p>Group @(i + 1)</p>
-            <ul>
-                @foreach (var person in groups[i])
-                {
-                    <li>@person</li>
-                }
-            </ul>
+            <div class="group-card">
+                <h3 class="group-title">Group @(i + 1)</h3>
+                <ul class="group-list">
+                    @foreach (var person in groups[i])
+                    {
+                        <li class="group-item">@person</li>
+                    }
+                </ul>
+            </div>
         }
     }
-
 </div>
+
 
 @code {
     private string input = "";
-    private int groupCount = 2;
+    private string rawGroupCount = "2"; 
+    private int groupCount = 2; 
     private List<List<string>> groups = new();
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        rawGroupCount = e.Value?.ToString() ?? string.Empty;
+
+        if (int.TryParse(rawGroupCount, out int parsed) && parsed >= 1 && parsed <= 15)
+        {
+            groupCount = parsed;  
+        }
+       
+    }
+
+ 
+    private void HandleBlur()
+    {
+        if (int.TryParse(rawGroupCount, out int parsed))
+        {
+            groupCount = Math.Clamp(parsed, 1, 15);  
+            rawGroupCount = groupCount.ToString(); 
+        }
+        else
+        {
+            groupCount = 2; 
+            rawGroupCount = "2";
+        }
+    }
 
     private async Task Shuffle()
     {
+        int inputCount = GroupShufflerCore.InputCount(input);
         if (groupCount < 1 || groupCount > 15)
         {
             await JS.InvokeVoidAsync("alert", "Group count must be greater than 0 and smaller than 16.");
             return;
         }
-        else if (groupCount > GroupShufflerCore.InputCount(input))
+        else if (groupCount > inputCount)
         {
             await JS.InvokeVoidAsync("alert", "Group count cannot be higher than input count.");
             return;
