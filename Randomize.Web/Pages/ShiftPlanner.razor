@@ -1,0 +1,43 @@
+﻿@page "/shiftplanner"
+@using Randomize.Core.ShiftPlanner
+
+
+<h2>Shift Planner Randomizer</h2>
+<p style="margin-bottom:5px">Day Timeline (00:00 Today to 06:00 Next Day)</p>
+<div class="timeline-container">
+    <div class="timeline-bar">
+        @foreach (int hour in Enumerable.Range(0, 31))
+        {
+            var currentHour = hour % 24; 
+
+            <div class="hour-slot">
+                <label class="hour-label">
+                    @currentHour:00
+                </label>
+                <input class="required-input" 
+                type="number" 
+                min="0" 
+                max="40"
+                @bind-value="_shift.GetTimeSlot(hour).Demand"
+                @bind-value:event="oninput"
+                placeholder="0" />
+
+                <select class="priority-select" @bind="_shift.GetTimeSlot(hour).Priority">
+                    <option value="1">1 (Low)</option>
+                    <option value="2" selected="selected">2 (Medium)</option>
+                    <option value="3">3 (High)</option>
+                </select>
+            </div>
+        }
+    </div>  
+</div>
+
+@code {
+    private Shift _shift = new();
+
+    protected override void OnInitialized()
+    {
+
+        
+    }
+}

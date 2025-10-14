@@ -180,7 +180,6 @@ body {
         font-family: 'Century Gothic';
         font-weight: bold;
         margin-bottom: 2rem;
-        justify-self: center;
     }
 
     .content p {
@@ -271,7 +270,6 @@ body {
 
 .hero-img {
     width: 85vh;
-    opacity: 0.95;
     opacity: 0.95;
 }
 
