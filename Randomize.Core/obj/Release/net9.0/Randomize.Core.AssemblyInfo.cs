@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c734b50a9e6430b199e7adbbb4f266943732871")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6af3f22289a6eb70cad78aa0cfe047bc39615458")]
 [assembly: System.Reflection.AssemblyProductAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

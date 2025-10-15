@@ -33,6 +33,8 @@ int32_t GlobalizationNative_GetLocaleInfoString (void *, uint32_t, void *, int32
 
 int32_t GlobalizationNative_GetLocaleName (void *, void *, int32_t);
 
+int32_t GlobalizationNative_GetLocales (void *, int32_t);
+
 int32_t GlobalizationNative_GetLocaleTimeFormat (void *, int32_t, void *, int32_t);
 
 int32_t GlobalizationNative_GetSortHandle (void *, void *);
@@ -260,6 +262,7 @@ static PinvokeImport libSystem_Globalization_Native_imports [] = {
     {"GlobalizationNative_GetLocaleInfoInt", GlobalizationNative_GetLocaleInfoInt}, // System.Private.CoreLib
     {"GlobalizationNative_GetLocaleInfoString", GlobalizationNative_GetLocaleInfoString}, // System.Private.CoreLib
     {"GlobalizationNative_GetLocaleName", GlobalizationNative_GetLocaleName}, // System.Private.CoreLib
+    {"GlobalizationNative_GetLocales", GlobalizationNative_GetLocales}, // System.Private.CoreLib
     {"GlobalizationNative_GetLocaleTimeFormat", GlobalizationNative_GetLocaleTimeFormat}, // System.Private.CoreLib
     {"GlobalizationNative_GetSortHandle", GlobalizationNative_GetSortHandle}, // System.Private.CoreLib
     {"GlobalizationNative_GetSortKey", GlobalizationNative_GetSortKey}, // System.Private.CoreLib

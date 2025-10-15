@@ -11,7 +11,7 @@ namespace Randomize.Core.ShiftPlanner
     {
         private int _demand = 0;
         private static int Hour { get; set; }
-        public int Priority { get; set; } = 2;
+        public int Priority { get; set; } = 1;
         public int Demand 
         {
             get => _demand; 
