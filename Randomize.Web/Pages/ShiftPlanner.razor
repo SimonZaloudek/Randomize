@@ -35,12 +35,103 @@
     </div>  
 </div>
 
+<h3 style="margin-top: 5px">Add Employee</h3>
+
+<div class="employee-add-container">
+    <input type="text"
+    class="employee-input"
+    placeholder="Employee name"
+    @bind="_newEmployee.Name" />
+
+    <input type="number"
+    class="employee-input small"
+    placeholder="Max hours (optional)"
+    min="0"
+    @bind="_newEmployee.MaxHours" />
+
+    <input type="number"
+    class="employee-input small"
+    placeholder="Start hour (optional)"
+    min="0"
+    max="30"
+    @bind="_newEmployee.ScheduleStart" />
+
+    <input type="number"
+    class="employee-input small"
+    placeholder="End hour (optional)"
+    min="0"
+    max="30"
+    @bind="_newEmployee.ScheduleEnd" />
+
+    <button class="employee-add-btn" @onclick="AddEmployee">
+        <i class="bi bi-person-plus"></i> Add
+    </button>
+</div>
+
+@if (_employees.Any())
+{
+    <div class="employee-list">
+        @foreach (var emp in _employees)
+        {
+            <div class="employee-card">
+                
+                <strong>@emp.Name:</strong>
+                <span class="emp-hours">(max @emp.MaxHours h)</span>
+           
+
+            
+                @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
+                {
+                    <span class="emp-time">@($"{emp.ScheduleStart}:00 – {emp.ScheduleEnd}:00")</span>
+                }
+                else
+                {
+                    <span class="emp-time-muted">No schedule</span>
+                }
+
+                <button class="delete-btn" @onclick="@(() => DeleteEmployee(emp))" title="Remove employee">
+                    <i class="bi bi-trash"></i>
+                </button>
+               
+            </div>
+        }
+    </div>
+}
+
+
+
 @code {
     private Shift _shift = new();
+    private Employee _newEmployee = new();
+    private List<Employee> _employees = new();
 
     protected override void OnInitialized()
     {
 
-        
+
     }
+
+    private void AddEmployee()
+    {
+        if (string.IsNullOrWhiteSpace(_newEmployee.Name))
+            return;
+        if (_newEmployee.MaxHours == null || _newEmployee.MaxHours > 12 || _newEmployee.MaxHours < 1)
+            _newEmployee.MaxHours = _newEmployee.MaxHoursDefault;
+
+        _employees.Add(new Employee
+            {
+                Name = _newEmployee.Name,
+                MaxHours = _newEmployee.MaxHours,
+                ScheduleStart = _newEmployee.ScheduleStart,
+                ScheduleEnd = _newEmployee.ScheduleEnd
+            });
+
+        _newEmployee = new();
+    }
+
+    private void DeleteEmployee(Employee emp)
+    {
+        _employees.Remove(emp);
+    }
+
 }

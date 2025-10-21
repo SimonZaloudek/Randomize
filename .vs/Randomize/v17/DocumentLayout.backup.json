@@ -3,16 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\simon\\source\\repos\\Randomize\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\pages\\shiftplanner.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\shiftplanner.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.core\\shiftplanner\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|solutionrelative:randomize.core\\shiftplanner\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.core\\shiftplanner\\shift.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|solutionrelative:randomize.core\\shiftplanner\\shift.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.core\\shiftplanner\\timeslot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,14 +33,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\pages\\wheel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\pages\\wheel.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.core\\shiftplanner\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{47E0BF0E-1BF1-40A0-B0FE-F3DCD87B3634}|Randomize.Core\\Randomize.Core.csproj|solutionrelative:randomize.core\\shiftplanner\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|c:\\users\\simon\\source\\repos\\randomize\\randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{627D4625-577D-4E5B-A41A-3D5620D3DD12}|Randomize.Web\\Randomize.Web.csproj|solutionrelative:randomize.web\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,17 +42,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ShiftPlanner.razor",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\ShiftPlanner.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\Pages\\ShiftPlanner.razor",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\ShiftPlanner.razor",
               "RelativeToolTip": "Randomize.Web\\Pages\\ShiftPlanner.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAcwFcAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-10-13T19:56:04.295Z",
               "IsPinned": true,
@@ -56,16 +60,29 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Shift.cs",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\ShiftPlanner\\Shift.cs",
               "RelativeDocumentMoniker": "Randomize.Core\\ShiftPlanner\\Shift.cs",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\ShiftPlanner\\Shift.cs",
               "RelativeToolTip": "Randomize.Core\\ShiftPlanner\\Shift.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAwAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-13T20:04:17.983Z",
               "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "Randomize.Web\\wwwroot\\index.html",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\index.html",
+              "RelativeToolTip": "Randomize.Web\\wwwroot\\index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-10-21T23:13:58.249Z",
               "EditorCaption": ""
             },
             {
@@ -78,20 +95,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Wheel.razor",
-              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\Wheel.razor",
-              "RelativeDocumentMoniker": "Randomize.Web\\Pages\\Wheel.razor",
-              "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\Wheel.razor",
-              "RelativeToolTip": "Randomize.Web\\Pages\\Wheel.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-13T23:50:11.099Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "TimeSlot.cs",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\ShiftPlanner\\TimeSlot.cs",
               "RelativeDocumentMoniker": "Randomize.Core\\ShiftPlanner\\TimeSlot.cs",
@@ -99,45 +103,58 @@
               "RelativeToolTip": "Randomize.Core\\ShiftPlanner\\TimeSlot.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwA8AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-13T23:31:43.623Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-13T23:31:43.623Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "MainLayout.razor",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Layout\\MainLayout.razor",
               "RelativeDocumentMoniker": "Randomize.Web\\Layout\\MainLayout.razor",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Layout\\MainLayout.razor",
               "RelativeToolTip": "Randomize.Web\\Layout\\MainLayout.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-13T23:21:04.815Z"
+              "WhenOpened": "2025-10-13T23:21:04.815Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "Employee.cs",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\ShiftPlanner\\Employee.cs",
               "RelativeDocumentMoniker": "Randomize.Core\\ShiftPlanner\\Employee.cs",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\ShiftPlanner\\Employee.cs",
               "RelativeToolTip": "Randomize.Core\\ShiftPlanner\\Employee.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-13T20:04:08.003Z"
+              "WhenOpened": "2025-10-13T20:04:08.003Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "app.css",
               "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\css\\app.css",
               "RelativeDocumentMoniker": "Randomize.Web\\wwwroot\\css\\app.css",
               "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\css\\app.css",
               "RelativeToolTip": "Randomize.Web\\wwwroot\\css\\app.css",
-              "ViewState": "AgIAAAQBAAAAAAAAAAAAABwBAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAD4CAAAAAAAAAAAowFcCAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2025-10-13T00:04:13.895Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Wheel.razor",
+              "DocumentMoniker": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\Wheel.razor",
+              "RelativeDocumentMoniker": "Randomize.Web\\Pages\\Wheel.razor",
+              "ToolTip": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\Pages\\Wheel.razor",
+              "RelativeToolTip": "Randomize.Web\\Pages\\Wheel.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-13T23:50:11.099Z"
             }
           ]
         }
