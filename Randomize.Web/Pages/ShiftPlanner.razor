@@ -1,8 +1,13 @@
 ﻿@page "/shiftplanner"
 @using Randomize.Core.ShiftPlanner
+@using System.Text
+@using Microsoft.AspNetCore.Components.Forms
+@inject IJSRuntime JS
 
 
 <h2>Shift Planner Randomizer</h2>
+
+<!-- TIMELINE -->
 
 <p style="margin-bottom:5px">Day Timeline (00:00 Today to 06:00 Next Day)</p>
 
@@ -35,7 +40,10 @@
     </div>  
 </div>
 
-<h3 style="margin-top: 5px">Add Employee</h3>
+
+<!-- ADDING EMPLOYEES -->
+
+<h3 style="margin-top: 8px">Add Employees</h3>
 
 <div class="employee-add-container">
     <input type="text"
@@ -68,35 +76,60 @@
     </button>
 </div>
 
+
+<!-- EMPLOYEE LIST -->
+
 @if (_employees.Any())
 {
     <div class="employee-list">
         @foreach (var emp in _employees)
         {
             <div class="employee-card">
-                
-                <strong>@emp.Name:</strong>
-                <span class="emp-hours">(max @emp.MaxHours h)</span>
-           
 
-            
-                @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
-                {
-                    <span class="emp-time">@($"{emp.ScheduleStart}:00 – {emp.ScheduleEnd}:00")</span>
-                }
-                else
-                {
-                    <span class="emp-time-muted">No schedule</span>
-                }
+                <div class="employee-list">
+                    <strong>@emp.Name:</strong>
+                </div>
 
-                <button class="delete-btn" @onclick="@(() => DeleteEmployee(emp))" title="Remove employee">
-                    <i class="bi bi-trash"></i>
-                </button>
-               
+                <div class="emp-right">
+                    <span class="emp-hours">(max @emp.MaxHours h)</span>
+
+
+                    @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
+                    {
+                        <span class="emp-time">@($"{emp.ScheduleStart}:00 – {emp.ScheduleEnd}:00")</span>
+                    }
+                    else
+                    {
+                        <span class="emp-time-muted">No schedule</span>
+                    }
+
+                    <button class="edit-btn" @onclick="@(() => EditEmployee(emp))" title="Edit employee">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+
+                    <button class="delete-btn" @onclick="@(() => DeleteEmployee(emp))" title="Remove employee">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                </div>
             </div>
         }
     </div>
 }
+
+
+<!-- ACTIONS -->
+
+<div class="employee-actions">
+    <button class="btn btn-outline-light me-2" @onclick="SaveEmployees">
+        <i class="bi bi-save"></i> Save to TXT
+    </button>
+
+    <label class="btn btn-outline-light">
+        <i class="bi bi-upload"></i> Load from TXT
+        <InputFile OnChange="LoadEmployees" accept=".txt" style="display:none" />
+    </label>
+</div>
 
 
 
@@ -132,6 +165,38 @@
     private void DeleteEmployee(Employee emp)
     {
         _employees.Remove(emp);
+    }
+
+    private void EditEmployee(Employee emp)
+    {
+        _newEmployee.Name = emp.Name;
+        _newEmployee.MaxHours = emp.MaxHours;
+        _newEmployee.ScheduleStart = emp.ScheduleStart;
+        _newEmployee.ScheduleEnd = emp.ScheduleEnd;
+
+        _employees.Remove(emp);
+    }
+
+    private async Task SaveEmployees()
+    {
+        var content = EmployeeFileService.WriteEmployees(_employees);
+        var bytes = Encoding.UTF8.GetBytes(content);
+        await JS.InvokeVoidAsync("downloadFile", "employees.txt", "text/plain", bytes);
+    }
+
+    private async Task LoadEmployees(InputFileChangeEventArgs e)
+    {
+        if (e.FileCount == 0) return;
+
+        var file = e.File;
+
+        const long maxAllowedBytes = 5 * 1024 * 1024; 
+        using var stream = file.OpenReadStream(maxAllowedBytes);
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        var text = await reader.ReadToEndAsync();
+
+        var loaded = EmployeeFileService.LoadEmployees(text);
+        _employees = loaded;
     }
 
 }

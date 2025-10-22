@@ -17,6 +17,7 @@ C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\c
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\sample-data\weather.json
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\js\save.js
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
 C:\Users\simon\source\repos\Randomize\Randomize.Web\wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
@@ -56,6 +57,7 @@ wwwroot\css\app.css
 wwwroot\icon-192.png
 wwwroot\icon-512.png
 wwwroot\index.html
+wwwroot\js\save.js
 wwwroot\js\wheel.js
 wwwroot\lib\bootstrap\dist\css\bootstrap.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
