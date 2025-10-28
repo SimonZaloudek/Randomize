@@ -43,7 +43,7 @@
 
 <!-- ADDING EMPLOYEES -->
 
-<h3 style="margin-top: 8px">Add Employees</h3>
+<p style="margin-top:8px; margin-bottom:3px">Add Employees</p>
 
 <div class="employee-add-container">
     <input type="text"
@@ -57,24 +57,42 @@
     min="0"
     @bind="_newEmployee.MaxHours" />
 
-    <input type="number"
-    class="employee-input small"
-    placeholder="Start hour (optional)"
-    min="0"
-    max="30"
-    @bind="_newEmployee.ScheduleStart" />
+    <div class="time-input-group">
+        <input type="number"
+        class="employee-input small"
+        placeholder="Start hour"
+        min="@(_newEmployee.StartNextDay ? 0 : 0)"
+        max="@(_newEmployee.StartNextDay ? 6 : 23)"
+        @bind="_newEmployee.ScheduleStart" />
+        <label class="nextday-checkbox">
+            <input type="checkbox" @bind="_newEmployee.StartNextDay" />
+            <i class="bi bi-moon"></i>
+        </label>
+    </div>
 
-    <input type="number"
-    class="employee-input small"
-    placeholder="End hour (optional)"
-    min="0"
-    max="30"
-    @bind="_newEmployee.ScheduleEnd" />
+
+    <div class="time-input-group">
+        <input type="number"
+        class="employee-input small"
+        placeholder="End hour"
+        min="@GetEndMin()"
+        max="@(_newEmployee.EndNextDay ? 6 : 23)"
+        @bind="_newEmployee.ScheduleEnd" />
+        <label class="nextday-checkbox">
+            <input type="checkbox" @bind="_newEmployee.EndNextDay" />
+            <i class="bi bi-moon small small-icon"></i>
+        </label>
+    </div>
 
     <button class="employee-add-btn" @onclick="AddEmployee">
         <i class="bi bi-person-plus"></i> Add
     </button>
 </div>
+
+@if (!string.IsNullOrEmpty(_validationMessage))
+{
+    <p style="color:#ff7777; font-size:0.9rem; margin-top:4px;">@_validationMessage</p>
+}
 
 
 <!-- EMPLOYEE LIST -->
@@ -96,7 +114,7 @@
 
                     @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
                     {
-                        <span class="emp-time">@($"{emp.ScheduleStart}:00 – {emp.ScheduleEnd}:00")</span>
+                        <span class="emp-time">@((MarkupString)$"{emp.DisplayStart} – {emp.DisplayEnd}")</span>
                     }
                     else
                     {
@@ -138,16 +156,50 @@
     private Employee _newEmployee = new();
     private List<Employee> _employees = new();
 
+    private string? _validationMessage;
+
     protected override void OnInitialized()
     {
 
 
     }
 
+    private int GetEndMin()
+    {
+        if (!_newEmployee.ScheduleStart.HasValue)
+            return 0;
+
+        if (_newEmployee.EndNextDay)
+            return 0;
+
+        return Math.Min(_newEmployee.ScheduleStart.Value + 1, 23);
+    }
+
     private void AddEmployee()
     {
         if (string.IsNullOrWhiteSpace(_newEmployee.Name))
             return;
+
+        AdjustStartRange();
+        AdjustEndRange();
+
+        int? start = _newEmployee.ScheduleStart;
+        int? end = _newEmployee.ScheduleEnd;
+
+        if (_newEmployee.StartNextDay && start.HasValue)
+            start += 24;
+
+        if (_newEmployee.EndNextDay && end.HasValue)
+            end += 24;
+
+        if (start.HasValue && end.HasValue && end <= start)
+        {
+            _validationMessage = "Schedule end must be later than start time.";
+            return;
+        }
+
+        _validationMessage = null;
+
         if (_newEmployee.MaxHours == null || _newEmployee.MaxHours > 12 || _newEmployee.MaxHours < 1)
             _newEmployee.MaxHours = _newEmployee.MaxHoursDefault;
 
@@ -155,11 +207,14 @@
             {
                 Name = _newEmployee.Name,
                 MaxHours = _newEmployee.MaxHours,
-                ScheduleStart = _newEmployee.ScheduleStart,
-                ScheduleEnd = _newEmployee.ScheduleEnd
+                ScheduleStart = start,
+                ScheduleEnd = end,
+                StartNextDay = _newEmployee.StartNextDay,
+                EndNextDay = _newEmployee.EndNextDay
             });
 
         _newEmployee = new();
+
     }
 
     private void DeleteEmployee(Employee emp)
@@ -171,8 +226,28 @@
     {
         _newEmployee.Name = emp.Name;
         _newEmployee.MaxHours = emp.MaxHours;
-        _newEmployee.ScheduleStart = emp.ScheduleStart;
-        _newEmployee.ScheduleEnd = emp.ScheduleEnd;
+
+        if (emp.StartNextDay) 
+        {
+            _newEmployee.ScheduleStart = emp.ScheduleStart - 24;
+            _newEmployee.StartNextDay = true;
+        }
+        else 
+        {
+            _newEmployee.ScheduleStart = emp.ScheduleStart;
+        }
+
+        if (emp.EndNextDay)
+        {
+            _newEmployee.ScheduleEnd = emp.ScheduleEnd - 24;
+            _newEmployee.EndNextDay = true;
+        }
+        else
+        {
+            _newEmployee.ScheduleEnd = emp.ScheduleEnd;
+        }
+
+
 
         _employees.Remove(emp);
     }
@@ -197,6 +272,30 @@
 
         var loaded = EmployeeFileService.LoadEmployees(text);
         _employees = loaded;
+    }
+
+    private void AdjustStartRange()
+    {
+        if (_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 6)
+            _newEmployee.ScheduleStart = 5;
+        else if (!_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 23)
+            _newEmployee.ScheduleStart = 0;
+            _newEmployee.StartNextDay = true;
+
+        if (_newEmployee.ScheduleStart < 0)
+            _newEmployee.ScheduleStart = null;
+    }
+
+    private void AdjustEndRange()
+    {
+        if (_newEmployee.EndNextDay && _newEmployee.ScheduleEnd > 6)
+            _newEmployee.ScheduleEnd = 6;
+        else if (!_newEmployee.EndNextDay && _newEmployee.ScheduleEnd > 23)
+            _newEmployee.ScheduleEnd = 6;
+            _newEmployee.EndNextDay = true;
+
+        if (_newEmployee.ScheduleEnd < 0)
+            _newEmployee.ScheduleStart = null;
     }
 
 }

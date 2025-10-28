@@ -15,16 +15,27 @@ namespace Randomize.Core.ShiftPlanner
             StringBuilder sb = new StringBuilder();
             foreach (Employee employee in employees)
             {
-                sb.Append(employee.Name.Replace(" ", "="));
+                if (!string.IsNullOrEmpty(employee.Name))
+                    sb.Append(employee.Name.Replace(" ", "="));
+
                 sb.Append($" {employee.MaxHours}");
 
                 if (employee.ScheduleStart.HasValue) 
                 {
                     sb.Append($" {employee.ScheduleStart.Value}");
+                    if (employee.StartNextDay)
+                    {
+                        sb.Append($" {employee.StartNextDay}");
+                    }
                 }
+
                 if (employee.ScheduleEnd.HasValue)
                 {
                     sb.Append($" {employee.ScheduleEnd.Value}");
+                    if (employee.EndNextDay)
+                    {
+                        sb.Append($" {employee.EndNextDay}");
+                    }
                 }
                 sb.AppendLine();
             }
@@ -46,9 +57,34 @@ namespace Randomize.Core.ShiftPlanner
                 {
                     Name = string.Join(" ", parts[0].Split('=')),
                     MaxHours = parts.Length > 1 && int.TryParse(parts[1], out var maxH) ? maxH : 12,
-                    ScheduleStart = parts.Length > 2 && int.TryParse(parts[2], out var start) ? start : null,
-                    ScheduleEnd = parts.Length > 3 && int.TryParse(parts[3], out var end) ? end : null
+                    StartNextDay = false, 
+                    EndNextDay = false    
                 };
+                int idx = 2;
+
+                if (idx < parts.Length && int.TryParse(parts[idx], out var start))
+                {
+                    emp.ScheduleStart = start;
+                    idx++;
+
+                    if (idx < parts.Length && parts[idx] == "True")
+                    {
+                        emp.StartNextDay = true;
+                        idx++;
+                    }
+                }
+
+                if (idx < parts.Length && int.TryParse(parts[idx], out var end))
+                {
+                    emp.ScheduleEnd = end;
+                    idx++;
+
+                    if (idx < parts.Length && parts[idx] == "True")
+                    {
+                        emp.EndNextDay = true;
+                        idx++;
+                    }
+                }
 
                 employees.Add(emp);
             }

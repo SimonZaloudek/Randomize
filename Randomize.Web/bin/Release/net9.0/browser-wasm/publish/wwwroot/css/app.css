@@ -111,9 +111,22 @@ body {
     }
     .content {
         width: 100%;
+        position:relative;
     }
     .sidebar.open + .content .sidebar-toggle {
         left: 215px;
+    }
+
+    .content .header-version {
+        position: absolute;
+        top: 20px;
+        left: 35px;
+        color: #999 !important;
+        font-size: 0.7rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        width: auto !important;
     }
 }
 
@@ -274,13 +287,15 @@ body {
 
 /* === Main Logo === */
 .hero {
-    display: flex;
     margin-top: 6px;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .hero-img {
-    width: 85vh;
+    width: 85%;
     opacity: 0.95;
 }
 
@@ -383,6 +398,7 @@ body {
 
 .timeline-container {
     max-width: 90%;
+    min-height: 118px;
     margin-bottom: 20px;
     align-self: center;
     scrollbar-width: thin;
@@ -482,7 +498,199 @@ body {
     margin: 0;
 }
 
+.info-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #2b2b2b;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
 
+.info-icon:hover {
+    background-color: #444;
+}
+
+.info-popup {
+    display: none;
+    position: absolute;
+    left: 30px;
+    top: 0;
+    background: #1e1e1e;
+    color: #f5f5f5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    width: 220px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    border: 1px solid #555;
+    z-index: 100;
+}
+
+.info-popup strong {
+    color: #ffd54f;
+}
+
+.info-icon:hover .info-popup {
+    display: block;
+}
+
+/* === EMPLOYEE === */
+
+.employee-add-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 10px 12px;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    margin-bottom: 12px;
+}
+
+.employee-input {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #f0f0f0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 160px;
+}
+
+    .employee-input.small {
+        max-width: 155px;
+    }
+
+.employee-add-btn {
+    background: #2b6cb0;
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+    .employee-add-btn:hover {
+        background: #357ae8;
+    }
+
+.employee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.employee-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1f1f1f;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    min-width: 0;
+}
+
+.emp-left {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.emp-name {
+    display: block;
+}
+
+.emp-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 7px;
+}
+
+.emp-hours {
+    color: #90caf9;
+}
+
+.emp-time {
+    font-size: 15px;
+    color: #ccc;
+}
+
+.emp-time-muted {
+    color: #777;
+    font-style: italic;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #237fd5;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #f55;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+    .delete-btn:hover {
+        color: #ff7777;
+        transform: scale(1.1);
+    }
+
+
+/* Actions */
+.employee-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-outline-light {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .btn-outline-light:hover {
+        color: #fff !important;
+        background-color: #3a3a3a !important;
+        border-color: #777 !important;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-light i {
+        font-size: 1rem;
+    }
 
 
 
