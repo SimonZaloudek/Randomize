@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "ha0tT2Kx",
+  "version": "TKIejO62",
   "assets": [
     {
       "hash": "sha256-GIqcs7FZMDEUPDTrLVd3AkZIUfyxNtHP+db7LYyrCnE=",
@@ -202,20 +202,20 @@ self.assetsManifest = {
       "url": "_framework/Newtonsoft.Json.se2bgyj0tw.wasm"
     },
     {
-      "hash": "sha256-zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=",
-      "url": "_framework/Randomize.Core.do250b3k4c.wasm"
+      "hash": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=",
+      "url": "_framework/Randomize.Core.3gzktrmik0.wasm"
     },
     {
-      "hash": "sha256-BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=",
-      "url": "_framework/Randomize.Core.yidytyp147.pdb"
+      "hash": "sha256-uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=",
+      "url": "_framework/Randomize.Core.fbepgaawwr.pdb"
     },
     {
-      "hash": "sha256-P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=",
-      "url": "_framework/Randomize.Web.lbupbbs92d.wasm"
+      "hash": "sha256-aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=",
+      "url": "_framework/Randomize.Web.gmsialoyma.wasm"
     },
     {
-      "hash": "sha256-pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=",
-      "url": "_framework/Randomize.Web.o1a66l5hxy.pdb"
+      "hash": "sha256-TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=",
+      "url": "_framework/Randomize.Web.nznp10prem.pdb"
     },
     {
       "hash": "sha256-IjmnNlelpEtZI96gN5XWWl6TJxlDgR7L3bNbofzOdwA=",
@@ -878,7 +878,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.ahs9krftg4.wasm"
     },
     {
-      "hash": "sha256-uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58=",
+      "hash": "sha256-SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo=",
       "url": "_framework/blazor.boot.json"
     },
     {

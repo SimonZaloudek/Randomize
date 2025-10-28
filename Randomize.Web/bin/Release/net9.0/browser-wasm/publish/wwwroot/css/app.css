@@ -249,7 +249,7 @@ body {
     resize: vertical; 
     width: auto;
     min-height: 120px; 
-    min-width: 70vh;
+    min-width: 70%;
     box-sizing: border-box;
     transition: border-color 0.2s ease;
     margin: 8px 0;
@@ -583,6 +583,41 @@ body {
     .employee-add-btn:hover {
         background: #357ae8;
     }
+
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nextday-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+    .nextday-checkbox input {
+        display: none;
+    }
+
+    .nextday-checkbox i {
+        font-size: 1.2rem;
+        color: var(--bs-light);
+        opacity: 0.6;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .nextday-checkbox input:checked + i {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+.small-icon {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin-left: 2px;
+}
+
 
 .employee-list {
     display: flex;

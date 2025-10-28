@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "wgbvbKFIEVzg0nZ87u9FfKpJHee7M1J5ZHEAAm1CC/I=",
+  "Hash": "pZXEUnVCIVVpiAjiBl1ibcmGZ60YehaTNoKvQWDAzTw=",
   "Source": "Randomize.Web",
   "BasePath": "/",
   "Mode": "Root",
@@ -31,8 +31,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "manifest",
-      "Fingerprint": "cfy49tfgq9",
-      "Integrity": "uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58=",
+      "Fingerprint": "crfqq7thqt",
+      "Integrity": "SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Release\\net9.0\\blazor.boot.json"
@@ -1333,8 +1333,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "symbol",
-      "Fingerprint": "yidytyp147",
-      "Integrity": "BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=",
+      "Fingerprint": "fbepgaawwr",
+      "Integrity": "uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Core\\bin\\Release\\net9.0\\Randomize.Core.pdb"
@@ -1354,8 +1354,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "runtime",
-      "Fingerprint": "do250b3k4c",
-      "Integrity": "zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=",
+      "Fingerprint": "3gzktrmik0",
+      "Integrity": "c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\webcil\\Randomize.Core.wasm"
@@ -1375,8 +1375,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "symbol",
-      "Fingerprint": "o1a66l5hxy",
-      "Integrity": "pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=",
+      "Fingerprint": "nznp10prem",
+      "Integrity": "TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Release\\net9.0\\Randomize.Web.pdb"
@@ -1396,8 +1396,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "runtime",
-      "Fingerprint": "lbupbbs92d",
-      "Integrity": "P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=",
+      "Fingerprint": "gmsialoyma",
+      "Integrity": "aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\webcil\\Randomize.Web.wasm"
@@ -6527,7 +6527,7 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Microsoft.AspNetCore.WebUtilities.wasm"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-eppw049dhh.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-4d6v242n6z.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
@@ -6541,8 +6541,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\service-worker\\service-worker-assets.js.build",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "jrk8axt4oi",
-      "Integrity": "4aYssHAnO9HCmEfCxmmXDT3nge+kVVcx5gBIUmhXhFQ=",
+      "Fingerprint": "brqsjl1cat",
+      "Integrity": "iRLN+cww81vulkecxJDhhs6P4/LsVznSn39VoBJ+3cs=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\service-worker\\service-worker-assets.js.build"
@@ -7073,12 +7073,12 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\System.Xml.Serialization.wasm"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-o1a66l5hxy.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-nznp10prem.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/Randomize.Web#[.{fingerprint=o1a66l5hxy}]!.pdb.gz",
+      "RelativePath": "_framework/Randomize.Web#[.{fingerprint=nznp10prem}]!.pdb.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -7087,8 +7087,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.pdb",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "r8wgl8japb",
-      "Integrity": "xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA=",
+      "Fingerprint": "3tlupmskbd",
+      "Integrity": "51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.pdb"
@@ -7178,7 +7178,7 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\System.Runtime.Serialization.Primitives.wasm"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-cfy49tfgq9.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-crfqq7thqt.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
@@ -7192,8 +7192,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\blazor.boot.json",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "2z3371a90o",
-      "Integrity": "It6YAdkA202UHIRy/jw+HnvhVic18FEcG2WILQgXnro=",
+      "Fingerprint": "a7a59u7ynv",
+      "Integrity": "5pNayD/DxeIbnSPxzvlvEdL27yJhLVfmY5IZUSsaxR4=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\blazor.boot.json"
@@ -7619,12 +7619,12 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\dotnet.native.js"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-yidytyp147.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-fbepgaawwr.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/Randomize.Core#[.{fingerprint=yidytyp147}]!.pdb.gz",
+      "RelativePath": "_framework/Randomize.Core#[.{fingerprint=fbepgaawwr}]!.pdb.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -7633,8 +7633,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.pdb",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "oeke52r7gu",
-      "Integrity": "0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8=",
+      "Fingerprint": "yxblnmg27x",
+      "Integrity": "SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.pdb"
@@ -9530,12 +9530,12 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\System.Runtime.wasm"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-do250b3k4c.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-3gzktrmik0.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/Randomize.Core#[.{fingerprint=do250b3k4c}]!.wasm.gz",
+      "RelativePath": "_framework/Randomize.Core#[.{fingerprint=3gzktrmik0}]!.wasm.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -9544,8 +9544,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.wasm",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "jibze8gqjl",
-      "Integrity": "C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s=",
+      "Fingerprint": "dzeandtryc",
+      "Integrity": "pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.wasm"
@@ -10118,7 +10118,7 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-giqchmcu1p.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-ge0dibx91f.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
@@ -10328,12 +10328,12 @@
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map"
     },
     {
-      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-lbupbbs92d.gz",
+      "Identity": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-gmsialoyma.gz",
       "SourceId": "Randomize.Web",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/Randomize.Web#[.{fingerprint=lbupbbs92d}]!.wasm.gz",
+      "RelativePath": "_framework/Randomize.Web#[.{fingerprint=gmsialoyma}]!.wasm.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -10342,8 +10342,8 @@
       "RelatedAsset": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.wasm",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "v71dipbc3i",
-      "Integrity": "a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo=",
+      "Fingerprint": "34c9um88bd",
+      "Integrity": "kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.wasm"
@@ -10909,8 +10909,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "BlazorServiceWorker",
       "AssetTraitValue": "ServiceWorkerJs",
-      "Fingerprint": "giqchmcu1p",
-      "Integrity": "yOWDA1sS8JalccIOwLs/hwNr5DM2vXkvvBVKHmtkU/4=",
+      "Fingerprint": "ge0dibx91f",
+      "Integrity": "uA6Gjx0lzunE2aRrepy7W5hBoLzguKY0gfgAv/1lZP0=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "wwwroot\\service-worker.js"
@@ -10930,8 +10930,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "BlazorServiceWorker",
       "AssetTraitValue": "ServiceWorkerManifest",
-      "Fingerprint": "eppw049dhh",
-      "Integrity": "Iqr3BfiZczp/sqisccfJwETUg0UecbHZHMF0g0/8yFc=",
+      "Fingerprint": "4d6v242n6z",
+      "Integrity": "CBw06wUIll7mFtiiqgptkDidXOethGYzw1NxQ7erGWo=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Release\\net9.0\\service-worker\\service-worker-assets.js.build"
@@ -12154,11 +12154,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58=\""
+          "Value": "\"SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -12168,18 +12168,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58="
+          "Value": "sha256-SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-cfy49tfgq9.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-crfqq7thqt.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000071454091"
+          "Quality": "0.000071433674"
         }
       ],
       "ResponseHeaders": [
@@ -12189,15 +12189,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "13994"
+          "Value": "13998"
         },
         {
           "Name": "ETag",
-          "Value": "\"It6YAdkA202UHIRy/jw+HnvhVic18FEcG2WILQgXnro=\""
+          "Value": "\"5pNayD/DxeIbnSPxzvlvEdL27yJhLVfmY5IZUSsaxR4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:08:17 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -12217,19 +12217,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58=\""
+          "Value": "W/\"SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-uEtt7TEGGCDs+o4VNdHvxtedoDy6AgVRrueGZEnW/58="
+          "Value": "sha256-SLgcZ+EL/k9YKV6CRDR2RPtnt0uM3j2Oh1HmyD2dpNo="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-cfy49tfgq9.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\dq3o9w8g66-crfqq7thqt.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -12238,7 +12238,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "13994"
+          "Value": "13998"
         },
         {
           "Name": "Content-Type",
@@ -12246,11 +12246,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"It6YAdkA202UHIRy/jw+HnvhVic18FEcG2WILQgXnro=\""
+          "Value": "\"5pNayD/DxeIbnSPxzvlvEdL27yJhLVfmY5IZUSsaxR4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:08:17 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -12268,7 +12268,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-It6YAdkA202UHIRy/jw+HnvhVic18FEcG2WILQgXnro="
+          "Value": "sha256-5pNayD/DxeIbnSPxzvlvEdL27yJhLVfmY5IZUSsaxR4="
         }
       ]
     },
@@ -30290,7 +30290,7 @@
       ]
     },
     {
-      "Route": "_framework/Randomize.Core.do250b3k4c.wasm",
+      "Route": "_framework/Randomize.Core.3gzktrmik0.wasm",
       "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.wasm",
       "Selectors": [],
       "ResponseHeaders": [
@@ -30308,11 +30308,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=\""
+          "Value": "\"c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:40 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:17 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30322,7 +30322,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "do250b3k4c"
+          "Value": "3gzktrmik0"
         },
         {
           "Name": "label",
@@ -30330,18 +30330,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc="
+          "Value": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Core.do250b3k4c.wasm",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-do250b3k4c.gz",
+      "Route": "_framework/Randomize.Core.3gzktrmik0.wasm",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-3gzktrmik0.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000219587176"
+          "Quality": "0.000219731927"
         }
       ],
       "ResponseHeaders": [
@@ -30351,15 +30351,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4553"
+          "Value": "4550"
         },
         {
           "Name": "ETag",
-          "Value": "\"C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s=\""
+          "Value": "\"pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:18 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30379,13 +30379,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=\""
+          "Value": "W/\"c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "do250b3k4c"
+          "Value": "3gzktrmik0"
         },
         {
           "Name": "label",
@@ -30393,13 +30393,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc="
+          "Value": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Core.do250b3k4c.wasm.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-do250b3k4c.gz",
+      "Route": "_framework/Randomize.Core.3gzktrmik0.wasm.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-3gzktrmik0.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -30408,7 +30408,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4553"
+          "Value": "4550"
         },
         {
           "Name": "Content-Type",
@@ -30416,11 +30416,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s=\""
+          "Value": "\"pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:18 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30438,7 +30438,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "do250b3k4c"
+          "Value": "3gzktrmik0"
         },
         {
           "Name": "label",
@@ -30446,7 +30446,168 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s="
+          "Value": "sha256-pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/Randomize.Core.fbepgaawwr.pdb",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.pdb",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "15928"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 28 Oct 2025 02:18:48 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "fbepgaawwr"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/Randomize.Core.pdb"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/Randomize.Core.fbepgaawwr.pdb",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-fbepgaawwr.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000108166577"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9244"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "fbepgaawwr"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/Randomize.Core.pdb"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/Randomize.Core.fbepgaawwr.pdb.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-fbepgaawwr.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9244"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "fbepgaawwr"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/Randomize.Core.pdb.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE="
         }
       ]
     },
@@ -30469,11 +30630,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=\""
+          "Value": "\"uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:37 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:48 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30483,18 +30644,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM="
+          "Value": "sha256-uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Core.pdb",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-yidytyp147.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-fbepgaawwr.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000108108108"
+          "Quality": "0.000108166577"
         }
       ],
       "ResponseHeaders": [
@@ -30504,15 +30665,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9249"
+          "Value": "9244"
         },
         {
           "Name": "ETag",
-          "Value": "\"0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8=\""
+          "Value": "\"SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30532,19 +30693,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=\""
+          "Value": "W/\"uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM="
+          "Value": "sha256-uyxh0Q1Ahu1WDOjhG/133kDy4i8PEJUxy3Q+Mgj5VNc="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Core.pdb.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-yidytyp147.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-fbepgaawwr.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -30553,7 +30714,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9249"
+          "Value": "9244"
         },
         {
           "Name": "Content-Type",
@@ -30561,11 +30722,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8=\""
+          "Value": "\"SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30583,7 +30744,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8="
+          "Value": "sha256-SsEQNHDgWfOhPlHQHqW7QbPdHgiM9nJ6hLVru/N73fE="
         }
       ]
     },
@@ -30606,11 +30767,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=\""
+          "Value": "\"c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:40 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:17 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30620,18 +30781,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc="
+          "Value": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Core.wasm",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-do250b3k4c.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-3gzktrmik0.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000219587176"
+          "Quality": "0.000219731927"
         }
       ],
       "ResponseHeaders": [
@@ -30641,15 +30802,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4553"
+          "Value": "4550"
         },
         {
           "Name": "ETag",
-          "Value": "\"C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s=\""
+          "Value": "\"pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:18 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30669,19 +30830,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc=\""
+          "Value": "W/\"c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-zdgmKV2ej2wrWTqTjH5rG28SSl3og+w2FyNii+mGlCc="
+          "Value": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Core.wasm.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-do250b3k4c.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\tih8xv8kgg-3gzktrmik0.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -30690,7 +30851,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4553"
+          "Value": "4550"
         },
         {
           "Name": "Content-Type",
@@ -30698,11 +30859,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s=\""
+          "Value": "\"pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
+          "Value": "Tue, 28 Oct 2025 02:12:18 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30720,173 +30881,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-C5OvckPBwnhjQMTVLfWO7uAjklD/GPiSMvUH6kLrL+s="
+          "Value": "sha256-pzrJWGEggefXmoOP6CzjnuOcYsvdsYT4hk7dRNgCmXw="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Core.yidytyp147.pdb",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Core.pdb",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "15928"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:37 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "yidytyp147"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/Randomize.Core.pdb"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/Randomize.Core.yidytyp147.pdb",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-yidytyp147.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000108108108"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "9249"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM=\""
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "yidytyp147"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/Randomize.Core.pdb"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-BrKfVstkOEnMcgxwrVH6M70bCDc9hTLXt/HB4ESADhM="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/Randomize.Core.yidytyp147.pdb.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\gb4hpwx41o-yidytyp147.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "9249"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:03:41 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "yidytyp147"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/Randomize.Core.pdb.gz"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-0DuSlxZdOmYf/DwxuINhWZQ1Rd4zzkdrPkkWhmoR6U8="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/Randomize.Web.lbupbbs92d.wasm",
+      "Route": "_framework/Randomize.Web.gmsialoyma.wasm",
       "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.wasm",
       "Selectors": [],
       "ResponseHeaders": [
@@ -30904,11 +30904,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=\""
+          "Value": "\"aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30918,7 +30918,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lbupbbs92d"
+          "Value": "gmsialoyma"
         },
         {
           "Name": "label",
@@ -30926,18 +30926,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k="
+          "Value": "sha256-aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Web.lbupbbs92d.wasm",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-lbupbbs92d.gz",
+      "Route": "_framework/Randomize.Web.gmsialoyma.wasm",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-gmsialoyma.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000060749651"
+          "Quality": "0.000060734892"
         }
       ],
       "ResponseHeaders": [
@@ -30947,15 +30947,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16460"
+          "Value": "16464"
         },
         {
           "Name": "ETag",
-          "Value": "\"a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo=\""
+          "Value": "\"kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -30975,13 +30975,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=\""
+          "Value": "W/\"aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lbupbbs92d"
+          "Value": "gmsialoyma"
         },
         {
           "Name": "label",
@@ -30989,13 +30989,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k="
+          "Value": "sha256-aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Web.lbupbbs92d.wasm.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-lbupbbs92d.gz",
+      "Route": "_framework/Randomize.Web.gmsialoyma.wasm.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-gmsialoyma.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -31004,7 +31004,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16460"
+          "Value": "16464"
         },
         {
           "Name": "Content-Type",
@@ -31012,11 +31012,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo=\""
+          "Value": "\"kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31034,7 +31034,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lbupbbs92d"
+          "Value": "gmsialoyma"
         },
         {
           "Name": "label",
@@ -31042,12 +31042,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo="
+          "Value": "sha256-kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Web.o1a66l5hxy.pdb",
+      "Route": "_framework/Randomize.Web.nznp10prem.pdb",
       "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\bin\\Release\\net9.0\\wwwroot\\_framework\\Randomize.Web.pdb",
       "Selectors": [],
       "ResponseHeaders": [
@@ -31065,11 +31065,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=\""
+          "Value": "\"TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31079,7 +31079,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o1a66l5hxy"
+          "Value": "nznp10prem"
         },
         {
           "Name": "label",
@@ -31087,18 +31087,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY="
+          "Value": "sha256-TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Web.o1a66l5hxy.pdb",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-o1a66l5hxy.gz",
+      "Route": "_framework/Randomize.Web.nznp10prem.pdb",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-nznp10prem.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000034409194"
+          "Quality": "0.000034408010"
         }
       ],
       "ResponseHeaders": [
@@ -31108,15 +31108,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29061"
+          "Value": "29062"
         },
         {
           "Name": "ETag",
-          "Value": "\"xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA=\""
+          "Value": "\"51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31136,13 +31136,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=\""
+          "Value": "W/\"TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o1a66l5hxy"
+          "Value": "nznp10prem"
         },
         {
           "Name": "label",
@@ -31150,13 +31150,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY="
+          "Value": "sha256-TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE="
         }
       ]
     },
     {
-      "Route": "_framework/Randomize.Web.o1a66l5hxy.pdb.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-o1a66l5hxy.gz",
+      "Route": "_framework/Randomize.Web.nznp10prem.pdb.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-nznp10prem.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -31165,7 +31165,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29061"
+          "Value": "29062"
         },
         {
           "Name": "Content-Type",
@@ -31173,11 +31173,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA=\""
+          "Value": "\"51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31195,7 +31195,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o1a66l5hxy"
+          "Value": "nznp10prem"
         },
         {
           "Name": "label",
@@ -31203,7 +31203,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA="
+          "Value": "sha256-51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM="
         }
       ]
     },
@@ -31226,11 +31226,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=\""
+          "Value": "\"TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31240,18 +31240,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY="
+          "Value": "sha256-TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Web.pdb",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-o1a66l5hxy.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-nznp10prem.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000034409194"
+          "Quality": "0.000034408010"
         }
       ],
       "ResponseHeaders": [
@@ -31261,15 +31261,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29061"
+          "Value": "29062"
         },
         {
           "Name": "ETag",
-          "Value": "\"xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA=\""
+          "Value": "\"51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31289,19 +31289,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY=\""
+          "Value": "W/\"TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pL2bKC/yAwGKVhTGBdweG8m3lYKdHLy9MC5vWnzrFSY="
+          "Value": "sha256-TclUGTZ9t3abLlX+ZIa4IBdQelBjuGKKN4whnIIBsZE="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Web.pdb.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-o1a66l5hxy.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\chj0mx6tpp-nznp10prem.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -31310,7 +31310,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "29061"
+          "Value": "29062"
         },
         {
           "Name": "Content-Type",
@@ -31318,11 +31318,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA=\""
+          "Value": "\"51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31340,7 +31340,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-xfMyou8zrlSRARlyizgLpX5zfcjrA2Saks5FOv69NzA="
+          "Value": "sha256-51oCZheGdosrzd5q5sXVxJ5/6iuJD/bqWjB96q+KNjM="
         }
       ]
     },
@@ -31363,11 +31363,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=\""
+          "Value": "\"aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31377,18 +31377,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k="
+          "Value": "sha256-aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Web.wasm",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-lbupbbs92d.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-gmsialoyma.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000060749651"
+          "Quality": "0.000060734892"
         }
       ],
       "ResponseHeaders": [
@@ -31398,15 +31398,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16460"
+          "Value": "16464"
         },
         {
           "Name": "ETag",
-          "Value": "\"a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo=\""
+          "Value": "\"kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31426,19 +31426,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k=\""
+          "Value": "W/\"aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-P6PyseDNKf3x6gJq6DpAE+8geyOXul08t/HoH+n6x3k="
+          "Value": "sha256-aB8J/MyKENV+Y0QKt0hKXmH1Xpcu/twPC+mEBPZnIPM="
         }
       ]
     },
     {
       "Route": "_framework/Randomize.Web.wasm.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-lbupbbs92d.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\xkpjlnwe9w-gmsialoyma.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -31447,7 +31447,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16460"
+          "Value": "16464"
         },
         {
           "Name": "Content-Type",
@@ -31455,11 +31455,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo=\""
+          "Value": "\"kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31477,7 +31477,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-a008gy/rhQ9RL/V555dDBdA7Dmnw3vrS86LeV976ygo="
+          "Value": "sha256-kxubUJbQ2Y9Gp0UB1IOyVoT0NQ48WyV4zN5LWMEdEkg="
         }
       ]
     },
@@ -96723,7 +96723,7 @@
     },
     {
       "Route": "service-worker.js",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-giqchmcu1p.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-ge0dibx91f.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -96746,7 +96746,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -96766,13 +96766,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"yOWDA1sS8JalccIOwLs/hwNr5DM2vXkvvBVKHmtkU/4=\""
+          "Value": "W/\"uA6Gjx0lzunE2aRrepy7W5hBoLzguKY0gfgAv/1lZP0=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-yOWDA1sS8JalccIOwLs/hwNr5DM2vXkvvBVKHmtkU/4="
+          "Value": "sha256-uA6Gjx0lzunE2aRrepy7W5hBoLzguKY0gfgAv/1lZP0="
         }
       ]
     },
@@ -96795,7 +96795,7 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"yOWDA1sS8JalccIOwLs/hwNr5DM2vXkvvBVKHmtkU/4=\""
+          "Value": "\"uA6Gjx0lzunE2aRrepy7W5hBoLzguKY0gfgAv/1lZP0=\""
         },
         {
           "Name": "Last-Modified",
@@ -96809,13 +96809,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-yOWDA1sS8JalccIOwLs/hwNr5DM2vXkvvBVKHmtkU/4="
+          "Value": "sha256-uA6Gjx0lzunE2aRrepy7W5hBoLzguKY0gfgAv/1lZP0="
         }
       ]
     },
     {
       "Route": "service-worker.js.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-giqchmcu1p.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\witr9yib7i-ge0dibx91f.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -96836,7 +96836,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -96860,12 +96860,12 @@
     },
     {
       "Route": "service-worker-assets.js",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-eppw049dhh.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-4d6v242n6z.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000068329347"
+          "Quality": "0.000068357372"
         }
       ],
       "ResponseHeaders": [
@@ -96875,15 +96875,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "14634"
+          "Value": "14628"
         },
         {
           "Name": "ETag",
-          "Value": "\"4aYssHAnO9HCmEfCxmmXDT3nge+kVVcx5gBIUmhXhFQ=\""
+          "Value": "\"iRLN+cww81vulkecxJDhhs6P4/LsVznSn39VoBJ+3cs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -96903,13 +96903,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"Iqr3BfiZczp/sqisccfJwETUg0UecbHZHMF0g0/8yFc=\""
+          "Value": "W/\"CBw06wUIll7mFtiiqgptkDidXOethGYzw1NxQ7erGWo=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Iqr3BfiZczp/sqisccfJwETUg0UecbHZHMF0g0/8yFc="
+          "Value": "sha256-CBw06wUIll7mFtiiqgptkDidXOethGYzw1NxQ7erGWo="
         }
       ]
     },
@@ -96932,11 +96932,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Iqr3BfiZczp/sqisccfJwETUg0UecbHZHMF0g0/8yFc=\""
+          "Value": "\"CBw06wUIll7mFtiiqgptkDidXOethGYzw1NxQ7erGWo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -96946,13 +96946,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Iqr3BfiZczp/sqisccfJwETUg0UecbHZHMF0g0/8yFc="
+          "Value": "sha256-CBw06wUIll7mFtiiqgptkDidXOethGYzw1NxQ7erGWo="
         }
       ]
     },
     {
       "Route": "service-worker-assets.js.gz",
-      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-eppw049dhh.gz",
+      "AssetFile": "C:\\Users\\simon\\source\\repos\\Randomize\\Randomize.Web\\obj\\Release\\net9.0\\compressed\\9vij60ow17-4d6v242n6z.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -96961,7 +96961,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "14634"
+          "Value": "14628"
         },
         {
           "Name": "Content-Type",
@@ -96969,11 +96969,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"4aYssHAnO9HCmEfCxmmXDT3nge+kVVcx5gBIUmhXhFQ=\""
+          "Value": "\"iRLN+cww81vulkecxJDhhs6P4/LsVznSn39VoBJ+3cs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 28 Oct 2025 02:09:02 GMT"
+          "Value": "Tue, 28 Oct 2025 02:18:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -96991,7 +96991,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-4aYssHAnO9HCmEfCxmmXDT3nge+kVVcx5gBIUmhXhFQ="
+          "Value": "sha256-iRLN+cww81vulkecxJDhhs6P4/LsVznSn39VoBJ+3cs="
         }
       ]
     }

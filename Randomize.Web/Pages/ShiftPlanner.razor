@@ -276,11 +276,16 @@
 
     private void AdjustStartRange()
     {
-        if (_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 6)
+        if (_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 6) 
+        {
             _newEmployee.ScheduleStart = 5;
-        else if (!_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 23)
+        }    
+        else if (!_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 23) 
+        {
             _newEmployee.ScheduleStart = 0;
             _newEmployee.StartNextDay = true;
+        }
+
 
         if (_newEmployee.ScheduleStart < 0)
             _newEmployee.ScheduleStart = null;
@@ -289,10 +294,15 @@
     private void AdjustEndRange()
     {
         if (_newEmployee.EndNextDay && _newEmployee.ScheduleEnd > 6)
+        {
             _newEmployee.ScheduleEnd = 6;
+        }
         else if (!_newEmployee.EndNextDay && _newEmployee.ScheduleEnd > 23)
+        { 
             _newEmployee.ScheduleEnd = 6;
             _newEmployee.EndNextDay = true;
+        }
+        
 
         if (_newEmployee.ScheduleEnd < 0)
             _newEmployee.ScheduleStart = null;

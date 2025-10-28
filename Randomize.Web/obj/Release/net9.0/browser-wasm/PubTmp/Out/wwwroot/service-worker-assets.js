@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "aquNjdIj",
+  "version": "MCtzBXNH",
   "assets": [
     {
       "hash": "sha256-GIqcs7FZMDEUPDTrLVd3AkZIUfyxNtHP+db7LYyrCnE=",
@@ -22,16 +22,16 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.AspNetCore.Authorization.Policy.tnvtbz267h.wasm"
     },
     {
+      "hash": "sha256-h7S85seu8MI7E8vH5QPqVzW64vl96xN/zQBw+PYCHm8=",
+      "url": "_framework/Microsoft.AspNetCore.Components.3x6qb1c3az.wasm"
+    },
+    {
       "hash": "sha256-tN/ojymJTaESrnOP+vjhQGzH7TTnNtyDVcJixfhH6U0=",
       "url": "_framework/Microsoft.AspNetCore.Components.Web.cur3sl2k62.wasm"
     },
     {
       "hash": "sha256-r9qlVsId0etBHnDLpfdJB19UTt8t80gH4F2UpIZMvE8=",
       "url": "_framework/Microsoft.AspNetCore.Components.WebAssembly.bxoqu3lfsx.wasm"
-    },
-    {
-      "hash": "sha256-MKtghYn3AwB+X/EmQiTpAynZ4k6+WZ3+8EES/riVO6Q=",
-      "url": "_framework/Microsoft.AspNetCore.Components.slehr3eile.wasm"
     },
     {
       "hash": "sha256-EBu0K8SFe/KbDl6H4PhdQZcfOWBAQS9MiNm+0jjq0xo=",
@@ -158,12 +158,12 @@ self.assetsManifest = {
       "url": "_framework/Newtonsoft.Json.se2bgyj0tw.wasm"
     },
     {
-      "hash": "sha256-b038clC/jY2lrka+p8otLLtFEsSzoPAij19+cN0GSbA=",
-      "url": "_framework/Randomize.Core.1c6q86jo4n.wasm"
+      "hash": "sha256-c1mFntR3JkYOD0xBL74z/f4vfLOg1dJE79x98ZjWTes=",
+      "url": "_framework/Randomize.Core.3gzktrmik0.wasm"
     },
     {
-      "hash": "sha256-feTm9CwaH7q6lZDUXE36P8tGZTy1idUnoii0mA3CVCw=",
-      "url": "_framework/Randomize.Web.3wkn6ndsb3.wasm"
+      "hash": "sha256-qzFG6+nCYLk2UeSd1+a7TEe9MNw87TkBKtHJ2dkLLZE=",
+      "url": "_framework/Randomize.Web.fvwpz3took.wasm"
     },
     {
       "hash": "sha256-IjmnNlelpEtZI96gN5XWWl6TJxlDgR7L3bNbofzOdwA=",
@@ -454,7 +454,7 @@ self.assetsManifest = {
       "url": "_framework/System.Xml.XDocument.ocxzop4g63.wasm"
     },
     {
-      "hash": "sha256-BUdq/IgPs8UjqoMGdTze7JZk4lGACI/9u5dyeqv+f6c=",
+      "hash": "sha256-duA7Rc6F/pbZR2SP16jKCbAHKH/mGsVNKyz7byb5iro=",
       "url": "_framework/blazor.boot.json"
     },
     {
@@ -514,7 +514,7 @@ self.assetsManifest = {
       "url": "brand/randlogofull3.png"
     },
     {
-      "hash": "sha256-p0BZHLka6j5+ArLBgrcyTPyJWMP5AmKFOimbslOlFoU=",
+      "hash": "sha256-i6schia4UAikUzypYj3cqw02hM0+LZnNBLrgRyoXkFs=",
       "url": "css/app.css"
     },
     {
