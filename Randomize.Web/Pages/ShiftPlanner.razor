@@ -151,10 +151,122 @@
 
 
 
+<!-- randomize button -->
+
+@if (_employees.Count > 0)
+{
+    <button class="button-main" style="margin-top: 30px;" @onclick="RandomizeShifts">
+        🎲 Randomize Shifts
+    </button>
+}
+
+
+
+<!-- RESULTS -->
+
+@if (_assignmentResult != null)
+{
+    <div class="results-section">
+        <h3>Assignment Results</h3>
+
+        @if (_assignmentResult.UnassignedEmployees.Count > 0)
+        {
+            <div class="info-message">
+                ℹ️ @_assignmentResult.UnassignedEmployees.Count employee(s) not assigned:
+                @string.Join(", ", _assignmentResult.UnassignedEmployees.Select(e => e.Name))
+            </div>
+        }
+
+        @if (_assignmentResult.UnfilledHours.Count > 0)
+        {
+            <div class="unfilled-warning">
+                ⚠️ Unable to fill @_assignmentResult.UnfilledHours.Count hour(s):
+                @string.Join(", ", _assignmentResult.UnfilledHours.Select(h => {
+                var hour = h % 24;
+                var nextDay = h >= 24;
+                return nextDay ? $"{hour}:00 (next day)" : $"{hour}:00";
+            }))
+    </div>
+        }
+
+    <div class="gantt-chart">
+        <div class="gantt-header">
+            <div class="gantt-names-column">
+                <div class="gantt-header-label">Employee</div>
+                @foreach (var emp in _assignmentResult.AssignedEmployees)
+                {
+                    var startHour = emp.AssignedStart % 24;
+                    var endHour = emp.AssignedEnd % 24;
+                    var totalHours = emp.AssignedEnd - emp.AssignedStart;
+
+                    <div class="gantt-name">
+                        @emp.Name
+                        <span class="shift-hours">@startHour:00-@endHour:00 (@totalHours h)</span>
+                    </div>
+                }
+            </div>
+            <div class="gantt-timeline-column">
+                <div class="gantt-hours-header">
+                    @foreach (int hour in Enumerable.Range(0, 31))
+                    {
+                        var currentHour = hour % 24;
+                        <div class="gantt-hour-marker">@currentHour</div>
+                    }
+                </div>
+                @foreach (var emp in _assignmentResult.AssignedEmployees)
+                {
+                    <div class="gantt-row">
+                        @foreach (int hour in Enumerable.Range(0, 31))
+                        {
+                            var isWorking = hour >= emp.AssignedStart && hour < emp.AssignedEnd;
+                            var isStart = hour == emp.AssignedStart;
+                            var isEnd = hour == emp.AssignedEnd - 1;
+
+                            <div class="gantt-cell @(isWorking ? "working" : "") @(isStart ? "start" : "") @(isEnd ? "end" : "")">
+                                @if (isWorking)
+                                {
+                                    <div class="gantt-bar"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="coverage-stats">
+        <h4>Coverage Statistics</h4>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Employees Assigned:</span>
+                <span class="stat-value">@_assignmentResult.AssignedEmployees.Count / @_employees.Count</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Hours with Coverage:</span>
+                <span class="stat-value">@_assignmentResult.HourCoverage.Count(x => x.Value > 0) / 31</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Hours Assigned:</span>
+                <span class="stat-value">
+                    @_assignmentResult.AssignedEmployees.Sum(e => e.AssignedEnd - e.AssignedStart) hours
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+
+
 @code {
     private Shift _shift = new();
     private Employee _newEmployee = new();
     private List<Employee> _employees = new();
+
+    private ShiftPlannerService _service = new();
+    private ShiftPlannerService.ShiftAssignment? _assignmentResult = null;
+
 
     private string? _validationMessage;
 
@@ -163,6 +275,28 @@
 
 
     }
+
+ 
+    private void RandomizeShifts()
+    {
+        var hourlyDemand = new Dictionary<int, int>();
+        for (int hour = 0; hour <= 30; hour++)
+        {
+            var demand = _shift.GetTimeSlot(hour).Demand;
+            if (demand > 0)
+            {
+                hourlyDemand[hour] = demand;
+            }
+        }
+
+        if (hourlyDemand.Count == 0 || _employees.Count == 0)
+        {
+            return;
+        }
+
+        _assignmentResult = _service.AssignShifts(_employees, hourlyDemand);
+    }
+
 
     private int GetEndMin()
     {
@@ -302,10 +436,14 @@
             _newEmployee.ScheduleEnd = 6;
             _newEmployee.EndNextDay = true;
         }
-        
+
 
         if (_newEmployee.ScheduleEnd < 0)
             _newEmployee.ScheduleStart = null;
     }
 
+    private void GenerateRandomSchedule()
+    {
+        
+    }
 }

@@ -18,6 +18,7 @@ namespace Randomize.Core.ShiftPlanner
         public bool StartNextDay { get; set; }
         public bool EndNextDay { get; set; }
 
+
         public int? ScheduleStart
         {
             get => _scheduleStart;
@@ -58,5 +59,22 @@ namespace Randomize.Core.ShiftPlanner
                 return $"{value}:00{moon}";
             }
         }
+
+        public int AssignedStart { get; set; } = -1;
+        public int AssignedEnd { get; set; } = -1;
+        public bool IsAssigned { get; set; } = false;
+
+        public int GetEffectiveMaxHours()
+        {
+            return MaxHours ?? MaxHoursDefault;
+        }
+
+        public (int start, int end) GetAvailabilityWindow()
+        {
+            int start = ScheduleStart ?? 0;
+            int end = ScheduleEnd ?? 30;
+            return (start, end);
+        }
+
     }
 }
