@@ -4,6 +4,8 @@ build_property.EnableSingleFileAnalyzer =
 build_property.EnableTrimAnalyzer = false
 build_property.IncludeAllContentForSelfExtract = 
 build_property.TargetFramework = net9.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
 build_property.ProjectTypeGuids = 
@@ -38,6 +40,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/simon/source/repos/C\#/Randomize/Randomize.Web/Pages/NumberRandomizer.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVtYmVyUmFuZG9taXplci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/simon/source/repos/C\#/Randomize/Randomize.Web/Pages/ShiftPlanner.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hpZnRQbGFubmVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/simon/source/repos/C\#/Randomize/Randomize.Web/Pages/StringRandomizer.razor]

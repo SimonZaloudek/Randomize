@@ -22,7 +22,7 @@ namespace Randomize.Core.ShiftPlanner
         {
             for (int i = 0; i <= 30; i++) 
             {
-                _shift.Add(new TimeSlot(i));
+                _shift.Add(new TimeSlot());
             }
         }
 

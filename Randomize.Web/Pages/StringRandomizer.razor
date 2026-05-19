@@ -1,25 +1,277 @@
-﻿@page "/string"
+@page "/string"
 @using Randomize.Core.Services
 @inject StringRandomizerService StringService
 
-<div class="content">
-    <h2>String Randomizer</h2>
-    
-    <textarea class="textfield-main" rows="5" @bind="inputText" placeholder="Enter items, one per line"></textarea>
-    <button class="button-main" @onclick="Randomize">Randomize</button>
+<h2 class="page-title">Text Randomizers</h2>
+
+<div class="tool-grid">
+
+    <!-- 1. Shuffle list -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-shuffle"></i> Shuffle List</h3>
+        <p class="tool-card-hint">Pick a random line from your list.</p>
+        <div class="tool-card-body">
+            <textarea class="tool-input tool-textarea"
+                      @bind="_shuffleInput"
+                      @bind:event="oninput"
+                      placeholder="Enter items, one per line"></textarea>
+        </div>
+        <button class="tool-btn" @onclick="DoShuffle">🎲 Pick One</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_shuffleResult))
+            {
+                @_shuffleResult
+            }
+            else
+            {
+                <span class="tool-result-empty">No pick yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 2. Weighted pick -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-sliders"></i> Weighted Pick</h3>
+        <p class="tool-card-hint">Prefix each line with <code>weight:</code> — higher weight wins more often.</p>
+        <div class="tool-card-body">
+            <textarea class="tool-input tool-textarea"
+                      @bind="_weightedInput"
+                      @bind:event="oninput"
+                      placeholder="@_weightedPlaceholder"></textarea>
+        </div>
+        <button class="tool-btn" @onclick="DoWeighted">🎯 Pick Weighted</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_weightedResult))
+            {
+                @_weightedResult
+            }
+            else
+            {
+                <span class="tool-result-empty">No pick yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 3. Password generator -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-shield-lock"></i> Password Generator</h3>
+        <p class="tool-card-hint">Build a secure password from chosen character types.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label>Length:
+                    <input type="number" min="4" max="128" @bind="_pwLength" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="option-row option-row-wrap">
+                <label><input type="checkbox" @bind="_pwUpper" /> A–Z</label>
+                <label><input type="checkbox" @bind="_pwLower" /> a–z</label>
+                <label><input type="checkbox" @bind="_pwDigits" /> 0–9</label>
+                <label><input type="checkbox" @bind="_pwSymbols" /> Symbols</label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">🔐 Generate</button>
+        <div class="tool-result tool-result-mono">
+            @if (!string.IsNullOrEmpty(_pwResult))
+            {
+                @_pwResult
+            }
+            else
+            {
+                <span class="tool-result-empty">No password yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 4. Token generator -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-key"></i> Token Generator</h3>
+        <p class="tool-card-hint">Random string from a chosen character set.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label>Length:
+                    <input type="number" min="1" max="256" @bind="_tokenLength" class="tool-input-small" />
+                </label>
+                <label>Charset:
+                    <select class="tool-input-small" @bind="_tokenCharsetKey">
+                        <option value="alphanumeric">Alphanumeric</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </label>
+            </div>
+            @if (_tokenCharsetKey == "custom")
+            {
+                <input class="tool-input"
+                       type="text"
+                       @bind="_tokenCustom"
+                       @bind:event="oninput"
+                       placeholder="Custom characters, e.g. ABCDEF0123" />
+            }
+        </div>
+        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">🔑 Generate</button>
+        <div class="tool-result tool-result-mono">
+            @if (!string.IsNullOrEmpty(_tokenResult))
+            {
+                @_tokenResult
+            }
+            else
+            {
+                <span class="tool-result-empty">No token yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 5. Coin flip -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-coin"></i> Coin Flip</h3>
+        <p class="tool-card-hint">Heads or tails — pure 50/50 odds.</p>
+        <div class="tool-card-body">
+            <div class="coin-stage">
+                <div class="coin" style="transform: rotateY(@(_coinRotation)deg)">
+                    <div class="coin-face heads">H</div>
+                    <div class="coin-face tails">T</div>
+                </div>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">🪙 Flip</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_coinResult))
+            {
+                <strong>@_coinResult</strong>
+            }
+            else
+            {
+                <span class="tool-result-empty">@(_coinFlipping ? "Flipping…" : "Click flip")</span>
+            }
+        </div>
+    </section>
+
+    <!-- 6. Random emoji -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-emoji-smile"></i> Random Emoji</h3>
+        <p class="tool-card-hint">Get a random emoji from a curated set.</p>
+        <div class="tool-card-body">
+            <div class="emoji-display">
+                @if (!string.IsNullOrEmpty(_emojiResult))
+                {
+                    @_emojiResult
+                }
+                else
+                {
+                    <span class="emoji-placeholder">?</span>
+                }
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoEmoji">✨ Surprise Me</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_emojiResult))
+            {
+                <span>You got: @_emojiResult</span>
+            }
+            else
+            {
+                <span class="tool-result-empty">No emoji yet</span>
+            }
+        </div>
+    </section>
+
 </div>
-@if (!string.IsNullOrWhiteSpace(result))
-{
-    <p class="content p"><strong>🎲 Result: </strong> @result</p>
-}
 
 @code {
-    string inputText = "";
-    string? result;
+    // 1. Shuffle list
+    private string _shuffleInput = "";
+    private string? _shuffleResult;
 
-    void Randomize()
+    // 2. Weighted pick
+    private string _weightedInput = "";
+    private string _weightedPlaceholder = "5: Pizza\n3: Burger\n1: Salad";
+    private string? _weightedResult;
+
+    // 3. Password
+    private int _pwLength = 16;
+    private bool _pwUpper = true;
+    private bool _pwLower = true;
+    private bool _pwDigits = true;
+    private bool _pwSymbols = true;
+    private string? _pwResult;
+    private bool CanGeneratePassword =>
+        _pwLength > 0 && (_pwUpper || _pwLower || _pwDigits || _pwSymbols);
+
+    // 4. Token
+    private int _tokenLength = 32;
+    private string _tokenCharsetKey = "alphanumeric";
+    private string _tokenCustom = "";
+    private string? _tokenResult;
+    private bool CanGenerateToken =>
+        _tokenLength > 0 &&
+        (_tokenCharsetKey != "custom" || !string.IsNullOrEmpty(_tokenCustom));
+
+    // 5. Coin
+    private int _coinRotation;
+    private string? _coinResult;
+    private bool _coinFlipping;
+
+    // 6. Emoji
+    private string? _emojiResult;
+    private static readonly string[] _emojis = new[]
     {
-        var list = inputText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        result = StringService.PickRandom(list);
+        "🎉","🎊","🎁","🎈","🎂","🎄","🎃","🎀","🎯","🎲","🎮","🎺","🎻","🎷","🥁","🎤","🎬","🎫","🎨","🎭","🎪","🎡","🎢",
+        "🥳","🤩","😎","🥺","🤔","😴","😇","🙃","😜","😂","🤣","😍","🥰","😘","😋","🤗","🤨","😏","🙄","🤯","🥶","🥵","🤠","🤡","😺",
+        "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🦄","🐔","🐧","🦅","🦉","🐺","🐴","🦋","🐝","🐞","🦀","🐠","🐬","🦈","🐳",
+        "🌟","⭐","🌙","☀️","⚡","🔥","❄️","🌈","🌍","🌎","🌏",
+        "🍎","🍊","🍋","🍌","🍉","🍇","🍓","🍑","🍍","🥥","🥑","🍆","🥕","🌽","🌶","🍄","🥦","🍞","🥐","🧀","🍳","🥞","🥩","🍗","🍔","🍟","🍕","🌮","🌯","🍝","🍜","🍣","🍦","🍩","🍪","🍫","🍯","☕","🍵","🍺","🍷","🍸","🍹",
+        "⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋","⛳","🏆","🥇","🥈","🥉"
+    };
+
+    private void DoShuffle()
+    {
+        var items = _shuffleInput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        _shuffleResult = StringService.PickRandom(items);
+    }
+
+    private void DoWeighted()
+    {
+        var lines = _weightedInput.Split('\n');
+        _weightedResult = StringService.PickWeighted(lines);
+    }
+
+    private void DoPassword()
+    {
+        _pwResult = StringService.GeneratePassword(_pwLength, _pwUpper, _pwLower, _pwDigits, _pwSymbols);
+    }
+
+    private void DoToken()
+    {
+        var charset = _tokenCharsetKey switch
+        {
+            "alphanumeric" => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "hex" => "0123456789abcdef",
+            "base64" => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+            "custom" => _tokenCustom,
+            _ => ""
+        };
+        _tokenResult = StringService.GenerateToken(_tokenLength, charset);
+    }
+
+    private async Task DoCoinFlip()
+    {
+        if (_coinFlipping) return;
+        _coinFlipping = true;
+        _coinResult = null;
+
+        bool heads = Random.Shared.Next(2) == 0;
+        _coinRotation += heads ? 1800 : 1980;
+        StateHasChanged();
+
+        await Task.Delay(1100);
+
+        _coinResult = heads ? "Heads" : "Tails";
+        _coinFlipping = false;
+    }
+
+    private void DoEmoji()
+    {
+        _emojiResult = _emojis[Random.Shared.Next(_emojis.Length)];
     }
 }

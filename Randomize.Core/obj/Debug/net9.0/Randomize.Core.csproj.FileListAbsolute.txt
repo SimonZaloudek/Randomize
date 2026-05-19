@@ -33,3 +33,4 @@ C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Debug\net9.0\Randomi
 C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Debug\net9.0\refint\Randomize.Core.dll
 C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Debug\net9.0\Randomize.Core.pdb
 C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Debug\net9.0\ref\Randomize.Core.dll
+C:\Users\simon\source\repos\C#\Randomize\Randomize.Core\obj\Debug\net9.0\Randomize.Core.csproj.AssemblyReference.cache
