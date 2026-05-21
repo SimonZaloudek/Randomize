@@ -1,35 +1,343 @@
-﻿@page "/number"
+@page "/number"
 @using Randomize.Core.Services
 @inject NumberRandomizerService NumberService
 
-<div class="content">
-    <h2 class="page-title">Number Randomizer</h2>
+<h2 class="page-title">Number Randomizers</h2>
 
-    <div class="row">
-        <div class="col">
-            <input class="textfield-num" type="number" @bind="min" placeholder="Min" />
-        </div>
-        <div class="col">
-            <input class="textfield-num" type="number" @bind="max" placeholder="Max" />
-        </div>
-    </div>
-    <button style="margin-top: 1rem" class="button-main" @onclick="Randomize">Randomize</button>
+<div class="tool-grid">
 
+    <!-- 1. Random number -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-hash"></i> Random Number</h3>
+        <p class="tool-card-hint">A random whole number between two values.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">Min:</span>
+                    <input type="number" @bind="_rnMin" class="tool-input-small" />
+                </label>
+                <label><span class="opt-key">Max:</span>
+                    <input type="number" @bind="_rnMax" class="tool-input-small" />
+                </label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoRandomNumber">🔢 Pick</button>
+        <div class="tool-result">
+            @if (_rnResult is not null)
+            {
+                <strong>@_rnResult</strong>
+            }
+            else
+            {
+                <span class="tool-result-empty">No number yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 2. Dice roller -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-dice-5"></i> Dice Roller</h3>
+        <p class="tool-card-hint">Roll up to five dice and total them up.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">Dice:</span>
+                    <input type="number" min="1" max="5" @bind="_diceCount" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="dice-tray">
+                @if (_dice.Length == 0)
+                {
+                    <div class="die die-empty">?</div>
+                }
+                else
+                {
+                    @foreach (var d in _dice)
+                    {
+                        <div class="die @(_diceRolling ? "rolling" : "")">
+                            @for (int i = 0; i < 9; i++)
+                            {
+                                <span class="pip-cell">
+                                    @if (HasPip(d, i))
+                                    {
+                                        <span class="pip"></span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoRoll" disabled="@_diceRolling">🎲 Roll</button>
+        <div class="tool-result">
+            @if (_diceResult is not null)
+            {
+                @_diceResult
+            }
+            else
+            {
+                <span class="tool-result-empty">@(_diceRolling ? "Rolling…" : "No roll yet")</span>
+            }
+        </div>
+    </section>
+
+    <!-- 3. Lottery -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-ticket-perforated"></i> Lottery</h3>
+        <p class="tool-card-hint">Draw unique numbers, one by one — like a lottery pick.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">Draw:</span>
+                    <input type="number" min="1" max="20" @bind="_lottoCount" class="tool-input-small" />
+                </label>
+                <label>
+                    <span class="opt-key">of 1–</span>
+                    <input type="number" min="2" @bind="_lottoMax" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="lotto-balls">
+                @if (_lottoNumbers.Count == 0)
+                {
+                    <span class="tool-result-empty">@(_lottoDrawing ? "Drawing…" : "No draw yet")</span>
+                }
+                else
+                {
+                    @foreach (var n in _lottoNumbers)
+                    {
+                        <div class="lotto-ball">@n</div>
+                    }
+                }
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoDraw" disabled="@(_lottoDrawing || !CanDraw)">🎟️ Draw</button>
+        <div class="tool-result">
+            @if (!CanDraw)
+            {
+                <span class="tool-result-empty">Draw count can't exceed the range</span>
+            }
+            else if (_lottoNumbers.Count > 0 && !_lottoDrawing)
+            {
+                <strong>@string.Join("   ", _lottoNumbers)</strong>
+            }
+            else
+            {
+                <span class="tool-result-empty">Numbers 1–@_lottoMax</span>
+            }
+        </div>
+    </section>
+
+    <!-- 4. Multiple numbers -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-list-ol"></i> Multiple Numbers</h3>
+        <p class="tool-card-hint">Generate a whole batch of random numbers at once.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">Count:</span>
+                    <input type="number" min="1" max="100" @bind="_mnCount" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="option-row">
+                <label><span class="opt-key">Min:</span>
+                    <input type="number" @bind="_mnMin" class="tool-input-small" />
+                </label>
+                <label><span class="opt-key">Max:</span>
+                    <input type="number" @bind="_mnMax" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="option-row option-row-wrap">
+                <label><input type="checkbox" @bind="_mnUnique" /> No repeats</label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoMultiple">📋 Generate</button>
+        <div class="tool-result">
+            @if (_mnResult.Length > 0)
+            {
+                <div class="num-chips">
+                    @foreach (var n in _mnResult)
+                    {
+                        <span class="num-chip">@n</span>
+                    }
+                </div>
+            }
+            else
+            {
+                <span class="tool-result-empty">No numbers yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 5. Random date -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-calendar-event"></i> Random Date</h3>
+        <p class="tool-card-hint">A random calendar date between two dates.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">From:</span>
+                    <input type="date" @bind="_dateStart" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="option-row">
+                <label><span class="opt-key">To:</span>
+                    <input type="date" @bind="_dateEnd" class="tool-input-small" />
+                </label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoRandomDate">📅 Pick Date</button>
+        <div class="tool-result">
+            @if (_dateResult is not null)
+            {
+                <strong>@_dateResult.Value.ToString("dddd, d MMMM yyyy")</strong>
+            }
+            else
+            {
+                <span class="tool-result-empty">No date yet</span>
+            }
+        </div>
+    </section>
+
+    <!-- 6. PIN generator -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-lock"></i> PIN Generator</h3>
+        <p class="tool-card-hint">A random numeric PIN code of the chosen length.</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">Digits:</span>
+                    <input type="number" min="3" max="12" @bind="_pinLength" class="tool-input-small" />
+                </label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoPin">🔒 Generate</button>
+        <div class="tool-result tool-result-mono">
+            @if (!string.IsNullOrEmpty(_pinResult))
+            {
+                @_pinResult
+            }
+            else
+            {
+                <span class="tool-result-empty">No PIN yet</span>
+            }
+        </div>
+    </section>
 
 </div>
-@if (result is not null)
-{
-    <p class="content p"><strong>🎲 Result:</strong> @result</p>
-}
 
 @code {
-    int min = 1;
-    int max = 100;
-    int? result;
+    // 1. Random number
+    private int _rnMin = 1;
+    private int _rnMax = 100;
+    private int? _rnResult;
 
-    void Randomize()
+    // 2. Dice — 1-6 six-sided dice
+    private int _diceCount = 1;
+    private int[] _dice = Array.Empty<int>();
+    private string? _diceResult;
+    private bool _diceRolling;
+
+    // 3x3 pip layout (cell indices 0-8) for die faces 1-6
+    private static readonly int[][] _pips =
     {
-        if (min > max) (min, max) = (max, min);
-        result = NumberService.PickRandom(min, max);
+        Array.Empty<int>(),          // 0 (unused)
+        new[] { 4 },                 // 1
+        new[] { 0, 8 },              // 2
+        new[] { 0, 4, 8 },           // 3
+        new[] { 0, 2, 6, 8 },        // 4
+        new[] { 0, 2, 4, 6, 8 },     // 5
+        new[] { 0, 2, 3, 5, 6, 8 },  // 6
+    };
+
+    private static bool HasPip(int value, int cell)
+        => value >= 1 && value <= 6 && Array.IndexOf(_pips[value], cell) >= 0;
+
+    // 3. Lottery
+    private int _lottoCount = 6;
+    private int _lottoMax = 49;
+    private readonly List<int> _lottoNumbers = new();
+    private bool _lottoDrawing;
+    private bool CanDraw => _lottoCount > 0 && _lottoMax >= 2 && _lottoCount <= _lottoMax;
+
+    // 4. Multiple numbers
+    private int _mnCount = 5;
+    private int _mnMin = 1;
+    private int _mnMax = 100;
+    private bool _mnUnique;
+    private int[] _mnResult = Array.Empty<int>();
+
+    // 5. Random date
+    private DateOnly _dateStart = new(2000, 1, 1);
+    private DateOnly _dateEnd = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _dateResult;
+
+    // 6. PIN
+    private int _pinLength = 4;
+    private string? _pinResult;
+
+    private void DoRandomNumber()
+    {
+        if (_rnMin > _rnMax) (_rnMin, _rnMax) = (_rnMax, _rnMin);
+        _rnResult = NumberService.PickRandom(_rnMin, _rnMax);
+    }
+
+    private async Task DoRoll()
+    {
+        if (_diceRolling) return;
+        _diceCount = Math.Clamp(_diceCount, 1, 5);
+        _diceRolling = true;
+        _diceResult = null;
+
+        var final = NumberService.RollDice(_diceCount, 6);
+
+        // Flicker random faces while the dice tumble, then settle on the result.
+        for (int i = 0; i < 9; i++)
+        {
+            var flicker = new int[final.Length];
+            for (int d = 0; d < flicker.Length; d++)
+                flicker[d] = Random.Shared.Next(1, 7);
+            _dice = flicker;
+            StateHasChanged();
+            await Task.Delay(70);
+        }
+
+        _dice = final;
+        _diceRolling = false;
+        _diceResult = final.Length == 1
+            ? $"You rolled {final[0]}"
+            : $"Rolls: {string.Join(", ", final)}   ·   Total: {final.Sum()}";
+    }
+
+    private async Task DoDraw()
+    {
+        if (_lottoDrawing || !CanDraw) return;
+        _lottoDrawing = true;
+        _lottoNumbers.Clear();
+        StateHasChanged();
+
+        var drawn = NumberService.PickMultiple(1, _lottoMax, _lottoCount, unique: true);
+        Array.Sort(drawn);
+
+        foreach (var n in drawn)
+        {
+            await Task.Delay(280);
+            _lottoNumbers.Add(n);
+            StateHasChanged();
+        }
+
+        _lottoDrawing = false;
+    }
+
+    private void DoMultiple()
+    {
+        _mnCount = Math.Clamp(_mnCount, 1, 100);
+        if (_mnMin > _mnMax) (_mnMin, _mnMax) = (_mnMax, _mnMin);
+        _mnResult = NumberService.PickMultiple(_mnMin, _mnMax, _mnCount, _mnUnique);
+    }
+
+    private void DoRandomDate()
+    {
+        _dateResult = NumberService.RandomDate(_dateStart, _dateEnd);
+    }
+
+    private void DoPin()
+    {
+        _pinLength = Math.Clamp(_pinLength, 3, 12);
+        _pinResult = NumberService.GeneratePin(_pinLength);
     }
 }

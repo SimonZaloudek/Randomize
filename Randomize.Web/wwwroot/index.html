@@ -34,7 +34,23 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            // updateViaCache:'none' -> the SW script is always revalidated, so a new
+            // deploy is detected promptly instead of being masked by the HTTP cache.
+            navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
+            // When the freshly-installed SW takes control after a deploy, reload once
+            // so the page swaps the stale cached index.html + css for the new ones.
+            if (navigator.serviceWorker.controller) {
+                let reloading = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (reloading) return;
+                    reloading = true;
+                    location.reload();
+                });
+            }
+        }
+    </script>
 </body>
 
 </html>

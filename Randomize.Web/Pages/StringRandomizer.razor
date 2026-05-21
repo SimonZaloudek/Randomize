@@ -58,7 +58,7 @@
         <p class="tool-card-hint">Build a secure password from chosen character types.</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label>Length:
+                <label><span class="opt-key">Length:</span>
                     <input type="number" min="4" max="128" @bind="_pwLength" class="tool-input-small" />
                 </label>
             </div>
@@ -88,10 +88,10 @@
         <p class="tool-card-hint">Random string from a chosen character set.</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label>Length:
+                <label><span class="opt-key">Length:</span>
                     <input type="number" min="1" max="256" @bind="_tokenLength" class="tool-input-small" />
                 </label>
-                <label>Charset:
+                <label><span class="opt-key">Charset:</span>
                     <select class="tool-input-small" @bind="_tokenCharsetKey">
                         <option value="alphanumeric">Alphanumeric</option>
                         <option value="hex">Hex</option>

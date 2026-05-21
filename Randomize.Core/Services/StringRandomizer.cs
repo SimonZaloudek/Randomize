@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -81,9 +82,24 @@ namespace Randomize.Core.Services
             if (length <= 0 || string.IsNullOrEmpty(charset))
                 return null;
 
-            var sb = new StringBuilder(length);
+            // Split into text elements so multi-char glyphs (emoji are surrogate
+            // pairs) stay whole, and drop control characters, which don't render.
+            var pool = new List<string>();
+            var elements = StringInfo.GetTextElementEnumerator(charset);
+            while (elements.MoveNext())
+            {
+                var element = (string)elements.Current;
+                if (element.Length == 1 && char.IsControl(element[0]))
+                    continue;
+                pool.Add(element);
+            }
+
+            if (pool.Count == 0)
+                return null;
+
+            var sb = new StringBuilder();
             for (int i = 0; i < length; i++)
-                sb.Append(charset[_random.Next(charset.Length)]);
+                sb.Append(pool[_random.Next(pool.Count)]);
             return sb.ToString();
         }
     }

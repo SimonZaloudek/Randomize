@@ -1,4 +1,4 @@
-/* Manifest version: 8JxT0Mz6 */
+/* Manifest version: nigRPbW4 */
 // Caution! Be sure you understand the caveats before publishing an application with
 // offline support. See https://aka.ms/blazor-offline-considerations
 
@@ -21,12 +21,26 @@ async function onInstall(event) {
     console.info('Service worker: Install');
 
     self.skipWaiting();
-    // Fetch and cache all matching items from the assets manifest
+    // Fetch and cache all matching items from the assets manifest.
+    // Integrity (SRI) is intentionally not enforced: some hosts re-compress or
+    // transform static files, which makes the published hash mismatch and would
+    // abort the entire install (cache.addAll is all-or-nothing). Each asset is
+    // fetched and cached on its own so one bad file can't block the rest.
     const assetsRequests = self.assetsManifest.assets
         .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
         .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
-        .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
-    await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
+        .map(asset => new Request(asset.url, { cache: 'no-cache' }));
+    const cache = await caches.open(cacheName);
+    await Promise.all(assetsRequests.map(async request => {
+        try {
+            const response = await fetch(request);
+            if (response.ok) {
+                await cache.put(request, response);
+            }
+        } catch (err) {
+            console.warn('Service worker: could not cache', request.url, err);
+        }
+    }));
 }
 
 async function onActivate(event) {
