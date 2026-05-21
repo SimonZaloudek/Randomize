@@ -1,3 +1,35 @@
+/* === THEME === */
+/* ____________ */
+/* Two visual themes, switched via data-theme on <html> (sidebar selector).
+   Base values below = "modern". The [data-theme="default"] block overrides
+   them to the plain dark-grey look. Home-page styles consume these var()s. */
+
+html {
+    --surface-grad: linear-gradient(155deg, rgba(15, 14, 20, 0.94) 0%, rgba(6, 5, 10, 0.96) 100%);
+    --surface-border: rgba(140, 110, 230, 0.10);
+    --surface-border-hover: rgba(140, 110, 230, 0.45);
+    --surface-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 195, 225, 0.05);
+    --surface-shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(200, 195, 225, 0.07);
+    --accent: #8a6bff;
+    --accent-soft: #a07fff;
+    --accent-text: #cdbfff;
+    --icon-grad: linear-gradient(135deg, rgba(140, 110, 230, 0.22), rgba(140, 110, 230, 0.05));
+    --icon-border: rgba(140, 110, 230, 0.3);
+}
+
+html[data-theme="default"] {
+    --surface-grad: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(17, 17, 17, 0.9));
+    --surface-border: rgba(255, 255, 255, 0.1);
+    --surface-border-hover: rgba(255, 255, 255, 0.22);
+    --surface-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --surface-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --accent: #4a90e2;
+    --accent-soft: #6aa9ee;
+    --accent-text: #b8d4f5;
+    --icon-grad: linear-gradient(135deg, rgba(74, 144, 226, 0.22), rgba(74, 144, 226, 0.05));
+    --icon-border: rgba(74, 144, 226, 0.25);
+}
+
 body {
     margin: 0;
     font-family: 'Century Gothic';
@@ -133,7 +165,47 @@ body {
     .sidebar img.logo {
         width: 64px;
         height: 64px;
-        margin-bottom: 12px;
+    }
+
+/* Logo + theme selector row */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.theme-switch {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+}
+
+.theme-opt {
+    padding: 5px 9px;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #888;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+    .theme-opt:hover {
+        color: #ccc;
+    }
+
+    .theme-opt.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
     }
 
     .sidebar h2 {
@@ -435,13 +507,13 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background: linear-gradient(155deg, rgba(15, 14, 20, 0.94) 0%, rgba(6, 5, 10, 0.96) 100%);
-    border: 1px solid rgba(140, 110, 230, 0.10);
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
     border-radius: 14px;
     padding: 18px 16px 42px;
     color: #fff;
     text-decoration: none;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 195, 225, 0.05);
+    box-shadow: var(--surface-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     overflow: hidden;
     animation: home-fade-up 0.55s ease-out backwards;
@@ -455,8 +527,8 @@ body {
 
 .home-feature-card:hover {
     transform: translateY(-3px);
-    border-color: rgba(140, 110, 230, 0.45);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(200, 195, 225, 0.07);
+    border-color: var(--surface-border-hover);
+    box-shadow: var(--surface-shadow-hover);
 }
 
 .home-feature-icon {
@@ -466,9 +538,9 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    background: linear-gradient(135deg, rgba(140, 110, 230, 0.22), rgba(140, 110, 230, 0.05));
-    border: 1px solid rgba(140, 110, 230, 0.3);
-    color: #cdbfff;
+    background: var(--icon-grad);
+    border: 1px solid var(--icon-border);
+    color: var(--accent-text);
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.5px;
@@ -507,7 +579,7 @@ body {
 }
 
 .home-feature-card:hover .home-feature-arrow {
-    color: #a07fff;
+    color: var(--accent-soft);
     transform: translateX(3px);
 }
 
@@ -517,10 +589,10 @@ body {
     margin: 36px auto 18px;
     padding: 28px 28px 24px;
     text-align: center;
-    background: linear-gradient(155deg, rgba(15, 14, 20, 0.94) 0%, rgba(6, 5, 10, 0.96) 100%);
-    border: 1px solid rgba(140, 110, 230, 0.10);
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
     border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 195, 225, 0.05);
+    box-shadow: var(--surface-shadow);
     box-sizing: border-box;
     position: relative;
     z-index: 1;
@@ -553,7 +625,7 @@ body {
 }
 
 .home-tagline .home-stat-pill:hover .home-stat-icon {
-    color: #a07fff;
+    color: var(--accent-soft);
 }
 
 .home-tagline-title {
@@ -590,22 +662,22 @@ body {
     align-items: center;
     gap: 2px;
     padding: 18px 12px;
-    background: linear-gradient(155deg, rgba(15, 14, 20, 0.94) 0%, rgba(6, 5, 10, 0.96) 100%);
-    border: 1px solid rgba(140, 110, 230, 0.10);
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 195, 225, 0.05);
+    box-shadow: var(--surface-shadow);
     transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .home-stat-pill:hover {
     transform: translateY(-2px);
-    border-color: rgba(140, 110, 230, 0.35);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-color: var(--surface-border-hover);
+    box-shadow: var(--surface-shadow-hover);
 }
 
 .home-stat-icon {
     font-size: 1.1rem;
-    color: #8a6bff;
+    color: var(--accent);
     margin-bottom: 6px;
 }
 
@@ -678,6 +750,17 @@ body {
     .home-hero-img {
         width: 92%;
     }
+}
+
+/* Default theme — static look: drop the animated background layer and
+   the entrance/idle animations (modern keeps them). */
+html[data-theme="default"] .home-bg {
+    display: none;
+}
+
+html[data-theme="default"] .home-hero-img,
+html[data-theme="default"] .home-feature-card {
+    animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1440,18 +1523,13 @@ body {
     font-weight: 700 !important;
     letter-spacing: 4px !important;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #ffffff 0%, #b8d4f5 45%, #4a90e2 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+    color: #fff;
     margin: 14px 0 38px !important;
     padding: 6px 28px 16px !important;
     position: relative;
     text-align: center;
     display: inline-block;
     align-self: center;
-    text-shadow: 0 0 30px rgba(74, 144, 226, 0.15);
 }
 
 .page-title::before,
@@ -1748,6 +1826,136 @@ select.tool-input-small option {
     .tool-card-title {
         font-size: 1rem;
     }
+}
+
+
+/* === MODERN THEME — OTHER PAGES === */
+/* _________________________________ */
+/* The home page carries the full modern look (animated background) above.
+   This block extends the dark + purple palette to every other page when
+   modern is active. The default theme is left completely untouched. */
+
+/* Dark content panel (the home page covers its own bg with .home-bg) */
+html[data-theme="modern"] .content {
+    background: linear-gradient(180deg, #08070f 0%, #040308 100%);
+}
+
+/* Cards adopt the home-card surface */
+html[data-theme="modern"] .tool-card,
+html[data-theme="modern"] .group-card {
+    background: var(--surface-grad);
+    border-color: var(--surface-border);
+}
+
+html[data-theme="modern"] .tool-card:hover {
+    border-color: var(--surface-border-hover);
+}
+
+/* Panels / containers go dark */
+html[data-theme="modern"] .schedule-grid,
+html[data-theme="modern"] .totals,
+html[data-theme="modern"] .gantt-chart,
+html[data-theme="modern"] .coverage-stats,
+html[data-theme="modern"] .timeline-container,
+html[data-theme="modern"] .employee-add-container,
+html[data-theme="modern"] .employee-card,
+html[data-theme="modern"] .info-popup {
+    background: rgba(20, 19, 24, 0.9);
+    border-color: var(--surface-border);
+}
+
+/* Accent recolor: blue -> purple */
+html[data-theme="modern"] .tool-card-title i,
+html[data-theme="modern"] .stat-value {
+    color: var(--accent);
+}
+
+html[data-theme="modern"] .group-item {
+    border-left-color: var(--accent);
+}
+
+html[data-theme="modern"] .gantt-bar {
+    background: linear-gradient(135deg, #7a5fd0 0%, #4f3a9e 100%);
+}
+
+html[data-theme="modern"] .gantt-cell.working {
+    background: rgba(140, 110, 230, 0.12);
+}
+
+html[data-theme="modern"] .tool-result {
+    background: rgba(0, 0, 0, 0.25);
+    border-color: rgba(140, 110, 230, 0.28);
+    color: #ddd3ff;
+}
+
+/* Focus rings */
+html[data-theme="modern"] .required-input:focus,
+html[data-theme="modern"] .tool-input:focus,
+html[data-theme="modern"] .tool-input-small:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(140, 110, 230, 0.2);
+}
+
+html[data-theme="modern"] .option-row input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+/* Page-title underline -> purple */
+html[data-theme="modern"] .page-title::before,
+html[data-theme="modern"] .page-title::after {
+    background-image: linear-gradient(90deg, transparent 0%, #8a6bff 50%, transparent 100%);
+}
+
+/* All buttons share the outline style of the .txt save/load buttons */
+html[data-theme="modern"] .button-main,
+html[data-theme="modern"] .tool-btn,
+html[data-theme="modern"] .employee-add-btn {
+    background-color: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(140, 110, 230, 0.28);
+    color: #e0e0e0;
+}
+
+html[data-theme="modern"] .btn-outline-light {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-color: rgba(140, 110, 230, 0.28) !important;
+}
+
+html[data-theme="modern"] .button-main:hover,
+html[data-theme="modern"] .tool-btn:hover:not(:disabled),
+html[data-theme="modern"] .employee-add-btn:hover {
+    background-color: rgba(140, 110, 230, 0.16);
+    border-color: rgba(140, 110, 230, 0.5);
+    color: #fff;
+}
+
+html[data-theme="modern"] .total-cell:hover {
+    background: #2a2348;
+}
+
+html[data-theme="modern"] .btn-outline-light:hover {
+    background-color: rgba(140, 110, 230, 0.16) !important;
+    border-color: rgba(140, 110, 230, 0.5) !important;
+}
+
+html[data-theme="modern"] .hour-slot:hover {
+    background: #231f30;
+}
+
+html[data-theme="modern"] .group-item:hover {
+    background: rgba(140, 110, 230, 0.13);
+}
+
+html[data-theme="modern"] .info-icon {
+    background-color: #222127;
+}
+
+html[data-theme="modern"] .info-icon:hover {
+    background-color: #302e38;
+}
+
+html[data-theme="modern"] .employee-input {
+    background: #1a191e;
+    border-color: #34323c;
 }
 
 
