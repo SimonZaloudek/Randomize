@@ -44,6 +44,18 @@
         if (window.caches) {
             caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
         }
+
+        // HTML5 drag-and-drop: the browser only fires `drop` if `dragstart` set
+        // some data on dataTransfer. Blazor's DragEventArgs is a one-way snapshot
+        // so we can't do it from C#. A capture-phase listener sets data for every
+        // draggable on the page before any other handler runs — that's all the
+        // group-shuffler drag-to-move needs to work reliably across browsers.
+        document.addEventListener('dragstart', e => {
+            if (e.dataTransfer) {
+                e.dataTransfer.setData('text/plain', '');
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        }, true);
     </script>
 </body>
 

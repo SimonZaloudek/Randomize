@@ -1,88 +1,279 @@
-﻿@page "/groupshuffler"
+@page "/groupshuffler"
 @using Randomize.Core.Services
 @inject IJSRuntime JS
 
 <h2 class="page-title">Group Shuffler</h2>
 
-<textarea class="textfield-main" @bind="input" rows="10" placeholder="Enter names/items to shuffle... (separated by enter)"></textarea>
-<br />
-<p style="margin-bottom: 10px">Number of groups:</p>
-<input class="textfield-num"
-       style="width: 8%; min-width: 45px;"
-       type="number"
-       @bind-value="rawGroupCount"
-       @oninput="HandleInput"
-       @onblur="HandleBlur" />
-<br />
-<button class="button-main" style="margin-top: 10px; margin-bottom: 20px" @onclick="Shuffle">Shuffle</button>
+<div class="shuffler-layout">
 
-<div style="display: flex; justify-content: center; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
-    @if (groups.Any())
-    {
-        @for (int i = 0; i < groups.Count; i++)
+    <div class="shuffler-panel tool-card">
+        <textarea class="tool-input tool-textarea"
+                  @bind="input"
+                  @bind:event="oninput"
+                  placeholder="Enter names, one per line"></textarea>
+
+        <div class="option-row">
+            <label>
+                <span class="opt-key">Mode:</span>
+                <select class="tool-input-small" @bind="_mode">
+                    <option value="@ShuffleMode.GroupCount">Number of groups</option>
+                    <option value="@ShuffleMode.GroupSize">Group size</option>
+                </select>
+            </label>
+            <label>
+                <span class="opt-key">@(_mode == ShuffleMode.GroupCount ? "Groups:" : "Per group:")</span>
+                <input type="number" min="1" max="15" class="tool-input-small"
+                       @bind-value="rawGroupCount"
+                       @oninput="HandleInput"
+                       @onblur="HandleBlur" />
+            </label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_error))
         {
-            <div class="group-card">
-                <h3 class="group-title">Group @(i + 1)</h3>
-                <ul class="group-list">
-                    @foreach (var person in groups[i])
-                    {
-                        <li class="group-item">@person</li>
-                    }
-                </ul>
-            </div>
+            <div class="shuffler-error" role="alert">@_error</div>
         }
+
+        <button class="tool-btn" @onclick="Shuffle">🔀 Shuffle</button>
+    </div>
+
+    @if (groups.Count > 0)
+    {
+        <div class="shuffler-result">
+            <div class="shuffler-summary">
+                <span>
+                    Shuffled <strong>@_lastInputCount</strong>
+                    @(_lastInputCount == 1 ? "person" : "people") into
+                    <strong>@groups.Count</strong> @(groups.Count == 1 ? "group" : "groups")
+                </span>
+                <div class="shuffler-summary-actions">
+                    <button class="shuffler-action" @onclick="Shuffle" title="Shuffle again">↻ Re-shuffle</button>
+                    <button class="shuffler-action" @onclick="CopyAll" title="Copy everything">
+                        @(_copiedAll ? "✓ Copied" : "📋 Copy all")
+                    </button>
+                </div>
+            </div>
+
+            <div class="group-grid">
+                @for (int gi = 0; gi < groups.Count; gi++)
+                {
+                    var groupIdx = gi;
+                    var accent = AccentForGroup(gi);
+                    <div class="group-card @(_dragOverGroup == groupIdx ? "group-card-droptarget" : "")"
+                         @key="@($"{_shuffleId}-{groupIdx}")"
+                         style="--group-accent:@accent; --i:@gi"
+                         ondragover="event.preventDefault(); event.dataTransfer.dropEffect='move';"
+                         @ondragenter="@(() => OnDragEnter(groupIdx))"
+                         @ondrop="@(() => OnDrop(groupIdx))"
+                         @ondrop:preventDefault="true">
+                        <div class="group-card-head">
+                            <input class="group-title-input"
+                                   @bind="groups[groupIdx].Name"
+                                   @bind:event="oninput"
+                                   aria-label="Group name" />
+                            <span class="group-size" title="Members">@groups[groupIdx].Members.Count</span>
+                            <button class="group-copy-btn"
+                                    @onclick="@(() => CopyGroup(groupIdx))"
+                                    title="Copy this group">
+                                @(_copiedGroup == groupIdx ? "✓" : "📋")
+                            </button>
+                        </div>
+                        <ul class="group-list">
+                            @for (int pi = 0; pi < groups[groupIdx].Members.Count; pi++)
+                            {
+                                var personIdx = pi;
+                                <li class="group-item"
+                                    draggable="true"
+                                    @ondragstart="@(() => OnDragStart(groupIdx, personIdx))"
+                                    @ondragend="OnDragEnd">
+                                    @groups[groupIdx].Members[personIdx]
+                                </li>
+                            }
+                            @if (groups[groupIdx].Members.Count == 0)
+                            {
+                                <li class="group-item-empty">drop someone here</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
     }
 </div>
 
-
 @code {
+    private enum ShuffleMode { GroupCount, GroupSize }
+
+    private class GroupBucket
+    {
+        public string Name { get; set; } = "";
+        public List<string> Members { get; set; } = new();
+    }
+
     private string input = "";
-    private string rawGroupCount = "2"; 
-    private int groupCount = 2; 
-    private List<List<string>> groups = new();
+    private string rawGroupCount = "2";
+    private int _groupCount = 2;
+    private ShuffleMode _mode = ShuffleMode.GroupCount;
+    private string _error = "";
+    private int _lastInputCount;
+    private int _shuffleId;
+
+    private List<GroupBucket> groups = new();
+
+    // Drag state — set on dragstart, consumed on drop.
+    private int? _dragSourceGroup;
+    private int? _dragSourceIndex;
+    private int? _dragOverGroup;
+
+    // Brief "copied" feedback on the buttons.
+    private int? _copiedGroup;
+    private bool _copiedAll;
+
+    // Same 16-colour palette as the wheel, so the visual language matches.
+    private static readonly string[] _palette = new[]
+    {
+        "#ef6f6c","#f0915a","#efc05a","#d4d65f",
+        "#9bd06b","#63c98d","#54c6b6","#56b4d3",
+        "#5b93d6","#6f7fd6","#8f74d4","#aa6fd0",
+        "#c66fc4","#d96fa3","#e06f86","#cf7d6a"
+    };
+
+    private static string AccentForGroup(int i) => _palette[i % _palette.Length];
 
     private void HandleInput(ChangeEventArgs e)
     {
         rawGroupCount = e.Value?.ToString() ?? string.Empty;
-
         if (int.TryParse(rawGroupCount, out int parsed) && parsed >= 1 && parsed <= 15)
-        {
-            groupCount = parsed;  
-        }
-       
+            _groupCount = parsed;
     }
 
- 
     private void HandleBlur()
     {
         if (int.TryParse(rawGroupCount, out int parsed))
-        {
-            groupCount = Math.Clamp(parsed, 1, 15);  
-            rawGroupCount = groupCount.ToString(); 
-        }
+            _groupCount = Math.Clamp(parsed, 1, 15);
         else
+            _groupCount = 2;
+
+        rawGroupCount = _groupCount.ToString();
+    }
+
+    private void Shuffle()
+    {
+        _error = "";
+        int totalPeople = GroupShufflerCore.InputCount(input);
+
+        if (totalPeople < 2)
         {
-            groupCount = 2; 
-            rawGroupCount = "2";
+            _error = "Enter at least 2 names — one per line.";
+            return;
+        }
+        if (_groupCount < 1 || _groupCount > 15)
+        {
+            _error = (_mode == ShuffleMode.GroupCount ? "Group count" : "Group size")
+                   + " must be between 1 and 15.";
+            return;
+        }
+        if (_mode == ShuffleMode.GroupCount && _groupCount > totalPeople)
+        {
+            _error = "Group count can't exceed the number of people.";
+            return;
+        }
+
+        var raw = _mode == ShuffleMode.GroupCount
+            ? GroupShufflerCore.ShuffleIntoGroups(input, _groupCount)
+            : GroupShufflerCore.ShuffleIntoGroupsOfSize(input, _groupCount);
+
+        // Preserve any custom names where indices line up; default the rest.
+        var oldNames = groups.Select(g => g.Name).ToList();
+        groups = raw.Select((members, i) => new GroupBucket
+        {
+            Name = (i < oldNames.Count && !string.IsNullOrWhiteSpace(oldNames[i]))
+                ? oldNames[i]
+                : $"Group {i + 1}",
+            Members = members
+        }).ToList();
+
+        _lastInputCount = totalPeople;
+        _shuffleId++;
+    }
+
+    private void OnDragStart(int groupIdx, int personIdx)
+    {
+        _dragSourceGroup = groupIdx;
+        _dragSourceIndex = personIdx;
+    }
+
+    private void OnDragEnter(int groupIdx) => _dragOverGroup = groupIdx;
+
+    private void OnDrop(int targetGroup)
+    {
+        if (_dragSourceGroup is int sg && _dragSourceIndex is int si
+            && sg != targetGroup
+            && sg >= 0 && sg < groups.Count
+            && si >= 0 && si < groups[sg].Members.Count
+            && targetGroup >= 0 && targetGroup < groups.Count)
+        {
+            var person = groups[sg].Members[si];
+            groups[sg].Members.RemoveAt(si);
+            groups[targetGroup].Members.Add(person);
+        }
+        ResetDragState();
+    }
+
+    private void OnDragEnd() => ResetDragState();
+
+    private void ResetDragState()
+    {
+        _dragSourceGroup = null;
+        _dragSourceIndex = null;
+        _dragOverGroup = null;
+    }
+
+    private async Task CopyGroup(int idx)
+    {
+        if (idx < 0 || idx >= groups.Count) return;
+        var text = string.Join("\n", groups[idx].Members);
+        if (await TryCopy(text))
+        {
+            _copiedGroup = idx;
+            StateHasChanged();
+            await Task.Delay(1200);
+            _copiedGroup = null;
+            StateHasChanged();
         }
     }
 
-    private async Task Shuffle()
+    private async Task CopyAll()
     {
-        int inputCount = GroupShufflerCore.InputCount(input);
-        if (groupCount < 1 || groupCount > 15)
+        var sb = new System.Text.StringBuilder();
+        foreach (var g in groups)
         {
-            await JS.InvokeVoidAsync("alert", "Group count must be greater than 0 and smaller than 16.");
-            return;
+            sb.AppendLine($"{g.Name}:");
+            foreach (var m in g.Members)
+                sb.AppendLine($"  {m}");
+            sb.AppendLine();
         }
-        else if (groupCount > inputCount)
+        if (await TryCopy(sb.ToString()))
         {
-            await JS.InvokeVoidAsync("alert", "Group count cannot be higher than input count.");
-            return;
+            _copiedAll = true;
+            StateHasChanged();
+            await Task.Delay(1200);
+            _copiedAll = false;
+            StateHasChanged();
         }
-        else
+    }
+
+    private async Task<bool> TryCopy(string text)
+    {
+        try
         {
-            groups = GroupShufflerCore.ShuffleIntoGroups(input, groupCount);
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            return true;
+        }
+        catch
+        {
+            // Clipboard API unavailable (insecure context / old browser). Skip silently.
+            return false;
         }
     }
 }
