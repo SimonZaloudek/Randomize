@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+78831bc9f37ab52545db5071ce259aa1375b885e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9390e0561f9a5b8eaa6451f584663ad236e2112")]
 [assembly: System.Reflection.AssemblyProductAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Randomize.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

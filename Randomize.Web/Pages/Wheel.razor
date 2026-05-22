@@ -1,41 +1,78 @@
-﻿@page "/wheel"
+@page "/wheel"
+@using Randomize.Core.Wheel
 @inject IJSRuntime JS
 
-<h2 class="page-title">Custom Spinning Wheel</h2>
+<h2 class="page-title">Spinning Wheel</h2>
 
-<!-- Controls -->
-<p style="margin-top: 2rem; margin-bottom: 11px">Number of options:</p>
-<input class="textfield-num" style="width: 8%; min-width: 45px; margin-bottom: 20px" type="number" min="2" max="16" @bind-value="rawCountInput"
-       @oninput="HandleInput"
-       @onblur="HandleBlur" />
+<div class="wheel-layout">
 
-<!-- Wheel + Inputs -->
-<div>
-<canvas id="wheelCanvas" width="320" height="320"></canvas>
-</div><br/>
+    <div class="wheel-stage">
+        <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320"></canvas>
 
-<div style="display: flex; justify-content: center; flex-wrap: wrap; align-items: center;">
-    @for (int i = 0; i < items.Count; i++)
-    {
-        var currentIndex = i;
-        <input class="textfield-num" @oninput="e => OnLabelInput(e, currentIndex)" placeholder="@items[currentIndex].Placeholder" style="margin:2px; min-width: 10%" />
-    }
+        <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
+            @(_spinning ? "Spinning…" : "🎯 Spin")
+        </button>
+
+        @if (!string.IsNullOrEmpty(selectedResult))
+        {
+            <div class="wheel-result" @key="_spinCount">
+                <span class="wheel-result-label">Winner</span>
+                <span class="wheel-result-value">🎉 @selectedResult</span>
+            </div>
+        }
+    </div>
+
+    <div class="wheel-panel tool-card">
+        <div class="option-row">
+            <label>
+                <span class="opt-key">Options:</span>
+                <input type="number" min="2" max="16" class="tool-input-small"
+                       disabled="@_spinning"
+                       @bind-value="rawCountInput" @oninput="HandleInput" @onblur="HandleBlur" />
+            </label>
+        </div>
+
+        <div class="option-row option-row-wrap">
+            <label>
+                <input type="checkbox" @bind="_eliminate" disabled="@_spinning" />
+                Remove the winner after each spin
+            </label>
+        </div>
+
+        <div class="wheel-labels">
+            @for (int i = 0; i < items.Count; i++)
+            {
+                var idx = i;
+                <input class="tool-input wheel-label-input"
+                       value="@items[idx].Label"
+                       disabled="@_spinning"
+                       @oninput="e => OnLabelInput(e, idx)"
+                       placeholder="@items[idx].Placeholder" />
+            }
+        </div>
+
+        @if (_history.Count > 0)
+        {
+            <div class="wheel-history">
+                <div class="wheel-history-head">
+                    <span>History</span>
+                    <button type="button" class="wheel-clear-btn" @onclick="ClearHistory">Clear</button>
+                </div>
+                <div class="wheel-history-list">
+                    @foreach (var h in _history)
+                    {
+                        <span class="wheel-history-chip">@h</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
 </div>
-<br/>
-
-<button style="margin-top: 15px" class="button-main" @onclick="SpinWheel" disabled="@(!IsValid)">🎯 Spin</button>
-
-
-@if (!string.IsNullOrEmpty(selectedResult))
-{
-    <p style="margin-top: 20px">🎉 Result: @selectedResult</p>
-}
 
 @code {
-@using Randomize.Core.Wheel
-
-    private string rawCountInput = "2";
-    private int? _count = null;
+    private string rawCountInput = "6";
+    private int? _count = 6;
     private int? count
     {
         get => _count;
@@ -48,6 +85,7 @@
                 {
                     _count = newValue;
                     InitItems();
+                    ClearResult();
                     InvokeAsync(RenderWheel);
                 }
             }
@@ -59,10 +97,16 @@
     }
 
     private List<WheelItem> items = new();
-    private List<WheelItem> itemsUpdated = new(); 
     private string selectedResult = "";
+    private bool _spinning;
+    private bool _eliminate;
+    private int _spinCount;
+    private readonly List<string> _history = new();
 
-
+    private bool CanSpin =>
+        !_spinning &&
+        items.Count >= 2 &&
+        items.All(i => !string.IsNullOrWhiteSpace(i.Label));
 
     protected override void OnInitialized()
     {
@@ -80,7 +124,7 @@
     private void HandleInput(ChangeEventArgs e)
     {
         rawCountInput = e.Value?.ToString() ?? string.Empty;
-    
+
         if (int.TryParse(rawCountInput, out int parsed) && parsed >= 2 && parsed <= 16)
         {
             count = parsed;
@@ -97,29 +141,23 @@
         {
             count = 2;
         }
+
+        // Reflect the clamped value back into the textbox.
+        rawCountInput = (_count ?? 2).ToString();
     }
 
     private void InitItems()
     {
-        var currentItems = items.ToList();
+        var current = items;
+        int n = _count ?? 2;
 
-        if (!count.HasValue)
-        {
-            count = 2;
-            return;     
-        }
-
-        items = Enumerable.Range(1, count.Value)
-        .Select(i =>
-        {
-            var existing = currentItems.ElementAtOrDefault(i - 1);
-            return new WheelItem
+        items = Enumerable.Range(1, n)
+            .Select(i => new WheelItem
             {
-                Label = existing?.Label ?? string.Empty,
+                Label = current.ElementAtOrDefault(i - 1)?.Label ?? string.Empty,
                 Placeholder = $"Option {i}"
-            };
-        })
-        .ToList();
+            })
+            .ToList();
     }
 
     private async Task RenderWheel()
@@ -129,7 +167,39 @@
 
     private async Task SpinWheel()
     {
-        selectedResult = await JS.InvokeAsync<string>("spinWheel", items.Select(i => i.Label));
+        if (!CanSpin)
+            return;
+
+        _spinning = true;
+        selectedResult = "";
+        StateHasChanged();
+
+        int winner = await JS.InvokeAsync<int>("spinWheel", items.Select(i => i.Label));
+
+        if (winner >= 0 && winner < items.Count)
+        {
+            selectedResult = items[winner].Label;
+            _spinCount++;
+            _history.Insert(0, selectedResult);
+            if (_history.Count > 8)
+                _history.RemoveAt(_history.Count - 1);
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("celebrate");
+
+            // Elimination mode: drop the winner, but never below 2 slices.
+            if (_eliminate && items.Count > 2)
+            {
+                items.RemoveAt(winner);
+                _count = items.Count;
+                rawCountInput = items.Count.ToString();
+                for (int i = 0; i < items.Count; i++)
+                    items[i].Placeholder = $"Option {i + 1}";
+                await RenderWheel();
+            }
+        }
+
+        _spinning = false;
         StateHasChanged();
     }
 
@@ -139,8 +209,11 @@
             return;
 
         items[index].Label = e.Value?.ToString() ?? string.Empty;
+        ClearResult();
         await RenderWheel();
     }
 
-    private bool IsValid => items.Count >= 2 && items.All(i => !string.IsNullOrWhiteSpace(i.Label));
+    private void ClearHistory() => _history.Clear();
+
+    private void ClearResult() => selectedResult = "";
 }

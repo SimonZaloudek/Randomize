@@ -35,20 +35,14 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
+        // This app does not use a service worker. Proactively remove any worker
+        // and caches left by older versions so the latest files always load.
         if ('serviceWorker' in navigator) {
-            // updateViaCache:'none' -> the SW script is always revalidated, so a new
-            // deploy is detected promptly instead of being masked by the HTTP cache.
-            navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
-            // When the freshly-installed SW takes control after a deploy, reload once
-            // so the page swaps the stale cached index.html + css for the new ones.
-            if (navigator.serviceWorker.controller) {
-                let reloading = false;
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    if (reloading) return;
-                    reloading = true;
-                    location.reload();
-                });
-            }
+            navigator.serviceWorker.getRegistrations()
+                .then(regs => regs.forEach(reg => reg.unregister()));
+        }
+        if (window.caches) {
+            caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
         }
     </script>
 </body>

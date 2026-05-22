@@ -8,7 +8,9 @@ This is a .NET 9 Blazor WebAssembly solution with two projects: `Randomize.Web` 
 
 - Restore + build: `dotnet build Randomize.sln`
 - Run dev server: `dotnet run --project Randomize.Web` (profiles in `Randomize.Web/Properties/launchSettings.json` bind to `http://0.0.0.0:5000` and `https://0.0.0.0:7203`)
-- Publish for hosting: `dotnet publish Randomize.Web -c Release` — emits PWA assets and a service worker (`service-worker.published.js` is wired up via `ServiceWorker` item in the csproj)
+- Publish for hosting: `dotnet publish Randomize.Web -c Release` — emits a static site under `bin/Release/net9.0/publish/wwwroot`. `dotnet publish` does not clean its output folder, so delete the previous `publish/` (and re-upload a clean folder) before each deploy or stale fingerprinted files accumulate.
+- `global.json` pins the repo to the .NET 9 SDK (9.0.300+). This is required: the .NET 10 SDK's `wasm-tools` workload has no net9 WASM packs, so building on it skips native optimization.
+- The app does **not** use a service worker / offline PWA caching. `wwwroot/service-worker.js` is a self-destruct stub kept only to unregister workers left by older versions; `index.html` does the same on load. Don't re-add a caching service worker — it caused stale-content and reload-loop bugs on the static host.
 
 ## Architecture
 

@@ -1,0 +1,20 @@
+# --- Randomize (Blazor WebAssembly) static hosting config for Apache ---
+
+# Serve WebAssembly + WebCil-packed assemblies as application/wasm so the
+# browser can stream-compile them. Without this the browser falls back to the
+# slower "download fully, then compile" (ArrayBuffer) path.
+<IfModule mod_mime.c>
+    AddType application/wasm           .wasm
+    AddType application/manifest+json  .webmanifest
+</IfModule>
+
+# Single-page-app fallback: serve index.html for client-side routes
+# (e.g. /number, /string) so deep links and page refreshes don't 404.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</IfModule>
