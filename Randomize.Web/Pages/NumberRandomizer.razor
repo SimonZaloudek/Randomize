@@ -20,7 +20,7 @@
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRandomNumber">🔢 Pick</button>
+        <button class="tool-btn" @onclick="DoRandomNumber">Pick</button>
         <div class="tool-result">
             @if (_rnResult is not null)
             {
@@ -67,7 +67,7 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRoll" disabled="@_diceRolling">🎲 Roll</button>
+        <button class="tool-btn" @onclick="DoRoll" disabled="@_diceRolling">Roll</button>
         <div class="tool-result">
             @if (_diceResult is not null)
             {
@@ -108,7 +108,7 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoDraw" disabled="@(_lottoDrawing || !CanDraw)">🎟️ Draw</button>
+        <button class="tool-btn" @onclick="DoDraw" disabled="@(_lottoDrawing || !CanDraw)">Draw</button>
         <div class="tool-result">
             @if (!CanDraw)
             {
@@ -147,7 +147,7 @@
                 <label><input type="checkbox" @bind="_mnUnique" /> No repeats</label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoMultiple">📋 Generate</button>
+        <button class="tool-btn" @onclick="DoMultiple">Generate</button>
         <div class="tool-result">
             @if (_mnResult.Length > 0)
             {
@@ -181,7 +181,7 @@
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRandomDate">📅 Pick Date</button>
+        <button class="tool-btn" @onclick="DoRandomDate">Pick Date</button>
         <div class="tool-result">
             @if (_dateResult is not null)
             {
@@ -205,7 +205,7 @@
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoPin">🔒 Generate</button>
+        <button class="tool-btn" @onclick="DoPin">Generate</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_pinResult))
             {

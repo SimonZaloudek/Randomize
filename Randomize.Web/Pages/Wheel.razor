@@ -7,10 +7,11 @@
 <div class="wheel-layout">
 
     <div class="wheel-stage">
-        <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320"></canvas>
+        <!-- Tap the wheel itself to spin — same guard as the button. -->
+        <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
 
         <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
-            @(_spinning ? "Spinning…" : "🎯 Spin")
+            @(_spinning ? "Spinning…" : "Spin")
         </button>
 
         @if (!string.IsNullOrEmpty(selectedResult))

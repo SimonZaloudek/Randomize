@@ -3,7 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Tints the iOS Safari address bar and Chrome's chrome to match the app. -->
+    <meta name="theme-color" content="#0a0a0a" />
+    <!-- iOS standalone-web-app hints (used if the user "Adds to Home Screen"). -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Randomize" />
     <title>Randomize</title>
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -35,21 +41,27 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
+        // This app does not use a service worker. Proactively remove any worker
+        // and caches left by older versions so the latest files always load.
         if ('serviceWorker' in navigator) {
-            // updateViaCache:'none' -> the SW script is always revalidated, so a new
-            // deploy is detected promptly instead of being masked by the HTTP cache.
-            navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
-            // When the freshly-installed SW takes control after a deploy, reload once
-            // so the page swaps the stale cached index.html + css for the new ones.
-            if (navigator.serviceWorker.controller) {
-                let reloading = false;
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    if (reloading) return;
-                    reloading = true;
-                    location.reload();
-                });
-            }
+            navigator.serviceWorker.getRegistrations()
+                .then(regs => regs.forEach(reg => reg.unregister()));
         }
+        if (window.caches) {
+            caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+        }
+
+        // HTML5 drag-and-drop: the browser only fires `drop` if `dragstart` set
+        // some data on dataTransfer. Blazor's DragEventArgs is a one-way snapshot
+        // so we can't do it from C#. A capture-phase listener sets data for every
+        // draggable on the page before any other handler runs — that's all the
+        // group-shuffler drag-to-move needs to work reliably across browsers.
+        document.addEventListener('dragstart', e => {
+            if (e.dataTransfer) {
+                e.dataTransfer.setData('text/plain', '');
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        }, true);
     </script>
 </body>
 

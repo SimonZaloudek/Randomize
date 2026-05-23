@@ -34,7 +34,7 @@
             <div class="shuffler-error" role="alert">@_error</div>
         }
 
-        <button class="tool-btn" @onclick="Shuffle">🔀 Shuffle</button>
+        <button class="tool-btn" @onclick="Shuffle">Shuffle</button>
     </div>
 
     @if (groups.Count > 0)
@@ -47,9 +47,9 @@
                     <strong>@groups.Count</strong> @(groups.Count == 1 ? "group" : "groups")
                 </span>
                 <div class="shuffler-summary-actions">
-                    <button class="shuffler-action" @onclick="Shuffle" title="Shuffle again">↻ Re-shuffle</button>
+                    <button class="shuffler-action" @onclick="Shuffle" title="Shuffle again">Re-shuffle</button>
                     <button class="shuffler-action" @onclick="CopyAll" title="Copy everything">
-                        @(_copiedAll ? "✓ Copied" : "📋 Copy all")
+                        @(_copiedAll ? "Copied" : "Copy all")
                     </button>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                             <button class="group-copy-btn"
                                     @onclick="@(() => CopyGroup(groupIdx))"
                                     title="Copy this group">
-                                @(_copiedGroup == groupIdx ? "✓" : "📋")
+                                @(_copiedGroup == groupIdx ? "Copied" : "Copy")
                             </button>
                         </div>
                         <ul class="group-list">

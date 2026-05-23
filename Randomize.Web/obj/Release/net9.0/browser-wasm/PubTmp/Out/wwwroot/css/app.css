@@ -15,6 +15,12 @@ html {
     --accent-text: #cdbfff;
     --icon-grad: linear-gradient(135deg, rgba(140, 110, 230, 0.22), rgba(140, 110, 230, 0.05));
     --icon-border: rgba(140, 110, 230, 0.3);
+    /* `-apple-system` / `BlinkMacSystemFont` use the device's system font on
+       iOS and macOS (San Francisco); Windows falls through to Century Gothic. */
+    --app-font: -apple-system, BlinkMacSystemFont, 'Century Gothic', 'Segoe UI', sans-serif;
+    /* Background on <html> so iOS overscroll, the notch area and the Safari
+       toolbar (combined with the theme-color meta) all stay dark. */
+    background-color: #0a0a0a;
 }
 
 html[data-theme="default"] {
@@ -30,9 +36,14 @@ html[data-theme="default"] {
     --icon-border: rgba(74, 144, 226, 0.25);
 }
 
+/* Kill the default iOS gray tap-highlight box — our :active styles cover feedback. */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     margin: 0;
-    font-family: 'Century Gothic';
+    font-family: var(--app-font);
     background: radial-gradient(circle at center, #0a0a0a 0%, rgba(0, 0, 0, 0.6) 550%);
     display: flex;
     justify-content: center;
@@ -119,6 +130,11 @@ body {
     transition: transform 0.3s ease;
 }
 
+/* Dim layer behind the open mobile sidebar — tap to close. Hidden on desktop. */
+.sidebar-backdrop {
+    display: none;
+}
+
 /* === Desktop === */
 @media (min-width: 768px) {
     .sidebar-toggle {
@@ -135,30 +151,54 @@ body {
 /* === Mobile === */
 @media (max-width: 767px) {
 
+    /* Anchor with explicit top/height so scrolling the page never drags the
+       drawer with it. `100dvh` (with `100vh` fallback) sizes to the visible
+       viewport even as iOS Safari's address bar shows/hides. */
     .sidebar {
         position: fixed;
+        top: 0;
         left: 0;
-        height: 90vh;
+        height: 100vh;
+        height: 100dvh;
         z-index: 20;
+        /* Push the logo below the iPhone notch / status bar. */
+        padding-top: max(24px, env(safe-area-inset-top));
     }
     .content {
         width: 100%;
-        position:relative;
-    }
-    .sidebar.open + .content .sidebar-toggle {
-        left: 215px;
+        position: relative;
     }
 
-    .content .header-version {
-        position: absolute;
-        top: 20px;
-        left: 35px;
-        color: #999 !important;
-        font-size: 0.7rem !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        width: auto !important;
+    /* Bigger tap target + bigger arrow so the menu chevron is actually readable. */
+    .sidebar-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* iOS Safari zooms in when a focused input/textarea is below 16px. */
+    .tool-input,
+    .tool-input-small {
+        font-size: 16px;
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 15;
+    }
+    .sidebar-backdrop.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* On phones each group is a full-width card, stacked vertically. */
+    .group-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -257,7 +297,7 @@ body {
 }
 
     .content h1 {
-        font-family: 'Century Gothic';
+        font-family: var(--app-font);
         font-size: 2.25rem;
         font-weight: bold;
         margin-bottom: 2rem;
@@ -265,21 +305,21 @@ body {
 
     .content h2 {
         font-size: 1.5rem;
-        font-family: 'Century Gothic';
+        font-family: var(--app-font);
         font-weight: bold;
         margin-bottom: 2rem;
     }
 
     .content h3 {
         font-size: 1.3rem;
-        font-family: 'Century Gothic';
+        font-family: var(--app-font);
         font-weight: bold;
         margin-bottom: 2rem;
      }
 
     .content p {
         color: #aaa;
-        font-family: 'Century Gothic';
+        font-family: var(--app-font);
         font-size: 1.1rem;
     }
 
@@ -571,7 +611,7 @@ body {
 }
 
 .home-feature-icon-text {
-    font-family: 'Century Gothic';
+    font-family: var(--app-font);
 }
 
 .home-feature-title {
@@ -793,95 +833,255 @@ html[data-theme="default"] .home-feature-card {
     .home-particle { opacity: 0.5; }
 }
 
-/* === Header Links === */
-.header-link {
-    position: absolute;
-    top: 20px;
-    right: 35px;
-    color: #999;
-    font-size: 0.9rem;
-    text-decoration: none;
-    transition: color 0.2s ease;
-    z-index: 10;
+/* === Sidebar Footer === */
+/* Beta version + About link live at the absolute bottom of the sidebar.
+   `margin-top: auto` on this row consumes the leftover flex space so it
+   anchors to the bottom regardless of how many nav items there are. */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 14px 8px max(12px, env(safe-area-inset-bottom)) 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    user-select: none;
 }
 
-.content .header-version {
-    position: absolute;
-    top: 20px;
-    left: 35px;
-    color: #999 !important;
-    font-size: 0.7rem !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
+.sidebar-version {
+    color: #777;
+    font-size: 0.72rem;
+    letter-spacing: 0.4px;
+    font-variant-numeric: tabular-nums;
 }
 
-    .header-link:hover {
-        color: #fff;
-    }
+/* `!important` on color/decoration so neither Bootstrap's default <a> reset
+   nor a stale cached stylesheet can show this as a blue underlined link. */
+.sidebar-about,
+.sidebar-about:link,
+.sidebar-about:visited {
+    color: #bbb !important;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.sidebar-about:hover {
+    color: #fff !important;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+}
 
 
 
 
 /* === GROUP SHUFFLER === */
 /* ______________________ */
+/* `--group-accent` is set per card from the razor and drives the per-group
+   colour cues (item left bar, drop-target glow). */
 
-.group-card {
-    background: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(17, 17, 17, 0.9)); 
-    border: 1px solid rgba(255, 255, 255, 0.15); 
-    border-radius: 12px; 
-    padding: 20px;
-    flex: 1 1 calc(50% - 10px);
-    min-width: 170px;
-    max-width: 270px; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; 
-    height: auto;
+.shuffler-layout {
+    width: 100%;
+    max-width: 1100px;
+    margin: 8px auto 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
 }
 
-    .group-card:hover {
-        transform: translateY(-2px); 
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-    }
+.shuffler-panel {
+    width: min(560px, 95vw);
+    gap: 14px;
+}
 
-.group-title {
-    color: #fff;
-    margin: 0 0 16px 0;
-    font-size: 1.1rem;
+.shuffler-error {
+    color: #ff8c8c;
+    background: rgba(255, 90, 90, 0.08);
+    border: 1px solid rgba(255, 90, 90, 0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.shuffler-result {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.shuffler-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #cccccc;
+    font-size: 0.92rem;
+}
+
+.shuffler-summary strong {
+    color: var(--accent-text);
+}
+
+.shuffler-summary-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.shuffler-action {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 5px 12px;
+    min-width: 92px;
+    font-family: inherit;
+    font-size: 0.84rem;
     font-weight: 600;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.shuffler-action:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.group-card {
+    background: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(17, 17, 17, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 18px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    animation: group-card-enter 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.2) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.group-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.group-card-droptarget {
+    border-color: var(--group-accent);
+    box-shadow: 0 0 0 2px var(--group-accent), 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes group-card-enter {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.group-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 8px;
+}
+
+.group-title-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.group-title-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.group-size {
+    color: #888;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.group-copy-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: #aaa;
+    padding: 3px 10px;
+    min-width: 62px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.group-copy-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .group-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .group-item {
     color: #e0e0e0;
-    margin-bottom: 10px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.05); 
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 6px;
-    border-left: 3px solid #4a90e2; 
-    transition: background 0.2s ease;
-    word-wrap: break-word; 
+    border-left: 3px solid var(--group-accent, #4a90e2);
+    transition: background 0.2s ease, transform 0.15s ease;
+    word-wrap: break-word;
+    cursor: grab;
 }
 
-    .group-item:hover {
-        background: rgba(255, 255, 255, 0.1); 
-    }
+.group-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
 
+.group-item:active {
+    cursor: grabbing;
+}
 
-@media (max-width: 768px) {
-    .group-card {
-        flex: 1 1 100%;
-        max-width: none;
-        min-width: 100%;
-    }
+.group-item-empty {
+    color: #555;
+    font-style: italic;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
 }
 
 
@@ -1600,7 +1800,7 @@ html[data-theme="default"] .home-feature-card {
 }
 
 .tool-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
     border-color: rgba(74, 144, 226, 0.25);
 }
@@ -1730,12 +1930,13 @@ select.tool-input-small option {
 
 .tool-btn {
     background-color: #151313;
-    color: #ccc;
+    color: #ddd;
     border: 1px solid #333;
-    padding: 10px 18px;
+    padding: 8px 18px;
     margin-top: 1rem;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
@@ -1810,7 +2011,7 @@ select.tool-input-small option {
     box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.3),
                 inset 0 4px 8px rgba(255, 255, 255, 0.25),
                 0 4px 14px rgba(0, 0, 0, 0.5);
-    font-family: 'Century Gothic', sans-serif;
+    font-family: var(--app-font);
 }
 
 .coin-face.heads {
@@ -1905,7 +2106,7 @@ select.tool-input-small option {
     justify-content: center;
     font-size: 1.7rem;
     font-weight: 700;
-    font-family: 'Century Gothic', sans-serif;
+    font-family: var(--app-font);
     color: #888;
     background: linear-gradient(150deg, #2a2a30 0%, #1a1a1f 100%);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
@@ -1982,6 +2183,148 @@ select.tool-input-small option {
 }
 
 
+/* === SPINNING WHEEL === */
+/* _____________________ */
+/* The wheel itself is canvas-drawn (wheel.js); these styles cover the page
+   layout, the editor panel (reuses .tool-card) and the result banner. */
+
+.wheel-layout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 28px;
+    width: 100%;
+    max-width: 880px;
+    margin: 8px auto 48px;
+}
+
+.wheel-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+.wheel-canvas {
+    display: block;
+    width: min(420px, 78vw);
+    height: min(420px, 78vw);
+}
+
+.wheel-spin-btn {
+    width: auto;
+    min-width: 190px;
+    margin-top: 0;
+}
+
+.wheel-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 200px;
+    padding: 12px 30px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 26px -8px var(--accent);
+    animation: wheel-result-pop 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.45) backwards;
+}
+
+.wheel-result-label {
+    font-size: 0.68rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent-text);
+}
+
+.wheel-result-value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    word-break: break-word;
+}
+
+@keyframes wheel-result-pop {
+    from { opacity: 0; transform: scale(0.7) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.wheel-panel {
+    width: min(360px, 92vw);
+    gap: 14px;
+}
+
+.wheel-labels {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.wheel-label-input {
+    min-width: 0;
+}
+
+.wheel-history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+}
+
+.wheel-history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.74rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #888;
+}
+
+.wheel-clear-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.76rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.wheel-clear-btn:hover {
+    color: var(--accent-text);
+}
+
+.wheel-history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.wheel-history-chip {
+    max-width: 100%;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: #bbb;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wheel-history-chip:first-child {
+    color: #fff;
+    border-color: var(--accent);
+}
+
+
 /* === MODERN THEME — OTHER PAGES === */
 /* _________________________________ */
 /* The home page carries the full modern look (animated background) above.
@@ -2021,10 +2364,6 @@ html[data-theme="modern"] .info-popup {
 html[data-theme="modern"] .tool-card-title i,
 html[data-theme="modern"] .stat-value {
     color: var(--accent);
-}
-
-html[data-theme="modern"] .group-item {
-    border-left-color: var(--accent);
 }
 
 html[data-theme="modern"] .gantt-bar {
@@ -2201,4 +2540,46 @@ code {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
+}
+
+
+/* === MOBILE / TOUCH POLISH === */
+/* ___________________________ */
+/* Cross-cutting refinements for touch devices. Kept in one block so the
+   whole "feels right on a phone" surface is easy to find. */
+
+/* Tap-anywhere-on-the-wheel to spin. The Spin button still works the same. */
+.wheel-canvas {
+    cursor: pointer;
+}
+
+/* Long-press on UI chrome should not pop the iOS text-selection bubble. Inputs,
+   results and other text content stay selectable. */
+.sidebar,
+.sidebar-toggle,
+.sidebar-backdrop,
+.sidebar-footer,
+.theme-switch,
+.tool-card-title,
+.tool-card-hint,
+.page-title,
+.tool-btn,
+.shuffler-action,
+.shuffler-summary,
+.group-card-head,
+.group-copy-btn,
+.wheel-clear-btn,
+.wheel-result-label {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* On pure-touch devices, :hover sticks after a tap until you tap elsewhere —
+   which makes cards look stuck in the "lifted" state. Disable the transforms
+   there; press feedback already comes from the :active scale on buttons. */
+@media (hover: none) {
+    .tool-card:hover,
+    .group-card:hover {
+        transform: none;
+    }
 }

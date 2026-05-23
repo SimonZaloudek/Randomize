@@ -14,51 +14,52 @@
             </div>
         </div>
 
-        <!-- Home -->
-        <NavLink href="/" class="nav-item" Match="NavLinkMatch.All">
-            <i class="bi bi-house"></i> Home
-        </NavLink>
-        <!-- Text -->
-        <NavLink href="/string" class="nav-item">
-            <i class="bi bi-type"></i> Text Randomizers
-        </NavLink>
-        <!-- Number -->
-        <NavLink href="/number" class="nav-item">
-            <i class="bi bi-123"></i> Number Randomizers
-        </NavLink>
-        <!-- Wheel -->
-        <NavLink href="/wheel" class="nav-item">
-            <i class="bi bi-arrow-repeat"></i> Spinning Wheel
-        </NavLink>
-        <!-- Group Shuffler -->
-        <NavLink href="/groupshuffler" class="nav-item">
-            <i class="bi bi-people-fill"></i> Group Shuffler
-        </NavLink>
-        <!-- Shift Planner -->
-        <NavLink href="/shiftplanner" class="nav-item">
-            <i class="bi bi-clock"></i> Shift Planner
-        </NavLink>
+        <!-- A click on any NavLink bubbles up here and closes the sidebar on
+             mobile. The theme switch sits outside this nav so it won't trigger. -->
+        <nav class="sidebar-nav" @onclick="CloseSidebar">
+            <NavLink href="/" class="nav-item" Match="NavLinkMatch.All">
+                <i class="bi bi-house"></i> Home
+            </NavLink>
+            <NavLink href="/string" class="nav-item">
+                <i class="bi bi-type"></i> Text Randomizers
+            </NavLink>
+            <NavLink href="/number" class="nav-item">
+                <i class="bi bi-123"></i> Number Randomizers
+            </NavLink>
+            <NavLink href="/wheel" class="nav-item">
+                <i class="bi bi-arrow-repeat"></i> Spinning Wheel
+            </NavLink>
+            <NavLink href="/groupshuffler" class="nav-item">
+                <i class="bi bi-people-fill"></i> Group Shuffler
+            </NavLink>
+            <NavLink href="/shiftplanner" class="nav-item">
+                <i class="bi bi-clock"></i> Shift Planner
+            </NavLink>
+        </nav>
+
+        <!-- Version + About — lives in the sidebar so it doesn't compete with the
+             menu button on phones and is always one tap away. -->
+        <div class="sidebar-footer">
+            <span class="sidebar-version">Beta v0.50</span>
+            <a href="https://github.com/SimonZaloudek" target="_blank" rel="noopener" class="sidebar-about">About</a>
+        </div>
     </div>
+
+    <!-- Dim the content behind the open sidebar (mobile only); tap to close. -->
+    <div class="sidebar-backdrop @(isSidebarOpen ? "visible" : "")" @onclick="CloseSidebar"></div>
 
     <!-- Main content -->
     <div class="content">
-        <button class="sidebar-toggle" @onclick="ToggleSidebar">
-            @if (isSidebarOpen)
-            {
-                <svg viewBox="0 0 24 24" width="25" height="25" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        <!-- Only the "open" affordance is needed. Closing happens via backdrop
+             tap or a nav-link tap, so no on-screen close button is necessary. -->
+        @if (!isSidebarOpen)
+        {
+            <button class="sidebar-toggle" @onclick="ToggleSidebar" aria-label="Open menu">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
                 </svg>
-            }
-            else
-            {
-                <svg viewBox="0 0 24 24" width="25" height="25" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
-                </svg>
-            }
-        </button>
-
-        <p class="content header-version">Beta v0.50</p>
-        <a href="https://github.com/SimonZaloudek" class="header-link">About</a>
+            </button>
+        }
 
         @Body
     </div>
@@ -71,6 +72,13 @@
     private void ToggleSidebar()
     {
         isSidebarOpen = !isSidebarOpen;
+    }
+
+    // Used by the NavLink bubble and the backdrop tap. Harmless on desktop —
+    // the CSS keeps the sidebar visible there regardless of this flag.
+    private void CloseSidebar()
+    {
+        isSidebarOpen = false;
     }
 
     protected override async Task OnInitializedAsync()

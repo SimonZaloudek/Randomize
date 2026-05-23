@@ -1,181 +1,288 @@
-﻿function drawPointer(ctx, cx, cy, radius) {
+// Spinning wheel — canvas rendering, spin animation, ticking pointer, confetti.
+// One drawWheel() is the single source of truth; renderWheel/spinWheel/celebrate
+// all draw through it. Coordinates are CSS pixels; the backing store is scaled
+// by devicePixelRatio so the wheel stays crisp on high-DPI screens.
+
+// Curated palette: 16 evenly-spaced, similar-tone hues — distinct but harmonious.
+const WHEEL_COLORS = [
+    "#ef6f6c", "#f0915a", "#efc05a", "#d4d65f",
+    "#9bd06b", "#63c98d", "#54c6b6", "#56b4d3",
+    "#5b93d6", "#6f7fd6", "#8f74d4", "#aa6fd0",
+    "#c66fc4", "#d96fa3", "#e06f86", "#cf7d6a"
+];
+
+// Persisted between draws so the wheel never jumps back to 0 on a redraw.
+let wheelRotation = 0;
+let wheelItems = [];
+let wheelHighlight = null;
+
+function getWheelCtx() {
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const size = canvas.clientWidth || 320;
+    const px = Math.round(size * dpr);
+    if (canvas.width !== px || canvas.height !== px) {
+        canvas.width = px;
+        canvas.height = px;
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, size };
+}
+
+// Smaller font as the wheel gets busier, so labels keep fitting.
+function labelFontSize(total) {
+    if (total <= 6) return 18;
+    if (total <= 9) return 16;
+    if (total <= 12) return 13;
+    return 11;
+}
+
+// Trim a label with an ellipsis if it would overflow its slice.
+function fitLabel(ctx, text, maxWidth) {
+    text = text == null ? '' : String(text);
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let t = text;
+    while (t.length > 1 && ctx.measureText(t + '…').width > maxWidth) {
+        t = t.slice(0, -1);
+    }
+    return t + '…';
+}
+
+// Which slice sits under the pointer (top, angle 3π/2) for a given rotation.
+// Used both for the result and for the pointer tick — so they always agree.
+function indexAtPointer(rotation, total) {
+    const seg = (2 * Math.PI) / total;
+    let a = (1.5 * Math.PI - rotation) % (2 * Math.PI);
+    if (a < 0) a += 2 * Math.PI;
+    return Math.floor(a / seg) % total;
+}
+
+function drawPointer(ctx, cx, pivotY, tick) {
+    // The flap pivots above the rim; `tick` rocks it as slices pass.
     ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#d32f2f";
+    ctx.translate(cx, pivotY);
+    ctx.rotate(tick);
     ctx.beginPath();
-    ctx.moveTo(cx, cy - radius + 6);      //top
-    ctx.lineTo(cx - 5, cy - radius - 5);  //left
-    ctx.lineTo(cx + 5, cy - radius - 5);  //right
+    ctx.moveTo(0, 16);       // tip — dips into the wheel
+    ctx.lineTo(-10, -9);
+    ctx.lineTo(10, -9);
     ctx.closePath();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 3;
+    ctx.fillStyle = '#f5f5f7';
     ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.stroke();
     ctx.restore();
 }
 
-const colors = [
-    "#FF0000", // 1 - Red
-    "#0099FF", // 2 - Black
-    "#FFFF00", // 3 - Yellow
-    "#00FF00", // 4 - Lime
-    "#00FFFF", // 5 - Cyan
-    "#0000FF", // 6 - Blue
-    "#8B00FF", // 7 - Violet
-    "#FF1493", // 8 - Pink
-    "#FF7F00", // 9 - Orange
-    "#FFD700", // 10 - Gold
-    "#ADFF2F", // 11 - GreenYellow
-    "#40E0D0", // 12 - Turquoise
-    "#1E90FF", // 13 - DodgerBlue
-    "#7B68EE", // 14 - MediumSlateBlue
-    "#C71585", // 15 - MediumVioletRed
-    "#708090"  // 16 - SlateGray
-];
-
-window.renderWheel = function (items) {
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const center = canvas.width / 2;
-    const radius = center - 5;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+function drawWheel(items, rotation, highlight, tick) {
+    const c = getWheelCtx();
+    if (!c) return;
+    const { ctx, size } = c;
+    const center = size / 2;
+    const radius = center - 18;          // room for pointer + glow
     const total = items.length;
-    const angle = (2 * Math.PI) / total;
 
-    // Shadow
+    ctx.clearRect(0, 0, size, size);
+    if (total === 0) return;
+    const seg = (2 * Math.PI) / total;
+
+    // Drop-shadow disc behind the wheel.
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 6;
+    ctx.shadowColor = 'rgba(0,0,0,0.55)';
+    ctx.shadowBlur = 22;
+    ctx.shadowOffsetY = 8;
     ctx.beginPath();
     ctx.arc(center, center, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = '#000';
     ctx.fill();
     ctx.restore();
 
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#2a2a2a";
+    // Rotating wheel body.
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(rotation);
 
     for (let i = 0; i < total; i++) {
-        const start = i * angle;
-        const end = start + angle;
-        const hue = (i * 360) / total;
-
+        const a0 = i * seg;
         ctx.beginPath();
-        ctx.moveTo(center, center);
-        ctx.arc(center, center, radius, start, end);
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, a0, a0 + seg);
         ctx.closePath();
-        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
         ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(0,0,0,0.28)';
         ctx.stroke();
     }
 
-    for (let i = 0; i < total; i++) {
-        const start = i * angle;
+    // Glowing outline on the winning slice.
+    if (highlight != null && highlight >= 0 && highlight < total) {
+        const a0 = highlight * seg;
         ctx.save();
-        ctx.translate(center, center);
-        ctx.rotate(start + angle / 2);
-        ctx.textAlign = "right";
-        ctx.font = "19px 'Segoe UI', sans-serif";
-        ctx.fillStyle = "#f0f0f0";
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "black";
-        ctx.strokeText(items[i], radius - 12, 5);
-        ctx.fillText(items[i], radius - 12, 5);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, a0, a0 + seg);
+        ctx.closePath();
+        ctx.shadowColor = 'rgba(255,255,255,0.95)';
+        ctx.shadowBlur = 16;
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
         ctx.restore();
     }
 
-    drawPointer(ctx, center, center, radius);
+    // Labels, one per slice, centred on the slice mid-line.
+    ctx.font = `600 ${labelFontSize(total)}px 'Segoe UI', sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let i = 0; i < total; i++) {
+        ctx.save();
+        ctx.rotate(i * seg + seg / 2);
+        const label = fitLabel(ctx, items[i], radius - 34);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.strokeText(label, radius - 14, 0);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(label, radius - 14, 0);
+        ctx.restore();
+    }
+    ctx.restore();
+
+    // Centre hub.
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(center, center, Math.max(13, radius * 0.12), 0, 2 * Math.PI);
+    ctx.fillStyle = '#f5f5f7';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.stroke();
+    ctx.restore();
+
+    drawPointer(ctx, center, center - radius - 1, tick || 0);
+}
+
+window.renderWheel = function (items) {
+    wheelItems = (items || []).slice();
+    wheelHighlight = null;
+    drawWheel(wheelItems, wheelRotation, null, 0);
 };
 
-window.spinWheel = async function (items) {
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const center = canvas.width / 2;
-    const radius = center - 5;
+// Spins the wheel and resolves with the winning slice index.
+window.spinWheel = function (items) {
+    wheelItems = (items || []).slice();
+    wheelHighlight = null;
+    const total = wheelItems.length;
+    if (total < 2) return Promise.resolve(-1);
 
-    const total = items.length;
-    const anglePerItem = (2 * Math.PI) / total;
-    const randomFinalAngle = Math.random() * (2 * Math.PI);
-    const spins = 6;
-    const finalAngle = (2 * Math.PI * spins) + randomFinalAngle;
-    const start = performance.now();
-    const duration = 3000;
+    const startRotation = wheelRotation;
+    const turns = 4 + Math.floor(Math.random() * 4);          // 4–7 full turns
+    const finalRotation = startRotation + turns * 2 * Math.PI + Math.random() * 2 * Math.PI;
+    const duration = 3000 + Math.random() * 900;
+    const startTime = performance.now();
+    let lastIdx = indexAtPointer(startRotation, total);
+    let tick = 0;
 
-    return await new Promise(resolve => {
-        function animate(time) {
-            let progress = (time - start) / duration;
-            if (progress > 1) progress = 1;
+    return new Promise(resolve => {
+        function frame(now) {
+            let p = (now - startTime) / duration;
+            if (p > 1) p = 1;
+            const eased = 1 - Math.pow(1 - p, 5);             // easeOutQuint
+            const rotation = startRotation + (finalRotation - startRotation) * eased;
+            wheelRotation = rotation;
 
-            const ease = 1 - Math.pow(1 - progress, 3);
-            const angleOffset = finalAngle * ease;
+            // Kick the pointer each time a new slice passes under it.
+            const idx = indexAtPointer(rotation, total);
+            if (idx !== lastIdx) { tick = 0.42; lastIdx = idx; }
+            tick *= 0.82;
 
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWheel(wheelItems, rotation, null, tick);
 
-            // Shadow
-            ctx.save();
-            ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-            ctx.shadowBlur = 20;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 6;
-            ctx.beginPath();
-            ctx.arc(center, center, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = "#000";
-            ctx.fill();
-            ctx.restore();
-
-            // Wheel
-            ctx.save();
-            ctx.translate(center, center);
-            ctx.rotate(angleOffset);
-            ctx.translate(-center, -center);
-
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "#2a2a2a";
-
-            for (let i = 0; i < total; i++) {
-                const start = i * anglePerItem;
-                const end = start + anglePerItem;
-                const hue = (i * 360) / total;
-
-                ctx.beginPath();
-                ctx.moveTo(center, center);
-                ctx.arc(center, center, radius, start, end);
-                ctx.closePath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.save();
-                ctx.translate(center, center);
-                ctx.rotate(start + anglePerItem / 2);
-                ctx.textAlign = "right";
-                ctx.font = "20px 'Segoe UI', sans-serif";
-                ctx.fillStyle = "#f0f0f0";
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "black";
-                ctx.strokeText(items[i], radius - 12, 5);
-                ctx.fillText(items[i], radius - 12, 5);
-                ctx.restore();
-            }
-
-            ctx.restore();
-
-            // Pointer
-            drawPointer(ctx, center, center, radius);
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
+            if (p < 1) {
+                requestAnimationFrame(frame);
             } else {
-                let relativeAngle = (-finalAngle + Math.PI * 1.5) % (2 * Math.PI);
-                if (relativeAngle < 0) relativeAngle += 2 * Math.PI;
-                const selectedIndex = Math.floor(relativeAngle / anglePerItem) % total;
-                resolve(items[selectedIndex]);
+                wheelRotation = finalRotation % (2 * Math.PI);
+                const winner = indexAtPointer(wheelRotation, total);
+                wheelHighlight = winner;
+                drawWheel(wheelItems, wheelRotation, winner, 0);
+                resolve(winner);
             }
         }
-
-        requestAnimationFrame(animate);
+        requestAnimationFrame(frame);
     });
 };
+
+// A short confetti burst over the wheel; resolves when it finishes.
+window.celebrate = function () {
+    const c = getWheelCtx();
+    if (!c) return Promise.resolve();
+    const center = c.size / 2;
+
+    const pieces = [];
+    for (let i = 0; i < 38; i++) {
+        pieces.push({
+            x: center + (Math.random() - 0.5) * 70,
+            y: center,
+            vx: (Math.random() - 0.5) * 7,
+            vy: -6 - Math.random() * 7,
+            w: 5 + Math.random() * 6,
+            color: WHEEL_COLORS[Math.floor(Math.random() * WHEEL_COLORS.length)],
+            rot: Math.random() * Math.PI,
+            vrot: (Math.random() - 0.5) * 0.4
+        });
+    }
+
+    const duration = 1300;
+    const gravity = 0.32;
+    const startTime = performance.now();
+
+    return new Promise(resolve => {
+        function frame(now) {
+            const elapsed = now - startTime;
+            drawWheel(wheelItems, wheelRotation, wheelHighlight, 0);
+
+            const ctx = getWheelCtx();
+            if (!ctx) { resolve(); return; }
+            const fade = Math.max(0, 1 - elapsed / duration);
+            for (const pc of pieces) {
+                pc.vy += gravity;
+                pc.x += pc.vx;
+                pc.y += pc.vy;
+                pc.rot += pc.vrot;
+                ctx.ctx.save();
+                ctx.ctx.globalAlpha = fade;
+                ctx.ctx.translate(pc.x, pc.y);
+                ctx.ctx.rotate(pc.rot);
+                ctx.ctx.fillStyle = pc.color;
+                ctx.ctx.fillRect(-pc.w / 2, -pc.w / 2, pc.w, pc.w * 0.6);
+                ctx.ctx.restore();
+            }
+
+            if (elapsed < duration) {
+                requestAnimationFrame(frame);
+            } else {
+                drawWheel(wheelItems, wheelRotation, wheelHighlight, 0);
+                resolve();
+            }
+        }
+        requestAnimationFrame(frame);
+    });
+};
+
+// Keep the wheel sharp when the viewport (and so the canvas size) changes.
+let wheelResizeTimer = null;
+window.addEventListener('resize', () => {
+    clearTimeout(wheelResizeTimer);
+    wheelResizeTimer = setTimeout(() => {
+        if (wheelItems.length > 0) {
+            drawWheel(wheelItems, wheelRotation, wheelHighlight, 0);
+        }
+    }, 150);
+});

@@ -16,7 +16,7 @@
                       @bind:event="oninput"
                       placeholder="Enter items, one per line"></textarea>
         </div>
-        <button class="tool-btn" @onclick="DoShuffle">🎲 Pick One</button>
+        <button class="tool-btn" @onclick="DoShuffle">Pick One</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_shuffleResult))
             {
@@ -39,7 +39,7 @@
                       @bind:event="oninput"
                       placeholder="@_weightedPlaceholder"></textarea>
         </div>
-        <button class="tool-btn" @onclick="DoWeighted">🎯 Pick Weighted</button>
+        <button class="tool-btn" @onclick="DoWeighted">Pick Weighted</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_weightedResult))
             {
@@ -69,7 +69,7 @@
                 <label><input type="checkbox" @bind="_pwSymbols" /> Symbols</label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">🔐 Generate</button>
+        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">Generate</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_pwResult))
             {
@@ -109,7 +109,7 @@
                        placeholder="Custom characters, e.g. ABCDEF0123" />
             }
         </div>
-        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">🔑 Generate</button>
+        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">Generate</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_tokenResult))
             {
@@ -134,7 +134,7 @@
                 </div>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">🪙 Flip</button>
+        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">Flip</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_coinResult))
             {
@@ -163,7 +163,7 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoEmoji">✨ Surprise Me</button>
+        <button class="tool-btn" @onclick="DoEmoji">Surprise Me</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_emojiResult))
             {
