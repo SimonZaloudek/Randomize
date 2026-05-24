@@ -2366,10 +2366,6 @@ html[data-theme="modern"] .stat-value {
     color: var(--accent);
 }
 
-html[data-theme="modern"] .gantt-bar {
-    background: linear-gradient(135deg, #7a5fd0 0%, #4f3a9e 100%);
-}
-
 html[data-theme="modern"] .gantt-cell.working {
     background: rgba(140, 110, 230, 0.12);
 }
@@ -2540,6 +2536,487 @@ code {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
+}
+
+
+/* === SHIFT PLANNER (REDESIGN) === */
+/* ______________________________ */
+/* Builds on top of the original .timeline-bar / .gantt-* internals — this
+   section adds the card-based layout, color-coded employees (per-row
+   --emp-color CSS var), today/next-day visual split, presets, edit-in-place,
+   and mobile horizontal-scrolling for the wide timeline & Gantt. */
+
+.planner-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 8px auto 48px;
+}
+
+.planner-card {
+    gap: 14px;
+}
+
+.planner-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 18px;
+}
+
+.planner-section-title {
+    margin: 0;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.planner-section-hint {
+    margin: 0 0 0 auto;
+    color: #888;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.planner-card-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}
+
+.planner-chip {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.planner-chip:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.planner-chip-quiet {
+    color: #888;
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.planner-file-input {
+    display: none;
+}
+
+.demand-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Horizontal scroller used to wrap the long .timeline-bar and the .gantt-chart
+   so they never blow out the .tool-card border. */
+.planner-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.planner-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+.planner-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+}
+
+/* Visible-range setter — small inputs in the card head. */
+.planner-visible-range {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.planner-visible-range .tool-input-small {
+    min-width: 54px;
+    width: 54px;
+    padding: 3px 6px;
+    text-align: center;
+}
+
+.planner-visible-sep {
+    color: #555;
+}
+
+/* Custom-range row — sits under the presets. */
+.demand-custom-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+}
+
+.demand-custom-label {
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.7rem;
+}
+
+.demand-custom-row .tool-input-small {
+    min-width: 70px;
+    width: 80px;
+    text-align: center;
+}
+
+.demand-custom-sep {
+    color: #555;
+}
+
+/* Visually mark hours that belong to the next day (24..30). The first one
+   gets a thicker accent divider so the seam is unmistakable. */
+.hour-slot.next-day .hour-label,
+.gantt-hour-marker.next-day {
+    color: var(--accent-text);
+    opacity: 0.85;
+}
+
+.hour-slot.next-day-start {
+    border-left: 2px solid var(--accent);
+    padding-left: 6px;
+    margin-left: 2px;
+}
+
+.gantt-hour-marker.next-day-start,
+.gantt-cell.next-day-start {
+    border-left: 2px solid var(--accent);
+}
+
+.planner-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #cccccc;
+    font-size: 0.88rem;
+}
+
+.planner-summary strong {
+    color: var(--accent-text);
+}
+
+.planner-summary-status {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: #8fd17b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.planner-summary.short {
+    border-color: rgba(255, 180, 80, 0.4);
+    background: rgba(255, 180, 80, 0.06);
+}
+
+.planner-summary.short .planner-summary-status {
+    color: #ffb455;
+}
+
+.planner-error {
+    color: #ff8c8c;
+    background: rgba(255, 90, 90, 0.08);
+    border: 1px solid rgba(255, 90, 90, 0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-info {
+    color: #cccccc;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-info strong {
+    color: var(--accent-text);
+}
+
+.planner-warning {
+    color: #ffb455;
+    background: rgba(255, 180, 80, 0.08);
+    border: 1px solid rgba(255, 180, 80, 0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-warning strong {
+    color: #ffd089;
+}
+
+/* --- Employee form (compact card) --- */
+
+.planner-form-card {
+    padding: 14px 18px;
+    gap: 10px;
+}
+
+.planner-card-head-tight {
+    margin-bottom: 0;
+}
+
+.employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* One-line row: Max hours · Start · End · Add. Wraps on narrow screens. */
+.employee-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.employee-form-input {
+    min-width: 90px;
+    width: 110px;
+}
+
+.planner-form-btn {
+    width: auto;
+    min-width: 90px;
+    padding: 8px 18px;
+    margin-top: 0;
+    margin-left: auto;
+}
+
+/* --- Employee list --- */
+
+.employee-color-chip {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--emp-color, var(--accent));
+    flex-shrink: 0;
+    box-shadow: 0 0 8px -2px var(--emp-color, var(--accent));
+}
+
+/* Override the base .employee-card to add proper spacing between the flat
+   children (chip · name · max-hours · time · actions). Without an explicit
+   gap, justify-content:space-between leaves the leading items flush. */
+.employee-card {
+    gap: 12px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+}
+
+.employee-card .employee-name {
+    font-weight: 600;
+    color: #f0f0f0;
+}
+
+.employee-card .emp-hours {
+    color: var(--accent-text);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.employee-card .emp-time,
+.employee-card .emp-time-muted {
+    color: #bbb;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+.employee-card.editing {
+    border: 1px solid var(--emp-color, var(--accent));
+    box-shadow: 0 0 0 1px var(--emp-color, var(--accent));
+}
+
+.employee-card-actions {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.employee-icon-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: #aaa;
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.employee-icon-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.employee-icon-btn-danger:hover {
+    color: #ff8c8c;
+    border-color: rgba(255, 90, 90, 0.4);
+}
+
+/* --- Randomize + results --- */
+
+.planner-randomize {
+    width: auto !important;
+    min-width: 240px;
+    align-self: center;
+    margin-top: 0 !important;
+}
+
+.planner-results {
+    animation: planner-results-pop 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.2) backwards;
+}
+
+@keyframes planner-results-pop {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Color-coded Gantt — bar pulls from per-row --emp-color. The .gantt-chart
+   prefix beats the modern-theme override on .gantt-bar without !important. */
+.gantt-chart .gantt-row .gantt-bar {
+    background: linear-gradient(135deg, var(--emp-color, var(--accent)) 0%, color-mix(in srgb, var(--emp-color, var(--accent)) 65%, #000) 100%);
+}
+
+/* Restructured name row: small colour chip on the left, name + shift-hours
+   stacked on the right. Overrides the original column flex direction so the
+   layout aligns row-for-row with the Gantt bars. */
+.planner-results .gantt-name {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+}
+
+.gantt-name-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    gap: 1px;
+    line-height: 1.15;
+}
+
+.gantt-name-text {
+    color: #f0f0f0;
+    font-weight: 600;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.planner-results .shift-hours {
+    color: #999;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Inside the planner card, the .gantt-chart shouldn't render its own card
+   chrome — the wrapping .tool-card already provides it. */
+.planner-results .gantt-chart {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 0;
+    overflow: visible;
+}
+
+.gantt-cell.next-day {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* === Mobile === */
+@media (max-width: 767px) {
+
+    .planner-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .planner-section-hint {
+        margin-left: 0;
+    }
+    .planner-card-actions {
+        margin-left: 0;
+    }
+
+    .employee-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .employee-form-field {
+        width: 100%;
+    }
+    .employee-form-field .tool-input-small {
+        width: 100%;
+    }
+
+    .planner-form-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .employee-card {
+        flex-wrap: wrap;
+    }
+    .employee-card-actions {
+        margin-left: auto;
+    }
+
+    .planner-randomize {
+        width: 100% !important;
+    }
+
+    /* Sticky employee-name column when horizontally scrolling the Gantt. */
+    .planner-scroll .gantt-names-column {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: linear-gradient(145deg, rgba(26, 26, 26, 0.98), rgba(17, 17, 17, 0.98));
+        box-shadow: 4px 0 12px -4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Tighten the visible-range setter so it doesn't crowd the section title. */
+    .planner-visible-range {
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
 }
 
 

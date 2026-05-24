@@ -1,14 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Randomize.Core.ShiftPlanner
 {
     public class ShiftPlannerService
     {
-        private readonly Random _random = new();
         private const int MinimumShiftHours = 3;
 
         public class ShiftAssignment
@@ -29,13 +26,13 @@ namespace Randomize.Core.ShiftPlanner
             }
 
             var remainingDemand = new Dictionary<int, int>(hourlyDemand);
-            var shuffledEmployees = employees.OrderBy(_ => _random.Next()).ToList();
+            var shuffledEmployees = Shuffle(employees);
 
             foreach (var employee in shuffledEmployees)
             {
                 var assignment = FindBestContinuousShift(employee, remainingDemand, hourlyDemand);
 
-                //demand check
+                // demand check
                 if (assignment.start != -1 && assignment.end != -1)
                 {
                     bool canAssign = true;
@@ -94,6 +91,19 @@ namespace Randomize.Core.ShiftPlanner
             return result;
         }
 
+        // Fisher–Yates with Random.Shared — unbiased and consistent with the rest
+        // of the codebase (group shuffler, wheel, etc.).
+        private static List<Employee> Shuffle(IEnumerable<Employee> source)
+        {
+            var list = source.ToList();
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = Random.Shared.Next(i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+            return list;
+        }
+
         private (int start, int end) FindBestContinuousShift(Employee employee, Dictionary<int, int> remainingDemand, Dictionary<int, int> totalDemand)
         {
             var (availStart, availEnd) = employee.GetAvailabilityWindow();
@@ -150,24 +160,20 @@ namespace Randomize.Core.ShiftPlanner
             if (possibleShifts.Count == 0)
                 return (-1, -1);
 
-         
             var sortedShifts = possibleShifts
                 .OrderByDescending(s => s.unfilledHours)
                 .ThenByDescending(s => s.duration)
                 .ToList();
 
-            
             int maxUnfilled = sortedShifts[0].unfilledHours;
             int maxDuration = sortedShifts.Where(s => s.unfilledHours == maxUnfilled).Max(s => s.duration);
 
-            
             var bestShifts = sortedShifts
                 .Where(s => s.unfilledHours == maxUnfilled)
                 .Where(s => s.duration >= (int)(maxDuration * 0.95))
                 .ToList();
 
-           
-            var selected = bestShifts[_random.Next(bestShifts.Count)];
+            var selected = bestShifts[Random.Shared.Next(bestShifts.Count)];
             return (selected.start, selected.end);
         }
     }

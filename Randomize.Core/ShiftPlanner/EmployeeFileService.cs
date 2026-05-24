@@ -1,26 +1,35 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Randomize.Core.ShiftPlanner
 {
     public static class EmployeeFileService
     {
+        private static readonly JsonSerializerOptions JsonOpts = new()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
-
+        // ----- TXT (legacy) -----
+        // Space-separated: `Name MaxHours [Start [True]] [End [True]]`. Spaces
+        // in names are encoded as `=` so the line stays single-token-per-field.
+        // Kept for backwards compatibility with anyone who saved a roster in
+        // the old format.
         public static string WriteEmployees(IEnumerable<Employee> employees)
-        { 
-            StringBuilder sb = new StringBuilder();
-            foreach (Employee employee in employees)
+        {
+            var sb = new StringBuilder();
+            foreach (var employee in employees)
             {
                 if (!string.IsNullOrEmpty(employee.Name))
                     sb.Append(employee.Name.Replace(" ", "="));
 
                 sb.Append($" {employee.MaxHours}");
 
-                if (employee.ScheduleStart.HasValue) 
+                if (employee.ScheduleStart.HasValue)
                 {
                     sb.Append($" {employee.ScheduleStart.Value}");
                     if (employee.StartNextDay)
@@ -42,7 +51,7 @@ namespace Randomize.Core.ShiftPlanner
             return sb.ToString();
         }
 
-        public static List<Employee> LoadEmployees(string text)
+        public static List<Employee> LoadEmployeesTxt(string text)
         {
             var employees = new List<Employee>();
             var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
@@ -57,8 +66,8 @@ namespace Randomize.Core.ShiftPlanner
                 {
                     Name = string.Join(" ", parts[0].Split('=')),
                     MaxHours = parts.Length > 1 && int.TryParse(parts[1], out var maxH) ? maxH : 12,
-                    StartNextDay = false, 
-                    EndNextDay = false    
+                    StartNextDay = false,
+                    EndNextDay = false
                 };
                 int idx = 2;
 
@@ -92,5 +101,58 @@ namespace Randomize.Core.ShiftPlanner
             return employees;
         }
 
+        // ----- JSON (preferred) -----
+        // Robust to names with any characters, optional fields, and future
+        // additions to Employee. New saves go out as JSON.
+        public static string WriteEmployeesJson(IEnumerable<Employee> employees)
+        {
+            var dtos = employees.Select(e => new EmployeeDto
+            {
+                Name = e.Name ?? "",
+                MaxHours = e.MaxHours,
+                ScheduleStart = e.ScheduleStart,
+                ScheduleEnd = e.ScheduleEnd,
+                StartNextDay = e.StartNextDay,
+                EndNextDay = e.EndNextDay
+            }).ToList();
+
+            return JsonSerializer.Serialize(dtos, JsonOpts);
+        }
+
+        public static List<Employee> LoadEmployeesJson(string text)
+        {
+            var dtos = JsonSerializer.Deserialize<List<EmployeeDto>>(text, JsonOpts);
+            if (dtos is null) return new List<Employee>();
+
+            return dtos.Select(d => new Employee
+            {
+                Name = d.Name,
+                MaxHours = d.MaxHours,
+                ScheduleStart = d.ScheduleStart,
+                ScheduleEnd = d.ScheduleEnd,
+                StartNextDay = d.StartNextDay,
+                EndNextDay = d.EndNextDay
+            }).ToList();
+        }
+
+        // Auto-detect TXT vs JSON by sniffing the first non-whitespace char.
+        // Lets users load either format without picking it.
+        public static List<Employee> LoadEmployees(string text)
+        {
+            var trimmed = (text ?? string.Empty).TrimStart();
+            if (trimmed.StartsWith("[") || trimmed.StartsWith("{"))
+                return LoadEmployeesJson(text!);
+            return LoadEmployeesTxt(text ?? string.Empty);
+        }
+
+        private class EmployeeDto
+        {
+            public string Name { get; set; } = "";
+            public int? MaxHours { get; set; }
+            public int? ScheduleStart { get; set; }
+            public int? ScheduleEnd { get; set; }
+            public bool StartNextDay { get; set; }
+            public bool EndNextDay { get; set; }
+        }
     }
 }

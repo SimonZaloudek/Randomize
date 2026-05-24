@@ -1,256 +1,306 @@
-﻿@page "/shiftplanner"
+@page "/shiftplanner"
 @using Randomize.Core.ShiftPlanner
 @using System.Text
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components.Forms
 @inject IJSRuntime JS
 
+<h2 class="page-title">Shift Planner</h2>
 
-<h2 class="page-title">Shift Planner Randomizer</h2>
+<div class="planner-layout">
 
-<!-- TIMELINE -->
+    <!-- ============ HOURLY DEMAND ============ -->
+    <section class="planner-card tool-card">
+        <div class="planner-card-head">
+            <h3 class="planner-section-title">Hourly demand</h3>
 
-<p style="margin-bottom:5px">Day Timeline (00:00 Today to 06:00 Next Day)</p>
-
-<div class="timeline-container">
-
-    <div class="timeline-bar">
-        @foreach (int hour in Enumerable.Range(0, 31))
-        {
-            var currentHour = hour % 24; 
-
-            <div class="hour-slot">
-                <label class="hour-label">
-                    @currentHour:00
-                </label>
-                <input class="required-input" 
-                type="number" 
-                min="0" 
-                max="40"
-                @bind-value="_shift.GetTimeSlot(hour).Demand"
-                @bind-value:event="oninput"
-                placeholder="0" />
-            </div>
-        }
-    </div>  
-</div>
-
-
-<!-- ADDING EMPLOYEES -->
-
-<p style="margin-top:8px; margin-bottom:3px">Add Employees</p>
-
-<div class="employee-add-container">
-    <input type="text"
-    class="employee-input"
-    placeholder="Employee name"
-    @bind="_newEmployee.Name" />
-
-    <input type="number"
-    class="employee-input small"
-    placeholder="Max hours (optional)"
-    min="0"
-    @bind="_newEmployee.MaxHours" />
-
-    <div class="time-input-group">
-        <input type="number"
-        class="employee-input small"
-        placeholder="Start hour"
-        min="@(_newEmployee.StartNextDay ? 0 : 0)"
-        max="@(_newEmployee.StartNextDay ? 6 : 23)"
-        @bind="_newEmployee.ScheduleStart" />
-        <label class="nextday-checkbox">
-            <input type="checkbox" @bind="_newEmployee.StartNextDay" />
-            <i class="bi bi-moon"></i>
-        </label>
-    </div>
-
-
-    <div class="time-input-group">
-        <input type="number"
-        class="employee-input small"
-        placeholder="End hour"
-        min="@GetEndMin()"
-        max="@(_newEmployee.EndNextDay ? 6 : 23)"
-        @bind="_newEmployee.ScheduleEnd" />
-        <label class="nextday-checkbox">
-            <input type="checkbox" @bind="_newEmployee.EndNextDay" />
-            <i class="bi bi-moon small small-icon"></i>
-        </label>
-    </div>
-
-    <button class="employee-add-btn" @onclick="AddEmployee">
-        <i class="bi bi-person-plus"></i> Add
-    </button>
-</div>
-
-@if (!string.IsNullOrEmpty(_validationMessage))
-{
-    <p style="color:#ff7777; font-size:0.9rem; margin-top:4px;">@_validationMessage</p>
-}
-
-
-<!-- EMPLOYEE LIST -->
-
-@if (_employees.Any())
-{
-    <div class="employee-list">
-        @foreach (var emp in _employees)
-        {
-            <div class="employee-card">
-
-                <div class="employee-list">
-                    <strong>@emp.Name:</strong>
-                </div>
-
-                <div class="emp-right">
-                    <span class="emp-hours">(max @emp.MaxHours h)</span>
-
-
-                    @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
-                    {
-                        <span class="emp-time">@((MarkupString)$"{emp.DisplayStart} – {emp.DisplayEnd}")</span>
-                    }
-                    else
-                    {
-                        <span class="emp-time-muted">No schedule</span>
-                    }
-
-                    <button class="edit-btn" @onclick="@(() => EditEmployee(emp))" title="Edit employee">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
-
-                    <button class="delete-btn" @onclick="@(() => DeleteEmployee(emp))" title="Remove employee">
-                        <i class="bi bi-trash"></i>
-                    </button>
-
-                </div>
-            </div>
-        }
-    </div>
-}
-
-
-<!-- ACTIONS -->
-
-<div class="employee-actions">
-    <button class="btn btn-outline-light me-2" @onclick="SaveEmployees">
-        <i class="bi bi-save"></i> Save to TXT
-    </button>
-
-    <label class="btn btn-outline-light">
-        <i class="bi bi-upload"></i> Load from TXT
-        <InputFile OnChange="LoadEmployees" accept=".txt" style="display:none" />
-    </label>
-</div>
-
-
-
-<!-- randomize button -->
-
-@if (_employees.Count > 0)
-{
-    <button class="button-main" style="margin-top: 30px;" @onclick="RandomizeShifts">
-        🎲 Randomize Shifts
-    </button>
-}
-
-
-
-<!-- RESULTS -->
-
-@if (_assignmentResult != null)
-{
-    <div class="results-section">
-        <h3>Assignment Results</h3>
-
-        @if (_assignmentResult.UnassignedEmployees.Count > 0)
-        {
-            <div class="info-message">
-                ℹ️ @_assignmentResult.UnassignedEmployees.Count employee(s) not assigned:
-                @string.Join(", ", _assignmentResult.UnassignedEmployees.Select(e => e.Name))
-            </div>
-        }
-
-        @if (_assignmentResult.UnfilledHours.Count > 0)
-        {
-            <div class="unfilled-warning">
-                ⚠️ Unable to fill @_assignmentResult.UnfilledHours.Count hour(s):
-                @string.Join(", ", _assignmentResult.UnfilledHours.Select(h => {
-                var hour = h % 24;
-                var nextDay = h >= 24;
-                return nextDay ? $"{hour}:00 (next day)" : $"{hour}:00";
-            }))
-    </div>
-        }
-
-    <div class="gantt-chart">
-        <div class="gantt-header">
-            <div class="gantt-names-column">
-                <div class="gantt-header-label">Employee</div>
-                @foreach (var emp in _assignmentResult.AssignedEmployees)
-                {
-                    var startHour = emp.AssignedStart % 24;
-                    var endHour = emp.AssignedEnd % 24;
-                    var totalHours = emp.AssignedEnd - emp.AssignedStart;
-
-                    <div class="gantt-name">
-                        @emp.Name
-                        <span class="shift-hours">@startHour:00-@endHour:00 (@totalHours h)</span>
-                    </div>
-                }
-            </div>
-            <div class="gantt-timeline-column">
-                <div class="gantt-hours-header">
-                    @foreach (int hour in Enumerable.Range(0, 31))
-                    {
-                        var currentHour = hour % 24;
-                        <div class="gantt-hour-marker">@currentHour</div>
-                    }
-                </div>
-                @foreach (var emp in _assignmentResult.AssignedEmployees)
-                {
-                    <div class="gantt-row">
-                        @foreach (int hour in Enumerable.Range(0, 31))
-                        {
-                            var isWorking = hour >= emp.AssignedStart && hour < emp.AssignedEnd;
-                            var isStart = hour == emp.AssignedStart;
-                            var isEnd = hour == emp.AssignedEnd - 1;
-
-                            <div class="gantt-cell @(isWorking ? "working" : "") @(isStart ? "start" : "") @(isEnd ? "end" : "")">
-                                @if (isWorking)
-                                {
-                                    <div class="gantt-bar"></div>
-                                }
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="coverage-stats">
-        <h4>Coverage Statistics</h4>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-label">Employees Assigned:</span>
-                <span class="stat-value">@_assignmentResult.AssignedEmployees.Count / @_employees.Count</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Hours with Coverage:</span>
-                <span class="stat-value">@_assignmentResult.HourCoverage.Count(x => x.Value > 0) / 31</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total Hours Assigned:</span>
-                <span class="stat-value">
-                    @_assignmentResult.AssignedEmployees.Sum(e => e.AssignedEnd - e.AssignedStart) hours
+            <!-- Show range. Each input is hour 0–23 with a moon checkbox to mark
+                 it as a next-day hour, matching the employee schedule UX. -->
+            <div class="planner-visible-range" title="Hours shown in the timeline">
+                <span class="planner-visible-label">Show</span>
+                <span class="time-input-group">
+                    <input type="number" class="tool-input-small" min="0" max="@(_visibleFromNext ? 6 : 23)"
+                           @bind="VisibleFromHour" />
+                    <label class="nextday-checkbox" title="From next day">
+                        <input type="checkbox" @bind="VisibleFromNext" />
+                        <i class="bi bi-moon"></i>
+                    </label>
+                </span>
+                <span class="planner-visible-sep">–</span>
+                <span class="time-input-group">
+                    <input type="number" class="tool-input-small" min="0" max="@(_visibleToNext ? 6 : 23)"
+                           @bind="VisibleToHour" />
+                    <label class="nextday-checkbox" title="To next day">
+                        <input type="checkbox" @bind="VisibleToNext" />
+                        <i class="bi bi-moon"></i>
+                    </label>
                 </span>
             </div>
         </div>
-    </div>
-</div>
-}
 
+        <div class="demand-presets">
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("morning")'>+ Morning (8–12)</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("daytime")'>+ Daytime (8–18)</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("evening")'>+ Evening (16–22)</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("night")'>+ Night (22–06)</button>
+            <button type="button" class="planner-chip planner-chip-quiet" @onclick='() => ApplyPreset("clear")'>Clear</button>
+        </div>
+
+        <div class="demand-custom-row">
+            <span class="demand-custom-label">Custom range</span>
+            <input type="number" class="tool-input-small" min="0" max="30" placeholder="From" @bind="_customFrom" />
+            <span class="demand-custom-sep">–</span>
+            <input type="number" class="tool-input-small" min="0" max="30" placeholder="To" @bind="_customTo" />
+            <button type="button" class="planner-chip" @onclick="AddCustomRange">+ Add</button>
+            <button type="button" class="planner-chip planner-chip-quiet" @onclick="SubtractCustomRange">− Deduct</button>
+        </div>
+
+        <div class="planner-scroll">
+            <div class="timeline-bar">
+                @for (int hour = VisibleFromTotal; hour <= VisibleToTotal; hour++)
+                {
+                    var capturedHour = hour;
+                    var localHour = capturedHour % 24;
+                    var isNextDay = capturedHour >= 24;
+                    var isFirstNextDay = capturedHour == 24;
+                    <div class="hour-slot @(isNextDay ? "next-day" : "") @(isFirstNextDay ? "next-day-start" : "")">
+                        <label class="hour-label">@localHour:00</label>
+                        <input class="required-input"
+                               type="number" min="0" max="40"
+                               @bind-value="_shift.GetTimeSlot(capturedHour).Demand"
+                               @bind-value:event="oninput"
+                               placeholder="0" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (TotalDemand > 0 || _employees.Count > 0)
+        {
+            <div class="planner-summary @(TotalCapacity >= TotalDemand ? "" : "short")">
+                <span>Demand: <strong>@TotalDemand h</strong></span>
+                <span>Capacity: <strong>@TotalCapacity h</strong></span>
+                @if (TotalDemand > 0)
+                {
+                    <span class="planner-summary-status">
+                        @(TotalCapacity >= TotalDemand ? "Enough capacity" : "Capacity short")
+                    </span>
+                }
+            </div>
+        }
+    </section>
+
+    <!-- ============ ADD / EDIT EMPLOYEE ============ -->
+    <section class="planner-card tool-card planner-form-card">
+        <div class="planner-card-head planner-card-head-tight">
+            <h3 class="planner-section-title">
+                @(_editingId is null ? "Add employee" : "Edit employee")
+            </h3>
+        </div>
+
+        <div class="employee-form">
+            <input type="text" class="tool-input" placeholder="Employee name" @bind="_newEmployee.Name" />
+
+            <div class="employee-form-row">
+                <input type="number" class="tool-input-small employee-form-input" placeholder="Max hours"
+                       min="1" max="12" @bind="_newEmployee.MaxHours" />
+
+                <span class="time-input-group">
+                    <input type="number" class="tool-input-small" placeholder="Start"
+                           min="0" max="@(_newEmployee.StartNextDay ? 6 : 23)"
+                           @bind="_newEmployee.ScheduleStart" />
+                    <label class="nextday-checkbox" title="Starts next day">
+                        <input type="checkbox" @bind="_newEmployee.StartNextDay" />
+                        <i class="bi bi-moon"></i>
+                    </label>
+                </span>
+
+                <span class="time-input-group">
+                    <input type="number" class="tool-input-small" placeholder="End"
+                           min="@GetEndMin()" max="@(_newEmployee.EndNextDay ? 6 : 23)"
+                           @bind="_newEmployee.ScheduleEnd" />
+                    <label class="nextday-checkbox" title="Ends next day">
+                        <input type="checkbox" @bind="_newEmployee.EndNextDay" />
+                        <i class="bi bi-moon"></i>
+                    </label>
+                </span>
+
+                <button class="tool-btn planner-form-btn" @onclick="SaveEmployee">
+                    @(_editingId is null ? "Add" : "Update")
+                </button>
+                @if (_editingId is not null)
+                {
+                    <button type="button" class="planner-chip planner-chip-quiet" @onclick="CancelEdit">Cancel</button>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(_validationMessage))
+            {
+                <div class="planner-error" role="alert">@_validationMessage</div>
+            }
+        </div>
+    </section>
+
+    <!-- ============ EMPLOYEE LIST ============ -->
+    @if (_employees.Count > 0)
+    {
+        <section class="planner-card tool-card">
+            <div class="planner-card-head">
+                <h3 class="planner-section-title">Employees (@_employees.Count)</h3>
+                <div class="planner-card-actions">
+                    <button type="button" class="planner-chip" @onclick="SaveToFile" title="Save roster as JSON">Save</button>
+                    <label class="planner-chip" title="Load roster (JSON or legacy TXT)">
+                        Load
+                        <InputFile OnChange="LoadFromFile" accept=".json,.txt" class="planner-file-input" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="employee-list">
+                @for (int i = 0; i < _employees.Count; i++)
+                {
+                    var emp = _employees[i];
+                    var color = ColorForIndex(i);
+                    <div class="employee-card @(_editingId == emp.Id ? "editing" : "")" style="--emp-color:@color">
+                        <span class="employee-color-chip"></span>
+                        <span class="employee-name">@emp.Name</span>
+                        <span class="emp-hours">max @emp.MaxHours h</span>
+                        @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
+                        {
+                            <span class="emp-time">@((MarkupString)$"{emp.DisplayStart} – {emp.DisplayEnd}")</span>
+                        }
+                        else
+                        {
+                            <span class="emp-time-muted">No schedule</span>
+                        }
+                        <span class="employee-card-actions">
+                            <button type="button" class="employee-icon-btn" @onclick="@(() => EditEmployee(emp))" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button type="button" class="employee-icon-btn" @onclick="@(() => DuplicateEmployee(emp))" title="Duplicate">
+                                <i class="bi bi-stickies"></i>
+                            </button>
+                            <button type="button" class="employee-icon-btn employee-icon-btn-danger" @onclick="@(() => DeleteEmployee(emp))" title="Remove">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </span>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- ============ RANDOMIZE BUTTON ============ -->
+    @if (_employees.Count > 0)
+    {
+        <button class="tool-btn planner-randomize" @onclick="RandomizeShifts">
+            Randomize Shifts
+        </button>
+    }
+
+    <!-- ============ RESULTS ============ -->
+    @if (_assignmentResult != null)
+    {
+        <section class="planner-card tool-card planner-results" @key="_resultKey">
+            <div class="planner-card-head">
+                <h3 class="planner-section-title">Assignment results</h3>
+                <div class="planner-card-actions">
+                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanCsv" title="Download as CSV (for spreadsheets)">Export CSV</button>
+                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanJson" title="Download as JSON">Export JSON</button>
+                </div>
+            </div>
+
+            @if (_assignmentResult.UnassignedEmployees.Count > 0)
+            {
+                <div class="planner-info">
+                    <strong>@_assignmentResult.UnassignedEmployees.Count</strong> not assigned:
+                    @string.Join(", ", _assignmentResult.UnassignedEmployees.Select(e => e.Name))
+                </div>
+            }
+
+            @if (_assignmentResult.UnfilledHours.Count > 0)
+            {
+                <div class="planner-warning">
+                    <strong>@_assignmentResult.UnfilledHours.Count</strong> hour(s) unfilled:
+                    @string.Join(", ", _assignmentResult.UnfilledHours.Select(h =>
+                    {
+                        var localH = h % 24;
+                        return h >= 24 ? $"{localH}:00 (next day)" : $"{localH}:00";
+                    }))
+                </div>
+            }
+
+            <div class="planner-scroll">
+                <div class="gantt-chart">
+                    <div class="gantt-header">
+                        <div class="gantt-names-column">
+                            <div class="gantt-header-label">Employee</div>
+                            @foreach (var emp in _assignmentResult.AssignedEmployees)
+                            {
+                                var startHour = emp.AssignedStart % 24;
+                                var endHour = emp.AssignedEnd % 24;
+                                var totalHours = emp.AssignedEnd - emp.AssignedStart;
+                                <div class="gantt-name" style="--emp-color:@ColorForEmployee(emp)">
+                                    <span class="employee-color-chip"></span>
+                                    <div class="gantt-name-info">
+                                        <span class="gantt-name-text">@emp.Name</span>
+                                        <span class="shift-hours">@startHour:00–@endHour:00 · @totalHours h</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="gantt-timeline-column">
+                            <div class="gantt-hours-header">
+                                @for (int hour = VisibleFromTotal; hour <= VisibleToTotal; hour++)
+                                {
+                                    var localHour = hour % 24;
+                                    var isNextDay = hour >= 24;
+                                    var isFirstNextDay = hour == 24;
+                                    <div class="gantt-hour-marker @(isNextDay ? "next-day" : "") @(isFirstNextDay ? "next-day-start" : "")">@localHour</div>
+                                }
+                            </div>
+                            @foreach (var emp in _assignmentResult.AssignedEmployees)
+                            {
+                                <div class="gantt-row" style="--emp-color:@ColorForEmployee(emp)">
+                                    @for (int hour = VisibleFromTotal; hour <= VisibleToTotal; hour++)
+                                    {
+                                        var isWorking = hour >= emp.AssignedStart && hour < emp.AssignedEnd;
+                                        var isStart = hour == emp.AssignedStart;
+                                        var isEnd = hour == emp.AssignedEnd - 1;
+                                        var isNextDay = hour >= 24;
+                                        var isFirstNextDay = hour == 24;
+                                        <div class="gantt-cell @(isWorking ? "working" : "") @(isStart ? "start" : "") @(isEnd ? "end" : "") @(isNextDay ? "next-day" : "") @(isFirstNextDay ? "next-day-start" : "")">
+                                            @if (isWorking)
+                                            {
+                                                <div class="gantt-bar"></div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="coverage-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Employees assigned</span>
+                    <span class="stat-value">@_assignmentResult.AssignedEmployees.Count / @_employees.Count</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Hours with coverage</span>
+                    <span class="stat-value">@_assignmentResult.HourCoverage.Count(x => x.Value > 0) / @(VisibleToTotal - VisibleFromTotal + 1)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total hours assigned</span>
+                    <span class="stat-value">@_assignmentResult.AssignedEmployees.Sum(e => e.AssignedEnd - e.AssignedStart) h</span>
+                </div>
+            </div>
+        </section>
+    }
+
+</div>
 
 
 @code {
@@ -258,23 +308,211 @@
     private Employee _newEmployee = new();
     private List<Employee> _employees = new();
 
-    private ShiftPlannerService _service = new();
-    private ShiftPlannerService.ShiftAssignment? _assignmentResult = null;
+    // Stable identity of the employee currently being edited (null = adding).
+    private Guid? _editingId;
 
+    // ----- Visible window -----
+    // Split storage: hour-of-day (0–23) plus a "next-day" flag. The moon
+    // checkbox in the UI binds to the flag — same UX as the employee schedule
+    // form. Combined hour (0–30) is computed on demand for the loops below.
+    private int _visibleFromHour = 6;
+    private bool _visibleFromNext = false;
+    private int _visibleToHour = 22;
+    private bool _visibleToNext = false;
+
+    private int VisibleFromTotal => _visibleFromHour + (_visibleFromNext ? 24 : 0);
+    private int VisibleToTotal => _visibleToHour + (_visibleToNext ? 24 : 0);
+
+    public int VisibleFromHour
+    {
+        get => _visibleFromHour;
+        set
+        {
+            int max = _visibleFromNext ? 6 : 23;
+            _visibleFromHour = Math.Clamp(value, 0, max);
+            EnforceFromBeforeTo();
+        }
+    }
+
+    public bool VisibleFromNext
+    {
+        get => _visibleFromNext;
+        set
+        {
+            _visibleFromNext = value;
+            if (value && _visibleFromHour > 6) _visibleFromHour = 6;
+            EnforceFromBeforeTo();
+        }
+    }
+
+    public int VisibleToHour
+    {
+        get => _visibleToHour;
+        set
+        {
+            int max = _visibleToNext ? 6 : 23;
+            _visibleToHour = Math.Clamp(value, 0, max);
+            EnforceFromBeforeTo();
+        }
+    }
+
+    public bool VisibleToNext
+    {
+        get => _visibleToNext;
+        set
+        {
+            _visibleToNext = value;
+            if (value && _visibleToHour > 6) _visibleToHour = 6;
+            EnforceFromBeforeTo();
+        }
+    }
+
+    // Guarantee From < To. If a setter would invert them, bump To just past From.
+    private void EnforceFromBeforeTo()
+    {
+        if (VisibleFromTotal >= VisibleToTotal)
+        {
+            int newTo = Math.Min(30, VisibleFromTotal + 1);
+            _visibleToHour = newTo % 24;
+            _visibleToNext = newTo >= 24;
+        }
+    }
+
+    private int? _customFrom;
+    private int? _customTo;
+
+    private ShiftPlannerService _service = new();
+    private ShiftPlannerService.ShiftAssignment? _assignmentResult;
+    private int _resultKey;
 
     private string? _validationMessage;
 
-    protected override void OnInitialized()
+    // Same 16-colour palette as the wheel and group shuffler.
+    private static readonly string[] _palette = new[]
     {
+        "#ef6f6c","#f0915a","#efc05a","#d4d65f",
+        "#9bd06b","#63c98d","#54c6b6","#56b4d3",
+        "#5b93d6","#6f7fd6","#8f74d4","#aa6fd0",
+        "#c66fc4","#d96fa3","#e06f86","#cf7d6a"
+    };
 
+    private static string ColorForIndex(int i) => _palette[i % _palette.Length];
 
+    private string ColorForEmployee(Employee emp)
+    {
+        var idx = _employees.FindIndex(e => e.Id == emp.Id);
+        return ColorForIndex(idx < 0 ? 0 : idx);
     }
 
- 
+    private int TotalDemand
+    {
+        get
+        {
+            int sum = 0;
+            for (int h = 0; h <= 30; h++)
+                sum += _shift.GetTimeSlot(h).Demand;
+            return sum;
+        }
+    }
+
+    private int TotalCapacity => _employees.Sum(e => e.GetEffectiveMaxHours());
+
+    // Each click of a preset adds 1 person to the hours in its range
+    // (capped at TimeSlot's max of 40), so multiple taps stack.
+    private void ApplyPreset(string key)
+    {
+        if (key == "clear")
+        {
+            for (int h = 0; h <= 30; h++) _shift.GetTimeSlot(h).Demand = 0;
+            return;
+        }
+
+        // Night is 22:00 today → 06:00 next day. Widen the visible window so
+        // the full night shift is on screen after one tap.
+        if (key == "night")
+        {
+            _visibleToHour = 6;
+            _visibleToNext = true;
+            if (VisibleFromTotal > 22)
+            {
+                _visibleFromHour = 22;
+                _visibleFromNext = false;
+            }
+            IncrementRange(22, 30);
+            return;
+        }
+
+        (int from, int to) = key switch
+        {
+            "morning" => (8, 12),
+            "daytime" => (8, 18),
+            "evening" => (16, 22),
+            _ => (0, 0)
+        };
+
+        IncrementRange(from, to);
+    }
+
+    private void AddCustomRange()
+    {
+        if (!_customFrom.HasValue || !_customTo.HasValue) return;
+        int from = Math.Max(0, _customFrom.Value);
+        int to = Math.Min(31, _customTo.Value);
+        if (to <= from) return;
+        IncrementRange(from, to);
+    }
+
+    private void SubtractCustomRange()
+    {
+        if (!_customFrom.HasValue || !_customTo.HasValue) return;
+        int from = Math.Max(0, _customFrom.Value);
+        int to = Math.Min(31, _customTo.Value);
+        if (to <= from) return;
+        DecrementRange(from, to);
+    }
+
+    private void IncrementRange(int fromInclusive, int toExclusive)
+    {
+        EnsureVisible(fromInclusive, toExclusive);
+        for (int h = fromInclusive; h < toExclusive && h <= 30; h++)
+        {
+            var slot = _shift.GetTimeSlot(h);
+            slot.Demand = Math.Min(slot.Demand + 1, 40);
+        }
+    }
+
+    private void DecrementRange(int fromInclusive, int toExclusive)
+    {
+        for (int h = fromInclusive; h < toExclusive && h <= 30; h++)
+        {
+            var slot = _shift.GetTimeSlot(h);
+            slot.Demand = Math.Max(slot.Demand - 1, 0);
+        }
+    }
+
+    // Widen the visible window so a preset or custom range that lands outside
+    // the current view is still drawn in the timeline.
+    private void EnsureVisible(int fromInclusive, int toExclusive)
+    {
+        if (fromInclusive < VisibleFromTotal)
+        {
+            int v = Math.Max(0, fromInclusive);
+            _visibleFromHour = v % 24;
+            _visibleFromNext = v >= 24;
+        }
+        int lastHour = toExclusive - 1;
+        if (lastHour > VisibleToTotal)
+        {
+            int v = Math.Min(30, lastHour);
+            _visibleToHour = v % 24;
+            _visibleToNext = v >= 24;
+        }
+    }
+
     private void RandomizeShifts()
     {
         var hourlyDemand = new Dictionary<int, int>();
-        for (int hour = 0; hour <= 30; hour++)
+        for (int hour = VisibleFromTotal; hour <= VisibleToTotal; hour++)
         {
             var demand = _shift.GetTimeSlot(hour).Demand;
             if (demand > 0)
@@ -284,13 +522,11 @@
         }
 
         if (hourlyDemand.Count == 0 || _employees.Count == 0)
-        {
             return;
-        }
 
         _assignmentResult = _service.AssignShifts(_employees, hourlyDemand);
+        _resultKey++;
     }
-
 
     private int GetEndMin()
     {
@@ -303,10 +539,13 @@
         return Math.Min(_newEmployee.ScheduleStart.Value + 1, 23);
     }
 
-    private void AddEmployee()
+    private void SaveEmployee()
     {
         if (string.IsNullOrWhiteSpace(_newEmployee.Name))
+        {
+            _validationMessage = "Name is required.";
             return;
+        }
 
         AdjustStartRange();
         AdjustEndRange();
@@ -331,7 +570,23 @@
         if (_newEmployee.MaxHours == null || _newEmployee.MaxHours > 12 || _newEmployee.MaxHours < 1)
             _newEmployee.MaxHours = _newEmployee.MaxHoursDefault;
 
-        _employees.Add(new Employee
+        if (_editingId is Guid editingId)
+        {
+            var existing = _employees.FirstOrDefault(e => e.Id == editingId);
+            if (existing is not null)
+            {
+                existing.Name = _newEmployee.Name;
+                existing.MaxHours = _newEmployee.MaxHours;
+                existing.ScheduleStart = start;
+                existing.ScheduleEnd = end;
+                existing.StartNextDay = _newEmployee.StartNextDay;
+                existing.EndNextDay = _newEmployee.EndNextDay;
+            }
+            _editingId = null;
+        }
+        else
+        {
+            _employees.Add(new Employee
             {
                 Name = _newEmployee.Name,
                 MaxHours = _newEmployee.MaxHours,
@@ -340,80 +595,162 @@
                 StartNextDay = _newEmployee.StartNextDay,
                 EndNextDay = _newEmployee.EndNextDay
             });
+        }
 
-        _newEmployee = new();
+        _newEmployee = new Employee();
+    }
 
+    private void EditEmployee(Employee emp)
+    {
+        _editingId = emp.Id;
+        _newEmployee = new Employee
+        {
+            Name = emp.Name,
+            MaxHours = emp.MaxHours,
+            StartNextDay = emp.StartNextDay,
+            EndNextDay = emp.EndNextDay,
+            ScheduleStart = emp.StartNextDay && emp.ScheduleStart.HasValue
+                ? emp.ScheduleStart - 24
+                : emp.ScheduleStart,
+            ScheduleEnd = emp.EndNextDay && emp.ScheduleEnd.HasValue
+                ? emp.ScheduleEnd - 24
+                : emp.ScheduleEnd
+        };
+        _validationMessage = null;
+    }
+
+    private void CancelEdit()
+    {
+        _editingId = null;
+        _newEmployee = new Employee();
+        _validationMessage = null;
     }
 
     private void DeleteEmployee(Employee emp)
     {
         _employees.Remove(emp);
+        if (_editingId == emp.Id)
+            CancelEdit();
     }
 
-    private void EditEmployee(Employee emp)
+    private void DuplicateEmployee(Employee emp)
     {
-        _newEmployee.Name = emp.Name;
-        _newEmployee.MaxHours = emp.MaxHours;
-
-        if (emp.StartNextDay) 
+        _employees.Add(new Employee
         {
-            _newEmployee.ScheduleStart = emp.ScheduleStart - 24;
-            _newEmployee.StartNextDay = true;
-        }
-        else 
-        {
-            _newEmployee.ScheduleStart = emp.ScheduleStart;
-        }
-
-        if (emp.EndNextDay)
-        {
-            _newEmployee.ScheduleEnd = emp.ScheduleEnd - 24;
-            _newEmployee.EndNextDay = true;
-        }
-        else
-        {
-            _newEmployee.ScheduleEnd = emp.ScheduleEnd;
-        }
-
-
-
-        _employees.Remove(emp);
+            Name = $"Copy of {emp.Name}",
+            MaxHours = emp.MaxHours,
+            ScheduleStart = emp.ScheduleStart,
+            ScheduleEnd = emp.ScheduleEnd,
+            StartNextDay = emp.StartNextDay,
+            EndNextDay = emp.EndNextDay
+        });
     }
 
-    private async Task SaveEmployees()
+    private async Task SaveToFile()
     {
-        var content = EmployeeFileService.WriteEmployees(_employees);
+        var content = EmployeeFileService.WriteEmployeesJson(_employees);
         var bytes = Encoding.UTF8.GetBytes(content);
-        await JS.InvokeVoidAsync("downloadFile", "employees.txt", "text/plain", bytes);
+        await JS.InvokeVoidAsync("downloadFile", "employees.json", "application/json", bytes);
     }
 
-    private async Task LoadEmployees(InputFileChangeEventArgs e)
+    private async Task LoadFromFile(InputFileChangeEventArgs e)
     {
         if (e.FileCount == 0) return;
 
         var file = e.File;
-
-        const long maxAllowedBytes = 5 * 1024 * 1024; 
+        const long maxAllowedBytes = 5 * 1024 * 1024;
         using var stream = file.OpenReadStream(maxAllowedBytes);
         using var reader = new StreamReader(stream, Encoding.UTF8);
         var text = await reader.ReadToEndAsync();
 
-        var loaded = EmployeeFileService.LoadEmployees(text);
-        _employees = loaded;
+        _employees = EmployeeFileService.LoadEmployees(text);
+        CancelEdit();
+        _assignmentResult = null;
+    }
+
+    // ----- Export solved plan -----
+
+    private static string FormatHour(int h)
+    {
+        int local = h % 24;
+        return h >= 24 ? $"{local}:00 (next day)" : $"{local}:00";
+    }
+
+    private async Task ExportShiftPlanCsv()
+    {
+        if (_assignmentResult is null) return;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Employee,Start,End,Hours");
+        foreach (var emp in _assignmentResult.AssignedEmployees)
+        {
+            var name = (emp.Name ?? "").Replace("\"", "\"\"");
+            if (name.Contains(',') || name.Contains('"') || name.Contains('\n'))
+                name = $"\"{name}\"";
+
+            sb.AppendLine($"{name},{FormatHour(emp.AssignedStart)},{FormatHour(emp.AssignedEnd)},{emp.AssignedEnd - emp.AssignedStart}");
+        }
+
+        if (_assignmentResult.UnassignedEmployees.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Unassigned");
+            foreach (var emp in _assignmentResult.UnassignedEmployees)
+                sb.AppendLine(emp.Name);
+        }
+
+        if (_assignmentResult.UnfilledHours.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Unfilled hours");
+            foreach (var h in _assignmentResult.UnfilledHours)
+                sb.AppendLine(FormatHour(h));
+        }
+
+        // UTF-8 BOM so Excel detects the encoding and shows accented names correctly.
+        var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+        await JS.InvokeVoidAsync("downloadFile", "shift-plan.csv", "text/csv", bytes);
+    }
+
+    private async Task ExportShiftPlanJson()
+    {
+        if (_assignmentResult is null) return;
+
+        var payload = new
+        {
+            assigned = _assignmentResult.AssignedEmployees.Select(e => new
+            {
+                name = e.Name,
+                start = e.AssignedStart,
+                end = e.AssignedEnd,
+                hours = e.AssignedEnd - e.AssignedStart,
+                startLabel = FormatHour(e.AssignedStart),
+                endLabel = FormatHour(e.AssignedEnd)
+            }),
+            unassigned = _assignmentResult.UnassignedEmployees.Select(e => e.Name),
+            unfilledHours = _assignmentResult.UnfilledHours.Select(h => new
+            {
+                hour = h,
+                label = FormatHour(h)
+            })
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        var bytes = Encoding.UTF8.GetBytes(json);
+        await JS.InvokeVoidAsync("downloadFile", "shift-plan.json", "application/json", bytes);
     }
 
     private void AdjustStartRange()
     {
-        if (_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 6) 
+        if (_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 6)
         {
             _newEmployee.ScheduleStart = 5;
-        }    
-        else if (!_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 23) 
+        }
+        else if (!_newEmployee.StartNextDay && _newEmployee.ScheduleStart > 23)
         {
             _newEmployee.ScheduleStart = 0;
             _newEmployee.StartNextDay = true;
         }
-
 
         if (_newEmployee.ScheduleStart < 0)
             _newEmployee.ScheduleStart = null;
@@ -426,18 +763,12 @@
             _newEmployee.ScheduleEnd = 6;
         }
         else if (!_newEmployee.EndNextDay && _newEmployee.ScheduleEnd > 23)
-        { 
+        {
             _newEmployee.ScheduleEnd = 6;
             _newEmployee.EndNextDay = true;
         }
 
-
         if (_newEmployee.ScheduleEnd < 0)
-            _newEmployee.ScheduleStart = null;
-    }
-
-    private void GenerateRandomSchedule()
-    {
-        
+            _newEmployee.ScheduleEnd = null;
     }
 }

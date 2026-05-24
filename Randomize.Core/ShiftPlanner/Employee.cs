@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
 namespace Randomize.Core.ShiftPlanner
 {
     public class Employee
     {
-        private int? _scheduleStart;
-        private int? _scheduleEnd;
+        // Stable identity so the razor can find / update / delete a specific
+        // employee without relying on reference equality (which breaks after a
+        // file round-trip).
+        public Guid Id { get; init; } = Guid.NewGuid();
 
         public string? Name { get; set; }
         public int MaxHoursDefault { get; } = 12;
@@ -18,27 +16,16 @@ namespace Randomize.Core.ShiftPlanner
         public bool StartNextDay { get; set; }
         public bool EndNextDay { get; set; }
 
-
-        public int? ScheduleStart
-        {
-            get => _scheduleStart;
-            set => _scheduleStart = value;
-        }
-
-        public int? ScheduleEnd
-        {
-            get => _scheduleEnd;
-            set => _scheduleEnd = value;
-        }
-
+        public int? ScheduleStart { get; set; }
+        public int? ScheduleEnd { get; set; }
 
         public string DisplayStart
         {
             get
             {
-                if (!_scheduleStart.HasValue)
+                if (!ScheduleStart.HasValue)
                     return "–";
-                int value = _scheduleStart.Value;
+                int value = ScheduleStart.Value;
                 if (value >= 24) value -= 24;
 
                 string moon = StartNextDay ? " <i class='bi bi-moon-stars small-icon'></i>" : "";
@@ -50,9 +37,9 @@ namespace Randomize.Core.ShiftPlanner
         {
             get
             {
-                if (!_scheduleEnd.HasValue)
+                if (!ScheduleEnd.HasValue)
                     return "–";
-                int value = _scheduleEnd.Value;
+                int value = ScheduleEnd.Value;
                 if (value >= 24) value -= 24;
 
                 string moon = EndNextDay ? " <i class='bi bi-moon-stars small-icon'></i>" : "";
@@ -64,10 +51,7 @@ namespace Randomize.Core.ShiftPlanner
         public int AssignedEnd { get; set; } = -1;
         public bool IsAssigned { get; set; } = false;
 
-        public int GetEffectiveMaxHours()
-        {
-            return MaxHours ?? MaxHoursDefault;
-        }
+        public int GetEffectiveMaxHours() => MaxHours ?? MaxHoursDefault;
 
         public (int start, int end) GetAvailabilityWindow()
         {
@@ -75,6 +59,5 @@ namespace Randomize.Core.ShiftPlanner
             int end = ScheduleEnd ?? 30;
             return (start, end);
         }
-
     }
 }
