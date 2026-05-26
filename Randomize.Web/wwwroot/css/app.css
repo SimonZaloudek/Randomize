@@ -3084,14 +3084,17 @@ code {
 }
 
 /* Flatten the inner pills (no nested card framing) and let the grid breathe
-   to the card edges, mirroring how .home-tagline treats its own pill row. */
+   to the card edges, mirroring how .home-tagline treats its own pill row.
+   The hairline above is the same alpha rule the tagline card uses to
+   separate its title from its pills. */
 .home-livestats-card .home-stats-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 18px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .home-livestats-card .home-stat-pill {
@@ -3122,10 +3125,78 @@ code {
     font-variant-numeric: tabular-nums;
 }
 
+/* Centered title that mirrors .home-tagline-title so the two cards read as a
+   visual pair. Followed by a hairline divider — same alpha the rest of the
+   site uses for inside-card separators. */
+.home-livestats-title {
+    color: #fff;
+    font-size: 1.4rem !important;
+    font-weight: 600;
+    margin: 0 0 22px !important;
+    text-align: center;
+}
+
+/* Tiny "● Live" badge anchored to the card's top-left corner so it doesn't
+   shift the centered title. The pulsing dot is the only motion in this card
+   and uses transform + opacity only (no box-shadow paint thrash). */
+.home-livestats-live {
+    position: absolute;
+    top: 22px;
+    left: 24px;
+    display: inline-flex;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #8ad6a4;
+    z-index: 1;
+    line-height: 1;
+}
+
+.home-livestats-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5acf8a;
+    flex-shrink: 0;
+}
+
+    .home-livestats-dot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: #5acf8a;
+        opacity: 0.55;
+        transform-origin: center;
+        animation: livestats-pulse 2.4s ease-out infinite;
+        will-change: transform, opacity;
+        pointer-events: none;
+    }
+
+@keyframes livestats-pulse {
+    0%   { transform: scale(0.6); opacity: 0.55; }
+    100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* Hairline vertical dividers between pills — picks up the same alpha as the
+   header's bottom border, so the inside of the card feels organized rather
+   than four loose tiles. Disabled on mobile when the grid wraps. */
+.home-livestats-card .home-livestats-grid > .home-livestat-pill + .home-livestat-pill {
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 @media (max-width: 720px) {
     .home-livestats-card {
         padding: 18px 16px 20px;
         margin: 12px auto 18px;
+    }
+
+    .home-livestats-live {
+        top: 16px;
+        left: 16px;
+        font-size: 0.66rem;
     }
 
     .home-livestats-card .home-stats-grid {
@@ -3135,6 +3206,11 @@ code {
 
     .home-livestats-card .home-stat-value {
         font-size: 1.3rem;
+    }
+
+    /* Dividers don't read well across a 2x2 grid — drop them on mobile. */
+    .home-livestats-card .home-livestats-grid > .home-livestat-pill + .home-livestat-pill {
+        border-left: none;
     }
 }
 
@@ -3158,9 +3234,10 @@ code {
 /* ____________________ */
 
 .contact-layout {
+    width: 100%;
     max-width: 640px;
     margin: 0 auto;
-    padding: 0 0.25rem;
+    box-sizing: border-box;
 }
 
 .contact-card {
@@ -3169,7 +3246,7 @@ code {
 
 .contact-intro {
     margin: 0 0 1.25rem;
-    color: rgba(220, 215, 240, 0.75);
+    color: #b3b3b3;
     line-height: 1.5;
 }
 
@@ -3185,6 +3262,9 @@ code {
     gap: 0.5rem;
 }
 
+/* Type chips — theme-aware. color-mix lets a single rule produce the correct
+   tinted background for both themes (purple modern, blue default) without
+   duplicating selectors per theme. */
 .contact-type {
     display: flex;
     flex-direction: column;
@@ -3192,9 +3272,9 @@ code {
     gap: 0.35rem;
     padding: 0.85rem 0.5rem;
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(138, 107, 255, 0.18);
+    border: 1px solid var(--surface-border);
     border-radius: 12px;
-    color: rgba(220, 215, 240, 0.85);
+    color: #d6d6d6;
     font-size: 0.85rem;
     cursor: pointer;
     transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease;
@@ -3203,7 +3283,8 @@ code {
 
     .contact-type:hover:not(:disabled) {
         transform: translateY(-1px);
-        background: rgba(138, 107, 255, 0.08);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        border-color: var(--surface-border-hover);
     }
 
     .contact-type:active:not(:disabled) {
@@ -3211,14 +3292,14 @@ code {
     }
 
     .contact-type.active {
-        background: rgba(138, 107, 255, 0.18);
-        border-color: rgba(138, 107, 255, 0.6);
-        color: #f4f1ff;
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        border-color: var(--accent);
+        color: #fff;
     }
 
     .contact-type i {
         font-size: 1.3rem;
-        color: #b39bff;
+        color: var(--accent-soft);
     }
 
     .contact-type:disabled {
@@ -3234,12 +3315,12 @@ code {
 
 .contact-field-label {
     font-size: 0.85rem;
-    color: rgba(220, 215, 240, 0.75);
+    color: #b8b8b8;
     letter-spacing: 0.01em;
 }
 
 .contact-field-hint {
-    color: rgba(220, 215, 240, 0.45);
+    color: #777;
     font-weight: 400;
 }
 
@@ -3260,14 +3341,15 @@ code {
 
 .contact-turnstile {
     /* Reserve roughly the widget's footprint to avoid a layout jump when it
-       mounts after the async script finishes loading. */
+       mounts after the async script finishes loading. Centering balances the
+       form better than left-alignment, which left a wide gap on the right. */
     min-height: 65px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .contact-submit {
-    align-self: flex-start;
+    align-self: stretch;
     min-width: 160px;
 }
 
@@ -3308,6 +3390,11 @@ code {
 }
 
 @media (max-width: 540px) {
+    .contact-layout {
+        max-width: 100%;
+        padding: 0;
+    }
+
     .contact-card {
         padding: 1.25rem;
     }
@@ -3320,8 +3407,4 @@ code {
         .contact-type i {
             font-size: 1.15rem;
         }
-
-    .contact-submit {
-        align-self: stretch;
-    }
 }

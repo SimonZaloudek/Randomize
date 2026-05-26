@@ -127,23 +127,30 @@
     </div>
 
     <section class="home-livestats-card" aria-label="Live counters">
-        <div class="home-stats-grid">
-            <div class="home-stat-pill">
+        <span class="home-livestats-live">
+            <span class="home-livestats-dot" aria-hidden="true"></span>
+            Live
+        </span>
+
+        <h2 class="home-livestats-title">Statistics</h2>
+
+        <div class="home-stats-grid home-livestats-grid">
+            <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-shuffle home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.Total)</div>
                 <div class="home-stat-label">Randomizations</div>
             </div>
-            <div class="home-stat-pill">
+            <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-arrow-repeat home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.WheelSpins)</div>
                 <div class="home-stat-label">Wheel spins</div>
             </div>
-            <div class="home-stat-pill">
+            <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-coin home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.HeadsLanded)</div>
                 <div class="home-stat-label">Heads landed</div>
             </div>
-            <div class="home-stat-pill">
+            <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-cone-striped home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.DaysWithoutAccident)</div>
                 <div class="home-stat-label">Days without an accident</div>

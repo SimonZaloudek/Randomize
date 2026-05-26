@@ -196,7 +196,11 @@
 
     public async ValueTask DisposeAsync()
     {
-        await ResetTurnstileSafe();
+        // Destroy the widget on navigation away — reset() leaves a dangling
+        // widget id that breaks the next mount on prod (issue surfaced as
+        // "Nothing to reset found for provided container").
+        try { await JS.InvokeVoidAsync("RandomizeTurnstile.remove"); }
+        catch { /* JS interop torn down — nothing to clean up */ }
     }
 
     public sealed class ContactForm
