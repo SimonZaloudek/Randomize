@@ -1,6 +1,8 @@
 @page "/wheel"
 @using Randomize.Core.Wheel
+@using Randomize.Web.Services
 @inject IJSRuntime JS
+@inject StatsClient Stats
 
 <h2 class="page-title">Spinning Wheel</h2>
 
@@ -181,6 +183,7 @@
         {
             selectedResult = items[winner].Label;
             _spinCount++;
+            Stats.Increment("wheel");
             _history.Insert(0, selectedResult);
             if (_history.Count > 8)
                 _history.RemoveAt(_history.Count - 1);

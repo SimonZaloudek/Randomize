@@ -1,6 +1,8 @@
 @page "/string"
 @using Randomize.Core.Services
+@using Randomize.Web.Services
 @inject StringRandomizerService StringService
+@inject StatsClient Stats
 
 <h2 class="page-title">Text Randomizers</h2>
 
@@ -228,17 +230,20 @@
     {
         var items = _shuffleInput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         _shuffleResult = StringService.PickRandom(items);
+        if (!string.IsNullOrEmpty(_shuffleResult)) Stats.Increment("string");
     }
 
     private void DoWeighted()
     {
         var lines = _weightedInput.Split('\n');
         _weightedResult = StringService.PickWeighted(lines);
+        if (!string.IsNullOrEmpty(_weightedResult)) Stats.Increment("string");
     }
 
     private void DoPassword()
     {
         _pwResult = StringService.GeneratePassword(_pwLength, _pwUpper, _pwLower, _pwDigits, _pwSymbols);
+        if (!string.IsNullOrEmpty(_pwResult)) Stats.Increment("string");
     }
 
     private void DoToken()
@@ -252,6 +257,7 @@
             _ => ""
         };
         _tokenResult = StringService.GenerateToken(_tokenLength, charset);
+        if (!string.IsNullOrEmpty(_tokenResult)) Stats.Increment("string");
     }
 
     private async Task DoCoinFlip()
@@ -268,10 +274,14 @@
 
         _coinResult = heads ? "Heads" : "Tails";
         _coinFlipping = false;
+
+        Stats.Increment("string");
+        Stats.Increment(heads ? "coin-heads" : "coin-tails");
     }
 
     private void DoEmoji()
     {
         _emojiResult = _emojis[Random.Shared.Next(_emojis.Length)];
+        Stats.Increment("string");
     }
 }

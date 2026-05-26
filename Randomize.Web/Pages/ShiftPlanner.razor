@@ -1,9 +1,11 @@
 @page "/shiftplanner"
 @using Randomize.Core.ShiftPlanner
+@using Randomize.Web.Services
 @using System.Text
 @using System.Text.Json
 @using Microsoft.AspNetCore.Components.Forms
 @inject IJSRuntime JS
+@inject StatsClient Stats
 
 <h2 class="page-title">Shift Planner</h2>
 
@@ -526,6 +528,7 @@
 
         _assignmentResult = _service.AssignShifts(_employees, hourlyDemand);
         _resultKey++;
+        Stats.Increment("shift");
     }
 
     private int GetEndMin()

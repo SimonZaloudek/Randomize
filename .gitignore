@@ -248,6 +248,7 @@ AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
+.dev.vars
 *.appx
 *.appxbundle
 *.appxupload

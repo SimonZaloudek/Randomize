@@ -1,0 +1,221 @@
+@page "/contact"
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<PageTitle>Contact — Randomize</PageTitle>
+
+<h2 class="page-title">Contact</h2>
+
+<div class="contact-layout">
+    <section class="contact-card tool-card">
+        <p class="contact-intro">
+            Found a bug, have an idea, or want a new randomizer? Send a note and it
+            lands straight in my inbox.
+        </p>
+
+        <EditForm Model="_form" OnValidSubmit="Submit" class="contact-form">
+            <DataAnnotationsValidator />
+
+            <div class="contact-type-row" role="radiogroup" aria-label="Message type">
+                @foreach (var opt in _typeOptions)
+                {
+                    var value = opt.Value;
+                    <button type="button"
+                            class="contact-type @(_form.Type == value ? "active" : "")"
+                            @onclick="() => _form.Type = value"
+                            disabled="@_busy">
+                        <i class="bi @opt.Icon"></i>
+                        <span>@opt.Label</span>
+                    </button>
+                }
+            </div>
+
+            <label class="contact-field">
+                <span class="contact-field-label">Your email</span>
+                <InputText class="tool-input" type="email" placeholder="you@example.com"
+                           @bind-Value="_form.Email" disabled="@_busy" />
+                <ValidationMessage For="@(() => _form.Email)" />
+            </label>
+
+            <label class="contact-field">
+                <span class="contact-field-label">Name <span class="contact-field-hint">(optional)</span></span>
+                <InputText class="tool-input" placeholder="What should I call you?"
+                           @bind-Value="_form.Name" disabled="@_busy" />
+            </label>
+
+            <label class="contact-field">
+                <span class="contact-field-label">Subject</span>
+                <InputText class="tool-input" placeholder="A short title"
+                           @bind-Value="_form.Subject" disabled="@_busy" />
+            </label>
+
+            <label class="contact-field">
+                <span class="contact-field-label">Message</span>
+                <InputTextArea class="tool-input tool-textarea contact-message" rows="6"
+                               placeholder="Tell me what's up…"
+                               @bind-Value="_form.Message" disabled="@_busy" />
+                <ValidationMessage For="@(() => _form.Message)" />
+            </label>
+
+            @* Honeypot — hidden from humans, irresistible to bots. *@
+            <input type="text" name="website" tabindex="-1" autocomplete="off"
+                   aria-hidden="true" class="contact-honeypot"
+                   @bind="_form.Website" />
+
+            <div id="cf-turnstile-container" class="contact-turnstile"></div>
+
+            <button type="submit" class="tool-btn contact-submit" disabled="@(_busy || _sent)">
+                @if (_busy)
+                {
+                    <span>Sending…</span>
+                }
+                else if (_sent)
+                {
+                    <span><i class="bi bi-check2"></i> Sent</span>
+                }
+                else
+                {
+                    <span>Send message</span>
+                }
+            </button>
+
+            @if (_status is { } status)
+            {
+                <div class="contact-status @(status.Ok ? "ok" : "err")" role="status">
+                    <i class="bi @(status.Ok ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"></i>
+                    <span>@status.Message</span>
+                </div>
+            }
+        </EditForm>
+    </section>
+</div>
+
+@code {
+    private const string TurnstileSiteKey = "0x4AAAAAADWxCBmOWYP6DeYv";
+
+    private ContactForm _form = new();
+    private bool _busy;
+    private bool _sent;
+    private (bool Ok, string Message)? _status;
+    private bool _turnstileRendered;
+
+    private record TypeOption(string Value, string Label, string Icon);
+
+    private readonly TypeOption[] _typeOptions = new[]
+    {
+        new TypeOption("bug",     "Report a bug",   "bi-bug"),
+        new TypeOption("feature", "Feature idea",   "bi-lightbulb"),
+        new TypeOption("other",   "Other",          "bi-chat-dots")
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _turnstileRendered) return;
+
+        // The Turnstile script loads async, so retry a few times if it isn't
+        // ready yet. After ~3s of failures we give up — server still rejects
+        // missing tokens, so the form just won't be usable until reload.
+        for (int i = 0; i < 15 && !_turnstileRendered; i++)
+        {
+            var ok = await JS.InvokeAsync<bool>("RandomizeTurnstile.render",
+                                                "#cf-turnstile-container",
+                                                TurnstileSiteKey);
+            if (ok) { _turnstileRendered = true; break; }
+            await Task.Delay(200);
+        }
+    }
+
+    private async Task Submit()
+    {
+        _busy = true;
+        _status = null;
+        StateHasChanged();
+
+        try
+        {
+            var token = await JS.InvokeAsync<string?>("RandomizeTurnstile.getToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                _status = (false, "Please complete the verification challenge above.");
+                return;
+            }
+
+            var res = await Http.PostAsJsonAsync("api/contact", new
+            {
+                type = _form.Type,
+                name = _form.Name,
+                email = _form.Email,
+                subject = _form.Subject,
+                message = _form.Message,
+                website = _form.Website,
+                turnstileToken = token
+            });
+
+            if (res.IsSuccessStatusCode)
+            {
+                _sent = true;
+                _status = (true, "Thanks — your message is on its way.");
+                _form = new ContactForm();
+            }
+            else if ((int)res.StatusCode == 429)
+            {
+                _status = (false, "Too many messages from this connection. Please try again later.");
+                await ResetTurnstileSafe();
+            }
+            else if ((int)res.StatusCode == 403)
+            {
+                _status = (false, "Verification failed. Please try again.");
+                await ResetTurnstileSafe();
+            }
+            else
+            {
+                _status = (false, "Couldn't send. Please try again in a minute.");
+                await ResetTurnstileSafe();
+            }
+        }
+        catch
+        {
+            _status = (false, "Network error. Please try again.");
+            await ResetTurnstileSafe();
+        }
+        finally
+        {
+            _busy = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ResetTurnstileSafe()
+    {
+        try { await JS.InvokeVoidAsync("RandomizeTurnstile.reset"); }
+        catch { /* widget may already be gone */ }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await ResetTurnstileSafe();
+    }
+
+    public sealed class ContactForm
+    {
+        public string Type { get; set; } = "bug";
+
+        public string? Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "That doesn't look like a valid email.")]
+        public string Email { get; set; } = "";
+
+        public string? Subject { get; set; }
+
+        [Required(ErrorMessage = "Message is required.")]
+        [StringLength(5000, MinimumLength = 5, ErrorMessage = "Message must be 5–5000 characters.")]
+        public string Message { get; set; } = "";
+
+        // Honeypot — must stay empty.
+        public string? Website { get; set; }
+    }
+}

@@ -1,6 +1,8 @@
 @page "/number"
 @using Randomize.Core.Services
+@using Randomize.Web.Services
 @inject NumberRandomizerService NumberService
+@inject StatsClient Stats
 
 <h2 class="page-title">Number Randomizers</h2>
 
@@ -274,6 +276,7 @@
     {
         if (_rnMin > _rnMax) (_rnMin, _rnMax) = (_rnMax, _rnMin);
         _rnResult = NumberService.PickRandom(_rnMin, _rnMax);
+        Stats.Increment("number");
     }
 
     private async Task DoRoll()
@@ -301,6 +304,8 @@
         _diceResult = final.Length == 1
             ? $"You rolled {final[0]}"
             : $"Rolls: {string.Join(", ", final)}   ·   Total: {final.Sum()}";
+
+        Stats.Increment("number");
     }
 
     private async Task DoDraw()
@@ -321,6 +326,7 @@
         }
 
         _lottoDrawing = false;
+        Stats.Increment("number");
     }
 
     private void DoMultiple()
@@ -328,16 +334,19 @@
         _mnCount = Math.Clamp(_mnCount, 1, 100);
         if (_mnMin > _mnMax) (_mnMin, _mnMax) = (_mnMax, _mnMin);
         _mnResult = NumberService.PickMultiple(_mnMin, _mnMax, _mnCount, _mnUnique);
+        Stats.Increment("number");
     }
 
     private void DoRandomDate()
     {
         _dateResult = NumberService.RandomDate(_dateStart, _dateEnd);
+        Stats.Increment("number");
     }
 
     private void DoPin()
     {
         _pinLength = Math.Clamp(_pinLength, 3, 12);
         _pinResult = NumberService.GeneratePin(_pinLength);
+        if (!string.IsNullOrEmpty(_pinResult)) Stats.Increment("number");
     }
 }

@@ -1,4 +1,6 @@
 @page "/"
+@using Randomize.Web.Services
+@inject StatsClient Stats
 
 <PageTitle>Home</PageTitle>
 
@@ -99,7 +101,6 @@
 
     <div class="home-tagline">
         <h2 class="home-tagline-title">Randomize anything. Anytime.</h2>
-        <p class="home-tagline-text">Whether it's a simple yes or no, a shuffle of names, or a coinflip decision &mdash; let Randomize make it easy.</p>
 
         <div class="home-stats-grid">
             <div class="home-stat-pill">
@@ -124,4 +125,41 @@
             </div>
         </div>
     </div>
+
+    <section class="home-livestats-card" aria-label="Live counters">
+        <div class="home-stats-grid">
+            <div class="home-stat-pill">
+                <i class="bi bi-shuffle home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.Total)</div>
+                <div class="home-stat-label">Randomizations</div>
+            </div>
+            <div class="home-stat-pill">
+                <i class="bi bi-arrow-repeat home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.WheelSpins)</div>
+                <div class="home-stat-label">Wheel spins</div>
+            </div>
+            <div class="home-stat-pill">
+                <i class="bi bi-coin home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.HeadsLanded)</div>
+                <div class="home-stat-label">Heads landed</div>
+            </div>
+            <div class="home-stat-pill">
+                <i class="bi bi-cone-striped home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.DaysWithoutAccident)</div>
+                <div class="home-stat-label">Days without an accident</div>
+            </div>
+        </div>
+    </section>
 </div>
+
+@code {
+    private StatsSnapshot? _stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stats = await Stats.GetAsync();
+    }
+
+    // Render a placeholder while loading, with thousands separators once data lands.
+    private static string Format(int? n) => n is int v ? v.ToString("N0") : "—";
+}

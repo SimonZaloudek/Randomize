@@ -1,6 +1,8 @@
 @page "/groupshuffler"
 @using Randomize.Core.Services
+@using Randomize.Web.Services
 @inject IJSRuntime JS
+@inject StatsClient Stats
 
 <h2 class="page-title">Group Shuffler</h2>
 
@@ -195,6 +197,7 @@
 
         _lastInputCount = totalPeople;
         _shuffleId++;
+        Stats.Increment("group");
     }
 
     private void OnDragStart(int groupIdx, int personIdx)
