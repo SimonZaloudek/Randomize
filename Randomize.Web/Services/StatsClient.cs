@@ -2,27 +2,27 @@ using System.Net.Http.Json;
 
 namespace Randomize.Web.Services;
 
-// Thin wrapper around the /api/stats Pages Function. Increments are
-// fire-and-forget: a 404 in dev (when wrangler isn't running) or a transient
-// network blip should never block or surface in the UI.
+// Wrapper around /api/stats. Failures never surface in the UI.
 public sealed class StatsClient
 {
     private readonly HttpClient _http;
 
     public StatsClient(HttpClient http) => _http = http;
 
+    // fire-and-forget so it can't throw on a randomizer's hot path
     public void Increment(string tool)
     {
-        // Discard the task — we never want a failure here to throw on a
-        // randomizer's hot path.
         _ = SafePostAsync(tool);
     }
 
     public async Task<StatsSnapshot?> GetAsync(CancellationToken ct = default)
     {
+        // 5s cap so a slow API shows dashes instead of a blank card
         try
         {
-            return await _http.GetFromJsonAsync<StatsSnapshot>("api/stats", ct);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            return await _http.GetFromJsonAsync<StatsSnapshot>("api/stats", cts.Token);
         }
         catch
         {
@@ -38,7 +38,7 @@ public sealed class StatsClient
         }
         catch
         {
-            // Intentionally swallowed.
+            // ignore
         }
     }
 }

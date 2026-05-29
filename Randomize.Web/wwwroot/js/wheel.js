@@ -1,9 +1,7 @@
-// Spinning wheel — canvas rendering, spin animation, ticking pointer, confetti.
-// One drawWheel() is the single source of truth; renderWheel/spinWheel/celebrate
-// all draw through it. Coordinates are CSS pixels; the backing store is scaled
-// by devicePixelRatio so the wheel stays crisp on high-DPI screens.
+// Spinning wheel canvas. Everything draws through drawWheel(); the backing
+// store is scaled by devicePixelRatio to stay crisp on high-DPI screens.
 
-// Curated palette: 16 evenly-spaced, similar-tone hues — distinct but harmonious.
+// 16-colour palette, shared with the C# pages
 const WHEEL_COLORS = [
     "#ef6f6c", "#f0915a", "#efc05a", "#d4d65f",
     "#9bd06b", "#63c98d", "#54c6b6", "#56b4d3",
@@ -11,7 +9,7 @@ const WHEEL_COLORS = [
     "#c66fc4", "#d96fa3", "#e06f86", "#cf7d6a"
 ];
 
-// Persisted between draws so the wheel never jumps back to 0 on a redraw.
+// kept across redraws so the wheel doesn't jump back to 0
 let wheelRotation = 0;
 let wheelItems = [];
 let wheelHighlight = null;
@@ -31,7 +29,7 @@ function getWheelCtx() {
     return { ctx, size };
 }
 
-// Smaller font as the wheel gets busier, so labels keep fitting.
+// shrink the font as slices increase
 function labelFontSize(total) {
     if (total <= 6) return 18;
     if (total <= 9) return 16;
@@ -39,7 +37,7 @@ function labelFontSize(total) {
     return 11;
 }
 
-// Trim a label with an ellipsis if it would overflow its slice.
+// ellipsis if the label overflows its slice
 function fitLabel(ctx, text, maxWidth) {
     text = text == null ? '' : String(text);
     if (ctx.measureText(text).width <= maxWidth) return text;
@@ -50,8 +48,7 @@ function fitLabel(ctx, text, maxWidth) {
     return t + '…';
 }
 
-// Which slice sits under the pointer (top, angle 3π/2) for a given rotation.
-// Used both for the result and for the pointer tick — so they always agree.
+// slice index under the top pointer (angle 3π/2) for a rotation
 function indexAtPointer(rotation, total) {
     const seg = (2 * Math.PI) / total;
     let a = (1.5 * Math.PI - rotation) % (2 * Math.PI);
@@ -60,7 +57,7 @@ function indexAtPointer(rotation, total) {
 }
 
 function drawPointer(ctx, cx, pivotY, tick) {
-    // The flap pivots above the rim; `tick` rocks it as slices pass.
+    // `tick` rocks the flap as slices pass
     ctx.save();
     ctx.translate(cx, pivotY);
     ctx.rotate(tick);
@@ -93,7 +90,7 @@ function drawWheel(items, rotation, highlight, tick) {
     if (total === 0) return;
     const seg = (2 * Math.PI) / total;
 
-    // Drop-shadow disc behind the wheel.
+    // shadow disc behind the wheel
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.55)';
     ctx.shadowBlur = 22;
@@ -104,7 +101,7 @@ function drawWheel(items, rotation, highlight, tick) {
     ctx.fill();
     ctx.restore();
 
-    // Rotating wheel body.
+    // rotating body
     ctx.save();
     ctx.translate(center, center);
     ctx.rotate(rotation);
@@ -122,7 +119,7 @@ function drawWheel(items, rotation, highlight, tick) {
         ctx.stroke();
     }
 
-    // Glowing outline on the winning slice.
+    // glow on the winning slice
     if (highlight != null && highlight >= 0 && highlight < total) {
         const a0 = highlight * seg;
         ctx.save();
@@ -138,7 +135,7 @@ function drawWheel(items, rotation, highlight, tick) {
         ctx.restore();
     }
 
-    // Labels, one per slice, centred on the slice mid-line.
+    // labels
     ctx.font = `600 ${labelFontSize(total)}px 'Segoe UI', sans-serif`;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
@@ -155,7 +152,7 @@ function drawWheel(items, rotation, highlight, tick) {
     }
     ctx.restore();
 
-    // Centre hub.
+    // centre hub
     ctx.save();
     ctx.beginPath();
     ctx.arc(center, center, Math.max(13, radius * 0.12), 0, 2 * Math.PI);
@@ -175,7 +172,7 @@ window.renderWheel = function (items) {
     drawWheel(wheelItems, wheelRotation, null, 0);
 };
 
-// Spins the wheel and resolves with the winning slice index.
+// spins and resolves with the winning slice index
 window.spinWheel = function (items) {
     wheelItems = (items || []).slice();
     wheelHighlight = null;
@@ -198,7 +195,7 @@ window.spinWheel = function (items) {
             const rotation = startRotation + (finalRotation - startRotation) * eased;
             wheelRotation = rotation;
 
-            // Kick the pointer each time a new slice passes under it.
+            // kick the pointer as each slice passes
             const idx = indexAtPointer(rotation, total);
             if (idx !== lastIdx) { tick = 0.42; lastIdx = idx; }
             tick *= 0.82;
@@ -219,7 +216,7 @@ window.spinWheel = function (items) {
     });
 };
 
-// A short confetti burst over the wheel; resolves when it finishes.
+// confetti burst over the wheel
 window.celebrate = function () {
     const c = getWheelCtx();
     if (!c) return Promise.resolve();
@@ -276,7 +273,7 @@ window.celebrate = function () {
     });
 };
 
-// Keep the wheel sharp when the viewport (and so the canvas size) changes.
+// redraw on resize to stay sharp
 let wheelResizeTimer = null;
 window.addEventListener('resize', () => {
     clearTimeout(wheelResizeTimer);

@@ -37,4 +37,4 @@ When adding a new randomizer, pick whichever style fits; don't refactor the othe
 
 **JS interop** lives in `wwwroot/js/`: `wheel.js` (canvas rendering for the spinning wheel) and `save.js` (`window.downloadFile` for txt export from the Shift Planner). Both are loaded directly from `index.html`, not as ES modules.
 
-**Styling** uses Bootstrap 5 + Bootstrap Icons (CDN) with a custom `wwwroot/css/app.css`. There's no CSS preprocessing.
+**Styling** uses Bootstrap 5 + Bootstrap Icons (CDN) plus custom CSS in `wwwroot/css/`, split by concern into `base.css`, `layout.css`, `home.css`, `tools.css`, `shiftplanner.css`, `contact.css`, and `mobile.css`. There's no CSS preprocessing — they're plain files loaded via `<link>` tags in `index.html`. **Load order is load-bearing**: `base.css` first (defines the theme `var()`s and the global `html[data-theme]` overrides) and `mobile.css` last (touch-polish rules that override earlier `:hover` states at equal specificity). Insert new feature CSS as its own file in the appropriate spot in that order.

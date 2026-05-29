@@ -1,0 +1,37 @@
+/* mobile.css — split from app.css; load order fixed in index.html */
+/* === MOBILE / TOUCH POLISH === */
+
+/* tap the wheel to spin */
+.wheel-canvas {
+    cursor: pointer;
+}
+
+/* stop long-press selecting UI chrome (text content stays selectable) */
+.sidebar,
+.sidebar-toggle,
+.sidebar-backdrop,
+.sidebar-footer,
+.theme-switch,
+.tool-card-title,
+.tool-card-hint,
+.page-title,
+.tool-btn,
+.shuffler-action,
+.shuffler-summary,
+.group-card-head,
+.group-copy-btn,
+.wheel-clear-btn,
+.wheel-result-label {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* kill sticky :hover lift on touch devices */
+@media (hover: none) {
+    .tool-card:hover,
+    .group-card:hover {
+        transform: none;
+    }
+}
+
+

@@ -4,9 +4,7 @@ namespace Randomize.Core.ShiftPlanner
 {
     public class Employee
     {
-        // Stable identity so the razor can find / update / delete a specific
-        // employee without relying on reference equality (which breaks after a
-        // file round-trip).
+        // stable id so the UI can track an employee across edits / file loads
         public Guid Id { get; init; } = Guid.NewGuid();
 
         public string? Name { get; set; }

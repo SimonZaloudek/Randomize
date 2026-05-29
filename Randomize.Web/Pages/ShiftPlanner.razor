@@ -16,8 +16,7 @@
         <div class="planner-card-head">
             <h3 class="planner-section-title">Hourly demand</h3>
 
-            <!-- Show range. Each input is hour 0–23 with a moon checkbox to mark
-                 it as a next-day hour, matching the employee schedule UX. -->
+            <!-- hour 0–23 + moon checkbox to mark it as next-day -->
             <div class="planner-visible-range" title="Hours shown in the timeline">
                 <span class="planner-visible-label">Show</span>
                 <span class="time-input-group">
@@ -310,13 +309,10 @@
     private Employee _newEmployee = new();
     private List<Employee> _employees = new();
 
-    // Stable identity of the employee currently being edited (null = adding).
+    // id of the employee being edited (null = adding)
     private Guid? _editingId;
 
-    // ----- Visible window -----
-    // Split storage: hour-of-day (0–23) plus a "next-day" flag. The moon
-    // checkbox in the UI binds to the flag — same UX as the employee schedule
-    // form. Combined hour (0–30) is computed on demand for the loops below.
+    // visible window: hour-of-day (0–23) + a next-day flag; combined 0–30 computed on demand
     private int _visibleFromHour = 6;
     private bool _visibleFromNext = false;
     private int _visibleToHour = 22;
@@ -369,7 +365,7 @@
         }
     }
 
-    // Guarantee From < To. If a setter would invert them, bump To just past From.
+    // keep From < To
     private void EnforceFromBeforeTo()
     {
         if (VisibleFromTotal >= VisibleToTotal)
@@ -389,7 +385,7 @@
 
     private string? _validationMessage;
 
-    // Same 16-colour palette as the wheel and group shuffler.
+    // shared 16-colour palette
     private static readonly string[] _palette = new[]
     {
         "#ef6f6c","#f0915a","#efc05a","#d4d65f",
@@ -419,8 +415,7 @@
 
     private int TotalCapacity => _employees.Sum(e => e.GetEffectiveMaxHours());
 
-    // Each click of a preset adds 1 person to the hours in its range
-    // (capped at TimeSlot's max of 40), so multiple taps stack.
+    // each tap adds 1 to the hours in range (capped at 40), so taps stack
     private void ApplyPreset(string key)
     {
         if (key == "clear")
@@ -429,8 +424,7 @@
             return;
         }
 
-        // Night is 22:00 today → 06:00 next day. Widen the visible window so
-        // the full night shift is on screen after one tap.
+        // night is 22:00 → 06:00 next day; widen the window to show it all
         if (key == "night")
         {
             _visibleToHour = 6;
@@ -492,8 +486,7 @@
         }
     }
 
-    // Widen the visible window so a preset or custom range that lands outside
-    // the current view is still drawn in the timeline.
+    // widen the window so an out-of-view range still draws
     private void EnsureVisible(int fromInclusive, int toExclusive)
     {
         if (fromInclusive < VisibleFromTotal)
@@ -710,7 +703,7 @@
                 sb.AppendLine(FormatHour(h));
         }
 
-        // UTF-8 BOM so Excel detects the encoding and shows accented names correctly.
+        // UTF-8 BOM so Excel reads accented names correctly
         var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
         await JS.InvokeVoidAsync("downloadFile", "shift-plan.csv", "text/csv", bytes);
     }

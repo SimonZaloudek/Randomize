@@ -1,6 +1,7 @@
 @page "/"
 @using Randomize.Web.Services
 @inject StatsClient Stats
+@implements IDisposable
 
 <PageTitle>Home</PageTitle>
 
@@ -100,7 +101,7 @@
     </div>
 
     <div class="home-tagline">
-        <h2 class="home-tagline-title">Randomize anything. Anytime.</h2>
+        <h2 class="home-tagline-title">Randomize anything, anytime!</h2>
 
         <div class="home-stats-grid">
             <div class="home-stat-pill">
@@ -127,12 +128,11 @@
     </div>
 
     <section class="home-livestats-card" aria-label="Live counters">
-        <span class="home-livestats-live">
-            <span class="home-livestats-dot" aria-hidden="true"></span>
-            Live
+        <span class="home-livestats-live" aria-hidden="true">
+            <span class="home-livestats-dot"></span>
         </span>
 
-        <h2 class="home-livestats-title">Statistics</h2>
+        <h2 class="home-livestats-title">Live Statistics</h2>
 
         <div class="home-stats-grid home-livestats-grid">
             <div class="home-stat-pill home-livestat-pill">
@@ -160,13 +160,47 @@
 </div>
 
 @code {
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(12);
+
     private StatsSnapshot? _stats;
+    private readonly CancellationTokenSource _cts = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _stats = await Stats.GetAsync();
+        _stats = await Stats.GetAsync(_cts.Token);
+        _ = PollAsync();
     }
 
-    // Render a placeholder while loading, with thousands separators once data lands.
-    private static string Format(int? n) => n is int v ? v.ToString("N0") : "—";
+    // Background refresh loop.
+    private async Task PollAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(RefreshInterval);
+            while (await timer.WaitForNextTickAsync(_cts.Token))
+            {
+                var fresh = await Stats.GetAsync(_cts.Token);
+                // re-render when a number actually changed.
+                if (fresh is not null && fresh != _stats)
+                {
+                    _stats = fresh;
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // navigated away
+        }
+    }
+
+    // "—" until stats load; InvariantCulture for consistent separators
+    private static string Format(int? n) =>
+        n is int v ? v.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) : "—";
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
 }

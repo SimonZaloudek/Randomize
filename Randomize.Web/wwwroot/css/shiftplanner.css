@@ -1,0 +1,1116 @@
+/* shiftplanner.css — split from app.css. Load order is fixed in index.html. */
+/* === SHIFT PLANNER === */
+
+.timeline-container {
+    max-width: 90%;
+    min-height: 118px;
+    margin-bottom: 20px;
+    align-self: center;
+    scrollbar-width: thin;
+    text-align: center;
+    overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    border-radius: 8px;  
+
+}
+
+.timeline-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+    border-radius: 8px;
+    padding: 1px;
+    min-width: fit-content;
+    height: 100%;
+    max-height: 100%;
+}
+
+.hour-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px; 
+    min-width: 60px;
+    padding: 8px 4px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);  
+    background: rgba(0, 0, 0, 0.2);  
+    transition: background 0.2s ease;
+}
+
+.hour-slot:last-child {
+    border-right: none;  
+}
+
+.hour-slot:hover {
+    background: rgba(26, 26, 26, 0.9); 
+}
+
+.hour-label {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 4px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.required-input, .priority-select {
+    width: 80%;
+    max-width: 60px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #333;
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.priority-select {
+    background: rgba(255, 255, 255, 0.05); 
+    cursor: pointer;
+}
+
+.required-input:focus, .priority-select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.priority-select:focus {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+    border-color: #111 !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.03) !important;
+}
+
+.priority-select option {
+    background: rgb(10, 10, 11, 0.90) !important; 
+    color: #fff !important;
+}
+
+    .priority-select option:hover {
+        background: rgba(51, 51, 51, 0.8) !important; 
+        color: #fff !important; 
+    }
+
+
+.required-input::-webkit-inner-spin-button,
+.required-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.info-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #2b2b2b;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.info-icon:hover {
+    background-color: #444;
+}
+
+.info-popup {
+    display: none;
+    position: absolute;
+    left: 30px;
+    top: 0;
+    background: #1e1e1e;
+    color: #f5f5f5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    width: 220px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    border: 1px solid #555;
+    z-index: 100;
+}
+
+.info-popup strong {
+    color: #ffd54f;
+}
+
+.info-icon:hover .info-popup {
+    display: block;
+}
+
+/* === EMPLOYEE === */
+
+.employee-add-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 10px 12px;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    margin-bottom: 12px;
+}
+
+.employee-input {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #f0f0f0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 160px;
+}
+
+    .employee-input.small {
+        max-width: 155px;
+    }
+
+.employee-add-btn {
+    background: #2b6cb0;
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+    .employee-add-btn:hover {
+        background: #357ae8;
+    }
+
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nextday-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+    .nextday-checkbox input {
+        display: none;
+    }
+
+    .nextday-checkbox i {
+        font-size: 1.2rem;
+        color: var(--bs-light);
+        opacity: 0.6;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .nextday-checkbox input:checked + i {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+.small-icon {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin-left: 2px;
+}
+
+
+.employee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.employee-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1f1f1f;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    min-width: 0;
+}
+
+.emp-left {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.emp-name {
+    display: block;
+}
+
+.emp-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 7px;
+}
+
+.emp-hours {
+    color: #90caf9;
+}
+
+.emp-time {
+    font-size: 15px;
+    color: #ccc;
+}
+
+.emp-time-muted {
+    color: #777;
+    font-style: italic;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #237fd5;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #f55;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+    .delete-btn:hover {
+        color: #ff7777;
+        transform: scale(1.1);
+    }
+
+
+/* Actions */
+.employee-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-outline-light {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .btn-outline-light:hover {
+        color: #fff !important;
+        background-color: #3a3a3a !important;
+        border-color: #777 !important;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-light i {
+        font-size: 1rem;
+    }
+
+
+
+/* ===== GENERATED TIMELINE ===== */
+
+.schedule-grid {
+    background: #1c1c1c;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 14px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    overflow-x: auto;
+    scrollbar-color: #555 #222;
+    scrollbar-width: thin;
+}
+
+.schedule-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 6px;
+    min-width: 1000px;
+}
+
+.emp-name {
+    width: 120px;
+    color: #eee;
+    font-weight: 500;
+    text-align: right;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.emp-bar {
+    height: 20px;
+    background: linear-gradient(90deg, #3cb371, #2e8b57);
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    position: relative;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.emp-bar:hover {
+    transform: scaleY(1.1);
+    opacity: 0.9;
+}
+
+
+.emp-bar::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.emp-bar:hover::after {
+    opacity: 1;
+}
+
+/* Totals section */
+.totals {
+    margin-top: 14px;
+    padding: 8px 10px;
+    background: #181818;
+    border-radius: 8px;
+    border: 1px solid #333;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.totals-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 6px;
+}
+
+.total-cell {
+    width: 52px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #ccc;
+    background: #222;
+    padding: 4px 0;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.total-cell:hover {
+    background: #2f2f2f;
+}
+
+
+
+
+.results-section {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-message {
+    background: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    color: #5dade2;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.unfilled-warning {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+}
+
+/* Gantt Chart */
+.gantt-chart {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.gantt-header {
+    display: flex;
+    gap: 0;
+}
+
+.gantt-names-column {
+    flex-shrink: 0;
+    width: 180px;
+    border-right: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.gantt-header-label {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #fff;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.95rem;
+}
+
+.gantt-name {
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 12px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-weight: 500;
+    gap: 2px;
+}
+
+.shift-hours {
+    color: #999;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+
+.gantt-timeline-column {
+    flex: 1;
+    min-width: fit-content;
+}
+
+.gantt-hours-header {
+    display: flex;
+    height: 50px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.gantt-hour-marker {
+    width: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #999;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gantt-row {
+    display: flex;
+    height: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gantt-cell {
+    width: 40px;
+    min-width: 40px;
+    position: relative;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+    .gantt-cell.working {
+        background: rgba(74, 144, 226, 0.2);
+    }
+
+.gantt-bar {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    border-radius: 2px;
+}
+
+.gantt-cell.start .gantt-bar {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    left: 4px;
+}
+
+.gantt-cell.end .gantt-bar {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    right: 4px;
+}
+
+/* Stats */
+.coverage-stats {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+    .coverage-stats h4 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.stat-label {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    color: #4a90e2;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* phone */
+@media (max-width: 768px) {
+    .gantt-names-column {
+        width: 140px;
+    }
+
+    .gantt-name {
+        font-size: 0.85rem;
+    }
+
+    .shift-hours {
+        font-size: 0.7rem;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === SHIFT PLANNER (REDESIGN) === */
+/* card layout on top of the original .timeline-bar / .gantt-* internals */
+
+.planner-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 8px auto 48px;
+}
+
+.planner-card {
+    gap: 14px;
+}
+
+.planner-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 18px;
+}
+
+.planner-section-title {
+    margin: 0;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.planner-section-hint {
+    margin: 0 0 0 auto;
+    color: #888;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.planner-card-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}
+
+.planner-chip {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.planner-chip:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.planner-chip-quiet {
+    color: #888;
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.planner-file-input {
+    display: none;
+}
+
+.demand-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* horizontal scroller so the wide timeline/Gantt don't blow out the card */
+.planner-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.planner-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+.planner-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+}
+
+/* Visible-range setter — small inputs in the card head. */
+.planner-visible-range {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.planner-visible-range .tool-input-small {
+    min-width: 54px;
+    width: 54px;
+    padding: 3px 6px;
+    text-align: center;
+}
+
+.planner-visible-sep {
+    color: #555;
+}
+
+/* Custom-range row — sits under the presets. */
+.demand-custom-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+}
+
+.demand-custom-label {
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.7rem;
+}
+
+.demand-custom-row .tool-input-small {
+    min-width: 70px;
+    width: 80px;
+    text-align: center;
+}
+
+.demand-custom-sep {
+    color: #555;
+}
+
+/* mark next-day hours (24..30); the first gets a thicker divider */
+.hour-slot.next-day .hour-label,
+.gantt-hour-marker.next-day {
+    color: var(--accent-text);
+    opacity: 0.85;
+}
+
+.hour-slot.next-day-start {
+    border-left: 2px solid var(--accent);
+    padding-left: 6px;
+    margin-left: 2px;
+}
+
+.gantt-hour-marker.next-day-start,
+.gantt-cell.next-day-start {
+    border-left: 2px solid var(--accent);
+}
+
+.planner-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #cccccc;
+    font-size: 0.88rem;
+}
+
+.planner-summary strong {
+    color: var(--accent-text);
+}
+
+.planner-summary-status {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: #8fd17b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.planner-summary.short {
+    border-color: rgba(255, 180, 80, 0.4);
+    background: rgba(255, 180, 80, 0.06);
+}
+
+.planner-summary.short .planner-summary-status {
+    color: #ffb455;
+}
+
+.planner-error {
+    color: #ff8c8c;
+    background: rgba(255, 90, 90, 0.08);
+    border: 1px solid rgba(255, 90, 90, 0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-info {
+    color: #cccccc;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-info strong {
+    color: var(--accent-text);
+}
+
+.planner-warning {
+    color: #ffb455;
+    background: rgba(255, 180, 80, 0.08);
+    border: 1px solid rgba(255, 180, 80, 0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+}
+
+.planner-warning strong {
+    color: #ffd089;
+}
+
+/* --- Employee form (compact card) --- */
+
+.planner-form-card {
+    padding: 14px 18px;
+    gap: 10px;
+}
+
+.planner-card-head-tight {
+    margin-bottom: 0;
+}
+
+.employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* one-line row: Max hours · Start · End · Add */
+.employee-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.employee-form-input {
+    min-width: 90px;
+    width: 110px;
+}
+
+.planner-form-btn {
+    width: auto;
+    min-width: 90px;
+    padding: 8px 18px;
+    margin-top: 0;
+    margin-left: auto;
+}
+
+/* --- Employee list --- */
+
+.employee-color-chip {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--emp-color, var(--accent));
+    flex-shrink: 0;
+    box-shadow: 0 0 8px -2px var(--emp-color, var(--accent));
+}
+
+/* gap between the flat children (chip · name · hours · time · actions) */
+.employee-card {
+    gap: 12px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+}
+
+.employee-card .employee-name {
+    font-weight: 600;
+    color: #f0f0f0;
+}
+
+.employee-card .emp-hours {
+    color: var(--accent-text);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.employee-card .emp-time,
+.employee-card .emp-time-muted {
+    color: #bbb;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+.employee-card.editing {
+    border: 1px solid var(--emp-color, var(--accent));
+    box-shadow: 0 0 0 1px var(--emp-color, var(--accent));
+}
+
+.employee-card-actions {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.employee-icon-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: #aaa;
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.employee-icon-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.employee-icon-btn-danger:hover {
+    color: #ff8c8c;
+    border-color: rgba(255, 90, 90, 0.4);
+}
+
+/* --- Randomize + results --- */
+
+.planner-randomize {
+    width: auto !important;
+    min-width: 240px;
+    align-self: center;
+    margin-top: 0 !important;
+}
+
+.planner-results {
+    animation: planner-results-pop 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.2) backwards;
+}
+
+@keyframes planner-results-pop {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* bar colour from per-row --emp-color; prefix beats the theme override */
+.gantt-chart .gantt-row .gantt-bar {
+    background: linear-gradient(135deg, var(--emp-color, var(--accent)) 0%, color-mix(in srgb, var(--emp-color, var(--accent)) 65%, #000) 100%);
+}
+
+/* chip left, name + hours right, aligned row-for-row with the bars */
+.planner-results .gantt-name {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+}
+
+.gantt-name-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    gap: 1px;
+    line-height: 1.15;
+}
+
+.gantt-name-text {
+    color: #f0f0f0;
+    font-weight: 600;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.planner-results .shift-hours {
+    color: #999;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* no nested card chrome — the wrapping .tool-card provides it */
+.planner-results .gantt-chart {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 0;
+    overflow: visible;
+}
+
+.gantt-cell.next-day {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* === Mobile === */
+@media (max-width: 767px) {
+
+    .planner-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .planner-section-hint {
+        margin-left: 0;
+    }
+    .planner-card-actions {
+        margin-left: 0;
+    }
+
+    .employee-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .employee-form-field {
+        width: 100%;
+    }
+    .employee-form-field .tool-input-small {
+        width: 100%;
+    }
+
+    .planner-form-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .employee-card {
+        flex-wrap: wrap;
+    }
+    .employee-card-actions {
+        margin-left: auto;
+    }
+
+    .planner-randomize {
+        width: 100% !important;
+    }
+
+    /* sticky name column while scrolling the Gantt */
+    .planner-scroll .gantt-names-column {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: linear-gradient(145deg, rgba(26, 26, 26, 0.98), rgba(17, 17, 17, 0.98));
+        box-shadow: 4px 0 12px -4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* tighten the visible-range setter on mobile */
+    .planner-visible-range {
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+}
+
+

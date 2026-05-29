@@ -25,6 +25,8 @@
                     var value = opt.Value;
                     <button type="button"
                             class="contact-type @(_form.Type == value ? "active" : "")"
+                            role="radio"
+                            aria-checked="@(_form.Type == value ? "true" : "false")"
                             @onclick="() => _form.Type = value"
                             disabled="@_busy">
                         <i class="bi @opt.Icon"></i>
@@ -60,21 +62,25 @@
                 <ValidationMessage For="@(() => _form.Message)" />
             </label>
 
-            @* Honeypot — hidden from humans, irresistible to bots. *@
+            @* honeypot — hidden from humans; neutral class name on purpose *@
             <input type="text" name="website" tabindex="-1" autocomplete="off"
-                   aria-hidden="true" class="contact-honeypot"
+                   aria-hidden="true" class="contact-aux-field"
                    @bind="_form.Website" />
 
             <div id="cf-turnstile-container" class="contact-turnstile"></div>
 
-            <button type="submit" class="tool-btn contact-submit" disabled="@(_busy || _sent)">
+            @if (_turnstileFailed)
+            {
+                <div class="contact-status err" role="status">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <span>Couldn't load the verification widget. Disable any ad/privacy blockers and reload the page to send a message.</span>
+                </div>
+            }
+
+            <button type="submit" class="tool-btn contact-submit" disabled="@_busy">
                 @if (_busy)
                 {
                     <span>Sending…</span>
-                }
-                else if (_sent)
-                {
-                    <span><i class="bi bi-check2"></i> Sent</span>
                 }
                 else
                 {
@@ -98,9 +104,10 @@
 
     private ContactForm _form = new();
     private bool _busy;
-    private bool _sent;
     private (bool Ok, string Message)? _status;
     private bool _turnstileRendered;
+    private bool _turnstileFailed;
+    private bool _disposed;
 
     private record TypeOption(string Value, string Label, string Icon);
 
@@ -115,16 +122,32 @@
     {
         if (!firstRender || _turnstileRendered) return;
 
-        // The Turnstile script loads async, so retry a few times if it isn't
-        // ready yet. After ~3s of failures we give up — server still rejects
-        // missing tokens, so the form just won't be usable until reload.
-        for (int i = 0; i < 15 && !_turnstileRendered; i++)
+        // retry until the async Turnstile script is ready; bail on dispose
+        for (int i = 0; i < 15 && !_turnstileRendered && !_disposed; i++)
         {
-            var ok = await JS.InvokeAsync<bool>("RandomizeTurnstile.render",
-                                                "#cf-turnstile-container",
-                                                TurnstileSiteKey);
-            if (ok) { _turnstileRendered = true; break; }
+            try
+            {
+                var ok = await JS.InvokeAsync<bool>("RandomizeTurnstile.render",
+                                                    "#cf-turnstile-container",
+                                                    TurnstileSiteKey);
+                if (ok) { _turnstileRendered = true; break; }
+            }
+            catch when (_disposed)
+            {
+                return;
+            }
+            catch
+            {
+                // transient error — retry
+            }
             await Task.Delay(200);
+        }
+
+        // script never loaded (blocker / network) — show a notice
+        if (!_turnstileRendered && !_disposed)
+        {
+            _turnstileFailed = true;
+            StateHasChanged();
         }
     }
 
@@ -139,7 +162,9 @@
             var token = await JS.InvokeAsync<string?>("RandomizeTurnstile.getToken");
             if (string.IsNullOrEmpty(token))
             {
-                _status = (false, "Please complete the verification challenge above.");
+                _status = (false, _turnstileRendered
+                    ? "Please complete the verification challenge above."
+                    : "Couldn't load the verification widget. Disable blockers and reload to send.");
                 return;
             }
 
@@ -156,9 +181,10 @@
 
             if (res.IsSuccessStatusCode)
             {
-                _sent = true;
                 _status = (true, "Thanks — your message is on its way.");
                 _form = new ContactForm();
+                // tokens are single-use — refresh for the next submit
+                await ResetTurnstileSafe();
             }
             else if ((int)res.StatusCode == 429)
             {
@@ -196,9 +222,10 @@
 
     public async ValueTask DisposeAsync()
     {
-        // Destroy the widget on navigation away — reset() leaves a dangling
-        // widget id that breaks the next mount on prod (issue surfaced as
-        // "Nothing to reset found for provided container").
+        // stop the retry loop touching JS after teardown
+        _disposed = true;
+
+        // destroy the widget so the next mount starts clean
         try { await JS.InvokeVoidAsync("RandomizeTurnstile.remove"); }
         catch { /* JS interop torn down — nothing to clean up */ }
     }
@@ -207,12 +234,14 @@
     {
         public string Type { get; set; } = "bug";
 
+        [StringLength(100, ErrorMessage = "Name is too long (100 characters max).")]
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "That doesn't look like a valid email.")]
         public string Email { get; set; } = "";
 
+        [StringLength(200, ErrorMessage = "Subject is too long (200 characters max).")]
         public string? Subject { get; set; }
 
         [Required(ErrorMessage = "Message is required.")]

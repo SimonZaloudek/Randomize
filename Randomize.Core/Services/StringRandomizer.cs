@@ -82,8 +82,7 @@ namespace Randomize.Core.Services
             if (length <= 0 || string.IsNullOrEmpty(charset))
                 return null;
 
-            // Split into text elements so multi-char glyphs (emoji are surrogate
-            // pairs) stay whole, and drop control characters, which don't render.
+            // split into text elements so emoji stay whole; drop control chars
             var pool = new List<string>();
             var elements = StringInfo.GetTextElementEnumerator(charset);
             while (elements.MoveNext())

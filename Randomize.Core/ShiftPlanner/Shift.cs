@@ -12,9 +12,8 @@ namespace Randomize.Core.ShiftPlanner
             ShiftInit();
         }
 
-        // 31 slots: hours 0..23 are today, 24..30 are the early hours of the next
-        // day. This range is also hard-coded in ShiftPlannerService.AssignShifts
-        // and in the Razor timeline / Gantt loops — change all three together.
+        // 31 slots: 0–23 today, 24–30 next morning. Also hard-coded in
+        // ShiftPlannerService.AssignShifts and the Razor timeline — keep in sync.
         private void ShiftInit()
         {
             for (int i = 0; i <= 30; i++)

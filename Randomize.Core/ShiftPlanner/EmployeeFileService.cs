@@ -14,11 +14,7 @@ namespace Randomize.Core.ShiftPlanner
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        // ----- TXT (legacy) -----
-        // Space-separated: `Name MaxHours [Start [True]] [End [True]]`. Spaces
-        // in names are encoded as `=` so the line stays single-token-per-field.
-        // Kept for backwards compatibility with anyone who saved a roster in
-        // the old format.
+        // legacy TXT: "Name MaxHours [Start [True]] [End [True]]", spaces in names as '='
         public static string WriteEmployees(IEnumerable<Employee> employees)
         {
             var sb = new StringBuilder();
@@ -101,9 +97,7 @@ namespace Randomize.Core.ShiftPlanner
             return employees;
         }
 
-        // ----- JSON (preferred) -----
-        // Robust to names with any characters, optional fields, and future
-        // additions to Employee. New saves go out as JSON.
+        // JSON — the current save format
         public static string WriteEmployeesJson(IEnumerable<Employee> employees)
         {
             var dtos = employees.Select(e => new EmployeeDto
@@ -135,8 +129,7 @@ namespace Randomize.Core.ShiftPlanner
             }).ToList();
         }
 
-        // Auto-detect TXT vs JSON by sniffing the first non-whitespace char.
-        // Lets users load either format without picking it.
+        // detect TXT vs JSON by the first non-whitespace char
         public static List<Employee> LoadEmployees(string text)
         {
             var trimmed = (text ?? string.Empty).TrimStart();

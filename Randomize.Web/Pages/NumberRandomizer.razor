@@ -288,7 +288,7 @@
 
         var final = NumberService.RollDice(_diceCount, 6);
 
-        // Flicker random faces while the dice tumble, then settle on the result.
+        // flicker faces while rolling, then settle
         for (int i = 0; i < 9; i++)
         {
             var flicker = new int[final.Length];

@@ -1,13 +1,6 @@
-// Thin wrapper around Cloudflare Turnstile so the Blazor Contact page can
-// render the widget, read the token on submit, and tear it down between
-// SPA navigations without dragging the CF script's globals into C#.
-//
-// SPA gotcha: Blazor unmounts the page on navigation, which removes the
-// container element AND the widget's iframe — but this module's globals
-// survive. If we naively call turnstile.reset() with a now-stale widget id,
-// CF throws "Nothing to reset found for provided container." Every path
-// here treats a missing/detached widget as "render fresh" rather than an
-// error.
+// Cloudflare Turnstile wrapper for the contact page. Blazor unmounts the page
+// on navigation but keeps these globals, so every path guards against a stale
+// widget id (otherwise reset() throws "nothing to reset").
 window.RandomizeTurnstile = {
     _token: null,
     _widgetId: null,
@@ -21,15 +14,14 @@ window.RandomizeTurnstile = {
         const container = document.querySelector(containerSelector);
         if (!container) return false;
 
-        // Same container still hosts the previous widget → just refresh it.
-        if (this._widgetId !== null && this._containerEl === container) {
+        // same container, existing widget → just refresh
+        if (this._widgetId && this._containerEl === container) {
             try {
                 turnstile.reset(this._widgetId);
                 this._token = null;
                 return true;
             } catch {
-                // Widget was torn down (Blazor unmount). Forget it and fall
-                // through to a fresh mount below.
+                // widget gone — fall through to a fresh mount
                 this._widgetId = null;
             }
         }
@@ -59,22 +51,20 @@ window.RandomizeTurnstile = {
 
     reset: function () {
         this._token = null;
-        if (this._widgetId !== null && typeof turnstile !== 'undefined') {
+        if (this._widgetId && typeof turnstile !== 'undefined') {
             try {
                 turnstile.reset(this._widgetId);
             } catch {
-                // Widget detached — clear our refs so the next render()
-                // mounts cleanly instead of trying to reset a ghost.
+                // detached — clear refs so the next render() mounts clean
                 this._widgetId = null;
                 this._containerEl = null;
             }
         }
     },
 
-    // Called on component dispose. Fully destroys the widget so the next
-    // mount starts from a clean slate.
+    // destroy the widget on dispose
     remove: function () {
-        if (this._widgetId !== null && typeof turnstile !== 'undefined') {
+        if (this._widgetId && typeof turnstile !== 'undefined') {
             try { turnstile.remove(this._widgetId); } catch { /* already gone */ }
         }
         this._widgetId = null;

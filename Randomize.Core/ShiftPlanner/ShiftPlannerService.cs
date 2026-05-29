@@ -91,8 +91,7 @@ namespace Randomize.Core.ShiftPlanner
             return result;
         }
 
-        // Fisher–Yates with Random.Shared — unbiased and consistent with the rest
-        // of the codebase (group shuffler, wheel, etc.).
+        // Fisher–Yates shuffle
         private static List<Employee> Shuffle(IEnumerable<Employee> source)
         {
             var list = source.ToList();

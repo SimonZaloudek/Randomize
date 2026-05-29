@@ -72,7 +72,7 @@ namespace Randomize.Core.Services
             return start.AddDays(_random.Next(span + 1));
         }
 
-        // Kept for later reuse — the Yes/No decider is not currently shown in the UI.
+        // unused in the UI — kept for later
         public string DecideYesNo(bool includeMaybe)
         {
             var options = includeMaybe

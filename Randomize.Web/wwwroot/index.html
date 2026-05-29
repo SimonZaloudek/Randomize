@@ -4,16 +4,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Tints the iOS Safari address bar and Chrome's chrome to match the app. -->
+    <!-- tints the mobile browser chrome -->
     <meta name="theme-color" content="#0a0a0a" />
-    <!-- iOS standalone-web-app hints (used if the user "Adds to Home Screen"). -->
+    <!-- iOS "Add to Home Screen" hints -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Randomize" />
     <title>Randomize</title>
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/app.css" />
+    <!-- order matters: base first (theme vars), mobile last (touch overrides) -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/tools.css" />
+    <link rel="stylesheet" href="css/shiftplanner.css" />
+    <link rel="stylesheet" href="css/contact.css" />
+    <link rel="stylesheet" href="css/mobile.css" />
     <link rel="icon" type="image/png" style="width:56px;height:56px;" href="brand/RANDLOGO1.png" />
     <link href="Randomize.Web.styles.css" rel="stylesheet" />
     <link href="manifest.webmanifest" rel="manifest" />
@@ -43,8 +50,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
-        // This app does not use a service worker. Proactively remove any worker
-        // and caches left by older versions so the latest files always load.
+        // no service worker — unregister any left by older versions
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations()
                 .then(regs => regs.forEach(reg => reg.unregister()));
@@ -53,11 +59,8 @@
             caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
         }
 
-        // HTML5 drag-and-drop: the browser only fires `drop` if `dragstart` set
-        // some data on dataTransfer. Blazor's DragEventArgs is a one-way snapshot
-        // so we can't do it from C#. A capture-phase listener sets data for every
-        // draggable on the page before any other handler runs — that's all the
-        // group-shuffler drag-to-move needs to work reliably across browsers.
+        // drop only fires if dragstart set dataTransfer data, which Blazor can't
+        // do from C# — set it here for every draggable (group-shuffler drag-to-move)
         document.addEventListener('dragstart', e => {
             if (e.dataTransfer) {
                 e.dataTransfer.setData('text/plain', '');

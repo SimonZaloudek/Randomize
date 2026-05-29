@@ -9,7 +9,7 @@
 <div class="wheel-layout">
 
     <div class="wheel-stage">
-        <!-- Tap the wheel itself to spin — same guard as the button. -->
+        <!-- tap the wheel to spin -->
         <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
 
         <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
@@ -145,7 +145,7 @@
             count = 2;
         }
 
-        // Reflect the clamped value back into the textbox.
+        // reflect the clamped value back
         rawCountInput = (_count ?? 2).ToString();
     }
 
@@ -191,7 +191,7 @@
 
             await JS.InvokeVoidAsync("celebrate");
 
-            // Elimination mode: drop the winner, but never below 2 slices.
+            // elimination mode: drop winner, keep at least 2
             if (_eliminate && items.Count > 2)
             {
                 items.RemoveAt(winner);

@@ -122,16 +122,16 @@
 
     private List<GroupBucket> groups = new();
 
-    // Drag state — set on dragstart, consumed on drop.
+    // drag state
     private int? _dragSourceGroup;
     private int? _dragSourceIndex;
     private int? _dragOverGroup;
 
-    // Brief "copied" feedback on the buttons.
+    // "copied" feedback
     private int? _copiedGroup;
     private bool _copiedAll;
 
-    // Same 16-colour palette as the wheel, so the visual language matches.
+    // shared 16-colour palette
     private static readonly string[] _palette = new[]
     {
         "#ef6f6c","#f0915a","#efc05a","#d4d65f",
@@ -185,7 +185,7 @@
             ? GroupShufflerCore.ShuffleIntoGroups(input, _groupCount)
             : GroupShufflerCore.ShuffleIntoGroupsOfSize(input, _groupCount);
 
-        // Preserve any custom names where indices line up; default the rest.
+        // keep custom names where indices line up
         var oldNames = groups.Select(g => g.Name).ToList();
         groups = raw.Select((members, i) => new GroupBucket
         {
@@ -275,7 +275,7 @@
         }
         catch
         {
-            // Clipboard API unavailable (insecure context / old browser). Skip silently.
+            // clipboard unavailable — skip
             return false;
         }
     }

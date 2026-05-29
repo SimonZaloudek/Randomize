@@ -1,17 +1,5 @@
-// Cloudflare Pages Function — POST /api/contact
-// Validates a contact form submission, runs Turnstile + per-IP rate limit,
-// and sends via Resend.
-//
-// Required env / bindings:
-//   RESEND_API_KEY     — Resend secret
-//   CONTACT_TO         — destination email (also the Resend account email
-//                        while using onboarding@resend.dev)
-//   TURNSTILE_SECRET   — Cloudflare Turnstile secret key
-//   STATS              — KV namespace (also used for usage counters)
-//
-// Rate limit: at most RATE_LIMIT successful-validation submissions per IP
-// per RATE_WINDOW_SEC. Failed validation / honeypot drops don't burn the
-// quota so a typo doesn't lock a user out.
+// POST /api/contact — validate, rate-limit, Turnstile-check, send via Resend.
+// Env: RESEND_API_KEY, CONTACT_TO, TURNSTILE_SECRET, STATS (KV).
 
 const ALLOWED_TYPES = ["bug", "feature", "other"];
 const TYPE_LABELS = {
@@ -33,16 +21,16 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); }
   catch { return json({ error: "Invalid JSON" }, 400); }
 
-  const name = sanitize(body?.name, 100);
-  const email = sanitize(body?.email, 254);
-  const subject = sanitize(body?.subject, 200);
+  // strip CR/LF from header-bound fields; message keeps its newlines
+  const name = sanitizeLine(body?.name, 100);
+  const email = sanitizeLine(body?.email, 254);
+  const subject = sanitizeLine(body?.subject, 200);
   const message = sanitize(body?.message, 5000);
   const type = String(body?.type || "").trim();
   const honeypot = String(body?.website || "");
   const turnstileToken = String(body?.turnstileToken || "");
 
-  // Bots fill hidden fields. Pretend everything's fine and drop the message
-  // without burning the legitimate user's rate-limit quota.
+  // honeypot: silently accept and drop
   if (honeypot) return json({ ok: true }, 200);
 
   if (!ALLOWED_TYPES.includes(type)) {
@@ -61,36 +49,29 @@ export async function onRequestPost({ request, env }) {
   const apiKey = env.RESEND_API_KEY;
   const to = env.CONTACT_TO;
   const turnstileSecret = env.TURNSTILE_SECRET;
-  if (!apiKey || !to || !turnstileSecret) {
+  // STATS backs the rate limit, so it's required too
+  if (!apiKey || !to || !turnstileSecret || !env.STATS) {
     return json({ error: "Server not configured" }, 500);
   }
 
-  // ---- Rate limit (before Turnstile so we don't waste verify calls on
-  //      already-blocked IPs). CF sets CF-Connecting-IP on every request. ----
+  // rate limit before Turnstile so blocked IPs don't cost a verify call
   const ip = request.headers.get("CF-Connecting-IP")
           || request.headers.get("X-Forwarded-For")
           || "unknown";
   const rateKey = `rate:contact:${ip}`;
-  if (env.STATS) {
-    const count = Number(await env.STATS.get(rateKey) ?? 0);
-    if (count >= RATE_LIMIT) {
-      return json({ error: "Rate limit exceeded" }, 429);
-    }
+  const count = Number(await env.STATS.get(rateKey) ?? 0);
+  if (count >= RATE_LIMIT) {
+    return json({ error: "Rate limit exceeded" }, 429);
   }
 
-  // ---- Turnstile verify ----
   const tsOk = await verifyTurnstile(turnstileSecret, turnstileToken, ip);
   if (!tsOk) {
     return json({ error: "Verification failed" }, 403);
   }
 
-  // ---- Bump rate counter only after passing both checks ----
-  if (env.STATS) {
-    const count = Number(await env.STATS.get(rateKey) ?? 0);
-    await env.STATS.put(rateKey, String(count + 1), { expirationTtl: RATE_WINDOW_SEC });
-  }
+  // only count submissions that passed validation + Turnstile
+  await env.STATS.put(rateKey, String(count + 1), { expirationTtl: RATE_WINDOW_SEC });
 
-  // ---- Send via Resend ----
   const label = TYPE_LABELS[type];
   const subjectLine = `[Randomize • ${label}] ${subject || "(no subject)"}`;
   const text =
@@ -122,8 +103,8 @@ export async function onRequestPost({ request, env }) {
   return json({ ok: true }, 200);
 }
 
-export async function onRequest({ request }) {
-  if (request.method === "POST") return;
+// non-POST lands here; POST is routed to onRequestPost
+export async function onRequest() {
   return new Response("Method Not Allowed", {
     status: 405,
     headers: { "allow": "POST" }
@@ -152,6 +133,12 @@ async function verifyTurnstile(secret, token, ip) {
 function sanitize(v, max) {
   if (v == null) return "";
   return String(v).trim().slice(0, max);
+}
+
+// collapse CR/LF so values can't inject extra email headers
+function sanitizeLine(v, max) {
+  if (v == null) return "";
+  return String(v).replace(/[\r\n]+/g, " ").trim().slice(0, max);
 }
 
 function json(obj, status = 200) {

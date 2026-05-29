@@ -1,0 +1,302 @@
+/* layout.css — split from app.css. Load order is fixed in index.html. */
+/* === SIDEBAR === */
+
+.sidebar {
+    width: 260px;
+    flex: 0 0 260px;
+    color: #000;
+    background: linear-gradient(to bottom, #0d0d0d 0%, #111 60%, #000 100%);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+    .sidebar.closed {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+.sidebar-toggle {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    background: rgba(13, 13, 13, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    color: #fff;
+    font-size: 1.2rem; 
+    cursor: pointer;
+    z-index: 30;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); 
+}
+
+.sidebar-toggle:hover {
+    background: rgba(17, 17, 17, 1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7); 
+}
+
+.sidebar-toggle i {
+    transition: transform 0.3s ease;
+}
+
+/* mobile dim layer; tap to close */
+.sidebar-backdrop {
+    display: none;
+}
+
+/* === Desktop === */
+@media (min-width: 768px) {
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .sidebar {
+        transform: none !important;
+        opacity: 1 !important;
+        position: static;
+    }
+}
+
+/* === Mobile === */
+@media (max-width: 767px) {
+
+    /* fixed drawer; dvh tracks iOS Safari's changing viewport */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 20;
+        /* clear the iPhone notch */
+        padding-top: max(24px, env(safe-area-inset-top));
+    }
+    .content {
+        width: 100%;
+        position: relative;
+    }
+
+    /* bigger tap target on mobile */
+    .sidebar-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* ≥16px stops iOS zooming on focus */
+    .tool-input,
+    .tool-input-small {
+        font-size: 16px;
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 15;
+    }
+    .sidebar-backdrop.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* full-width stacked cards on phones */
+    .group-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+    .sidebar img.logo {
+        width: 64px;
+        height: 64px;
+    }
+
+/* Logo + theme selector row */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.theme-switch {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+}
+
+.theme-opt {
+    padding: 5px 9px;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #888;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+    .theme-opt:hover {
+        color: #ccc;
+    }
+
+    .theme-opt.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+    }
+
+    .sidebar h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #ccc;
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: background 0.2s ease;
+}
+
+    .nav-item:hover,
+    .nav-item.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .nav-item i {
+        margin-right: 10px;
+    }
+
+
+
+
+
+/* === MAIN PANEL === */
+
+.content {
+    flex: 1;
+    padding: 36px;
+    background: #111;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: clip;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #222;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+}
+
+    .content h1 {
+        font-family: var(--app-font);
+        font-size: 2.25rem;
+        font-weight: bold;
+        margin-bottom: 2rem;
+    }
+
+    .content h2 {
+        font-size: 1.5rem;
+        font-family: var(--app-font);
+        font-weight: bold;
+        margin-bottom: 2rem;
+    }
+
+    .content h3 {
+        font-size: 1.3rem;
+        font-family: var(--app-font);
+        font-weight: bold;
+        margin-bottom: 2rem;
+     }
+
+    .content p {
+        color: #aaa;
+        font-family: var(--app-font);
+        font-size: 1.1rem;
+    }
+
+/* === Sidebar Footer === */
+/* margin-top:auto pins it to the bottom of the flex column */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 14px 8px max(12px, env(safe-area-inset-bottom)) 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    user-select: none;
+}
+
+.sidebar-version {
+    color: #777;
+    font-size: 0.72rem;
+    letter-spacing: 0.4px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* !important to beat Bootstrap's <a> reset */
+.sidebar-about,
+.sidebar-about:link,
+.sidebar-about:visited {
+    color: #bbb !important;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.sidebar-about:hover {
+    color: #fff !important;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+
+
+/* === SIDEBAR NAV DIVIDER === */
+.nav-divider {
+    height: 1px;
+    margin: 0.6rem 0.9rem;
+    /* fallback first; color-mix tints to the theme accent */
+    background: rgba(255, 255, 255, 0.12);
+    background: linear-gradient(90deg,
+        transparent 0%,
+        color-mix(in srgb, var(--accent) 45%, transparent) 50%,
+        transparent 100%);
+}
+
+
