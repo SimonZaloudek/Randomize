@@ -1,6 +1,4 @@
-// GET /api/movies/random?type=movie|tv&genres=12,28&min_rating=7.5
-// proxies TMDB, returns one random pick with details, cast, providers, images
-
+// GET /api/movies/random - random TMDB pick by type, genres, min rating
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
 
@@ -8,8 +6,7 @@ const DISCOVER_TTL = 6 * 60 * 60;     // 6h
 const DETAIL_TTL   = 24 * 60 * 60;    // 24h
 const PAGE_CAP     = 250;              // top ~5000 popularity-ranked results
 
-// scale the vote-count floor by the rating filter; very high ratings
-// legitimately live in lower-vote territory so we relax it there
+// looser vote floor at high ratings
 function minVotesFor(rating) {
   if (rating >= 9.0) return 25;
   return 50;
@@ -26,7 +23,7 @@ export async function onRequestGet({ request, env }) {
     .split(",").map(s => s.trim()).filter(s => /^\d+$/.test(s));
   const minRating = clampRating(url.searchParams.get("min_rating"));
 
-  // visitor country drives the watch-provider region; CF sets this on prod
+  // CF sets cf.country on prod; falls back to US locally
   const country = (request.cf && request.cf.country) || "US";
 
   const params = new URLSearchParams({
@@ -38,11 +35,12 @@ export async function onRequestGet({ request, env }) {
   if (genres.length) params.set("with_genres", genres.join(","));
   if (minRating > 0) params.set("vote_average.gte", String(minRating));
 
-  // v2 cache key: old entries were built with a 100-vote floor; invalidate them
+  // bump v* if the discover query params change meaning
   const filterKey = `${type}:${genres.join(",")}:${minRating}`;
 
   const first = await cached(env, `tmdb:discover:v2:${filterKey}:1`, DISCOVER_TTL,
-    () => tmdb(`${TMDB}/discover/${type}?${params}&page=1`, env.TMDB_API_KEY));
+    () => tmdb(`${TMDB}/discover/${type}?${params}&page=1`, env.TMDB_API_KEY),
+    d => Array.isArray(d?.results));
 
   if (!first || !Array.isArray(first.results) || first.results.length === 0) {
     return json({ error: "No results for those filters" }, 404);
@@ -53,17 +51,18 @@ export async function onRequestGet({ request, env }) {
 
   const pageData = page === 1 ? first : await cached(env,
     `tmdb:discover:v2:${filterKey}:${page}`, DISCOVER_TTL,
-    () => tmdb(`${TMDB}/discover/${type}?${params}&page=${page}`, env.TMDB_API_KEY));
+    () => tmdb(`${TMDB}/discover/${type}?${params}&page=${page}`, env.TMDB_API_KEY),
+    d => Array.isArray(d?.results));
 
   const list = pageData?.results || [];
   if (!list.length) return json({ error: "No results found" }, 404);
 
   const pick = list[Math.floor(Math.random() * list.length)];
 
-  // v2 cache key - shape now includes cast/providers, don't reuse old entries
   const detail = await cached(env, `tmdb:detail:v2:${type}:${pick.id}`, DETAIL_TTL,
     () => tmdb(`${TMDB}/${type}/${pick.id}?append_to_response=images,external_ids,credits,watch/providers&language=en-US&include_image_language=en,null`,
-               env.TMDB_API_KEY));
+               env.TMDB_API_KEY),
+    d => d?.id != null);
 
   if (!detail) return json({ error: "Detail fetch failed" }, 502);
 
@@ -159,11 +158,14 @@ async function tmdb(url, key) {
   return r.json();
 }
 
-async function cached(env, key, ttl, fetcher) {
+// skip caching TMDB error envelopes (200 with success:false)
+async function cached(env, key, ttl, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
   const data = await fetcher();
-  if (data) await env.STATS.put(key, JSON.stringify(data), { expirationTtl: ttl });
+  if (data && (!validate || validate(data))) {
+    await env.STATS.put(key, JSON.stringify(data), { expirationTtl: ttl });
+  }
   return data;
 }
 

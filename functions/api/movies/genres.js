@@ -9,9 +9,11 @@ export async function onRequestGet({ env }) {
   }
 
   const movie = await cached(env, "tmdb:genres:movie",
-    () => tmdb(`${TMDB}/genre/movie/list?language=en-US`, env.TMDB_API_KEY));
+    () => tmdb(`${TMDB}/genre/movie/list?language=en-US`, env.TMDB_API_KEY),
+    d => Array.isArray(d?.genres));
   const tv = await cached(env, "tmdb:genres:tv",
-    () => tmdb(`${TMDB}/genre/tv/list?language=en-US`, env.TMDB_API_KEY));
+    () => tmdb(`${TMDB}/genre/tv/list?language=en-US`, env.TMDB_API_KEY),
+    d => Array.isArray(d?.genres));
 
   return json({
     movie: movie?.genres || [],
@@ -28,11 +30,14 @@ async function tmdb(url, key) {
   return r.json();
 }
 
-async function cached(env, key, fetcher) {
+// skip caching malformed responses
+async function cached(env, key, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
   const data = await fetcher();
-  if (data) await env.STATS.put(key, JSON.stringify(data), { expirationTtl: TTL });
+  if (data && (!validate || validate(data))) {
+    await env.STATS.put(key, JSON.stringify(data), { expirationTtl: TTL });
+  }
   return data;
 }
 

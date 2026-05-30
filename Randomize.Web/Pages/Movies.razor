@@ -80,7 +80,7 @@
             }
         </button>
 
-        @if (_result is { TotalResults: > 0 } pool)
+        @if (_result is { TotalResults: > 0 } pool && _error is null)
         {
             <div class="movies-pool @(pool.TotalResults <= 3 ? "tight" : "")">
                 @if (pool.TotalResults == 1)
@@ -109,7 +109,7 @@
 
     @if (_result is { } r)
     {
-        <article class="movies-result" @key="r.Id">
+        <article class="movies-result" @key="r.Kind + r.Id">
             <div class="movies-hero"
                  style="@(r.Backdrop is null ? "" : $"background-image: url('{r.Backdrop}');")">
                 <div class="movies-hero-fade" aria-hidden="true"></div>
@@ -387,6 +387,9 @@
         _error = null;
         StateHasChanged();
 
+        // 15s cap
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
         try
         {
             var q = $"type={_type}";
@@ -395,16 +398,20 @@
             if (_minRating > 0)
                 q += "&min_rating=" + _minRating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
 
-            var res = await Http.GetAsync("api/movies/random?" + q);
+            var res = await Http.GetAsync("api/movies/random?" + q, cts.Token);
             if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 _error = "No matches for those filters. Try lowering the rating or dropping a genre.";
                 return;
             }
             res.EnsureSuccessStatusCode();
-            _result = await res.Content.ReadFromJsonAsync<MovieResult>();
+            _result = await res.Content.ReadFromJsonAsync<MovieResult>(cts.Token);
             _galleryActive = _result?.Images?.FirstOrDefault();
             Stats.Increment("movie");
+        }
+        catch (OperationCanceledException)
+        {
+            _error = "Took too long. Try again.";
         }
         catch
         {

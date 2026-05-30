@@ -10,12 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
   </ItemGroup>
 
-  <!--
-    Cloudflare Pages Functions live at /functions/ by Cloudflare convention -
-    they can't be moved without breaking deploys, and they run on V8 (not .NET).
-    Linking them here just makes them visible/editable in Solution Explorer
-    under Randomize.Core; the files themselves stay at the repo root.
-  -->
+  <!-- link the CF Pages Functions (they live at /functions/ by CF convention) -->
   <ItemGroup>
     <None Include="..\functions\**\*.js" Link="Backend\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
