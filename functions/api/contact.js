@@ -1,4 +1,4 @@
-// POST /api/contact — validate, rate-limit, Turnstile-check, send via Resend.
+// POST /api/contact - validate, rate-limit, Turnstile-check, send via Resend.
 // Env: RESEND_API_KEY, CONTACT_TO, TURNSTILE_SECRET, STATS (KV).
 
 const ALLOWED_TYPES = ["bug", "feature", "other"];
