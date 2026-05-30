@@ -1,0 +1,495 @@
+@page "/movies"
+@using Randomize.Web.Services
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject StatsClient Stats
+
+<PageTitle>Movies & TV - Randomize</PageTitle>
+
+<div class="movies-page">
+
+    <header class="movies-filter">
+        <div class="movies-filter-head">
+            <h2>Random movie or series</h2>
+            <p>Pick the type, optionally narrow by genre and minimum rating, hit randomize.</p>
+        </div>
+
+        <div class="movies-type-toggle" role="radiogroup" aria-label="Type">
+            <button type="button"
+                    class="movies-type-opt @(_type=="movie" ? "active" : "")"
+                    role="radio"
+                    aria-checked="@(_type=="movie" ? "true" : "false")"
+                    @onclick='() => SetType("movie")'
+                    disabled="@_busy">
+                <i class="bi bi-film"></i> Movies
+            </button>
+            <button type="button"
+                    class="movies-type-opt @(_type=="tv" ? "active" : "")"
+                    role="radio"
+                    aria-checked="@(_type=="tv" ? "true" : "false")"
+                    @onclick='() => SetType("tv")'
+                    disabled="@_busy">
+                <i class="bi bi-tv"></i> TV Series
+            </button>
+        </div>
+
+        @if (CurrentGenres is { Count: > 0 })
+        {
+            <div class="movies-genre-chips" role="group" aria-label="Genres">
+                @foreach (var g in CurrentGenres)
+                {
+                    var id = g.Id;
+                    var sel = _selectedGenres.Contains(id);
+                    <button type="button"
+                            class="movies-genre-chip @(sel ? "active" : "")"
+                            @onclick="() => ToggleGenre(id)"
+                            disabled="@_busy">
+                        @g.Name
+                    </button>
+                }
+                @if (_selectedGenres.Count > 0)
+                {
+                    <button type="button" class="movies-genre-clear"
+                            @onclick="ClearGenres" disabled="@_busy">
+                        Clear
+                    </button>
+                }
+            </div>
+        }
+
+        <div class="movies-min-rating">
+            <label class="movies-min-rating-label" for="min-rating">
+                Min rating:
+                <strong>@_minRating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</strong>
+                <span class="movies-min-rating-star">★</span>
+            </label>
+            <input id="min-rating" type="range"
+                   min="0" max="9.5" step="0.5"
+                   @bind="_minRating" @bind:event="oninput"
+                   disabled="@_busy" />
+        </div>
+
+        <button class="tool-btn movies-randomize" @onclick="Randomize" disabled="@_busy">
+            @if (_busy)
+            {
+                <span><i class="bi bi-arrow-clockwise movies-spin"></i> Picking…</span>
+            }
+            else
+            {
+                <span><i class="bi bi-shuffle"></i> Randomize</span>
+            }
+        </button>
+
+        @if (_result is { TotalResults: > 0 } pool)
+        {
+            <div class="movies-pool @(pool.TotalResults <= 3 ? "tight" : "")">
+                @if (pool.TotalResults == 1)
+                {
+                    <span><i class="bi bi-info-circle"></i> Only <strong>1</strong> title matches these filters - that's why it keeps repeating. Lower the rating or drop a genre for variety.</span>
+                }
+                else if (pool.TotalResults <= 3)
+                {
+                    <span><i class="bi bi-info-circle"></i> Only <strong>@pool.TotalResults</strong> titles match - expect repeats.</span>
+                }
+                else
+                {
+                    <span><strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> titles match these filters</span>
+                }
+            </div>
+        }
+
+        @if (_error is not null)
+        {
+            <div class="movies-error" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>@_error</span>
+            </div>
+        }
+    </header>
+
+    @if (_result is { } r)
+    {
+        <article class="movies-result" @key="r.Id">
+            <div class="movies-hero"
+                 style="@(r.Backdrop is null ? "" : $"background-image: url('{r.Backdrop}');")">
+                <div class="movies-hero-fade" aria-hidden="true"></div>
+                <div class="movies-hero-inner">
+                    @if (r.Poster is not null)
+                    {
+                        <img src="@r.Poster" alt="@(r.Title) poster" class="movies-poster" loading="lazy" />
+                    }
+                    <div class="movies-hero-info">
+                        @if (!string.IsNullOrEmpty(r.Tagline))
+                        {
+                            <div class="movies-tagline">@r.Tagline</div>
+                        }
+                        <h1 class="movies-title">@r.Title</h1>
+
+                        <div class="movies-meta">
+                            @if (!string.IsNullOrEmpty(r.Year))
+                            {
+                                <span>@r.Year</span>
+                            }
+                            @if (r.Runtime is int rt && rt > 0)
+                            {
+                                <span>@FormatRuntime(rt)</span>
+                            }
+                            @if (r.Seasons is int s && s > 0)
+                            {
+                                <span>@s @(s == 1 ? "season" : "seasons")</span>
+                            }
+                            @if (r.Episodes is int ep && ep > 0)
+                            {
+                                <span>@ep episodes</span>
+                            }
+                        </div>
+
+                        @if (r.Genres.Count > 0)
+                        {
+                            <div class="movies-genre-pills">
+                                @foreach (var g in r.Genres)
+                                {
+                                    <span class="movies-genre-pill">@g</span>
+                                }
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(r.Overview))
+                        {
+                            <p class="movies-overview">@r.Overview</p>
+                        }
+
+                        <div class="movies-links">
+                            @if (r.Links?.Tmdb is { } t)
+                            {
+                                <a href="@t" target="_blank" rel="noopener" class="movies-link">
+                                    <i class="bi bi-box-arrow-up-right"></i> TMDB
+                                </a>
+                            }
+                            @if (r.Links?.Imdb is { } i)
+                            {
+                                <a href="@i" target="_blank" rel="noopener" class="movies-link">
+                                    <i class="bi bi-box-arrow-up-right"></i> IMDb
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(r.Homepage))
+                            {
+                                <a href="@r.Homepage" target="_blank" rel="noopener" class="movies-link">
+                                    <i class="bi bi-house"></i> Official
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="movies-info-grid">
+
+                @if (r.Ratings is { Count: > 0 })
+                {
+                    <section class="movies-section movies-ratings-section">
+                        <h3 class="movies-section-title">Ratings</h3>
+                        <div class="movies-ratings">
+                            @foreach (var rating in r.Ratings)
+                            {
+                                <div class="movies-rating">
+                                    <div class="movies-rating-source">@rating.Source</div>
+                                    <div class="movies-rating-score">
+                                        @rating.Score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)<small>/@rating.Max.ToString("0", System.Globalization.CultureInfo.InvariantCulture)</small>
+                                    </div>
+                                    <div class="movies-rating-votes">@rating.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) votes</div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (HasStatTiles(r.Stats, r.Kind))
+                {
+                    <section class="movies-section movies-stats-section">
+                        <h3 class="movies-section-title">Stats</h3>
+                        <div class="movies-quick-stats">
+                            @if (r.Stats!.Popularity > 0)
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Popularity</div>
+                                    <div class="movies-stat-tile-value">@r.Stats.Popularity.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(r.Stats!.Status))
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Status</div>
+                                    <div class="movies-stat-tile-value">@r.Stats.Status</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(r.Stats!.OriginalLanguage))
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Language</div>
+                                    <div class="movies-stat-tile-value">@r.Stats.OriginalLanguage</div>
+                                </div>
+                            }
+                            @if (r.Stats.ProductionCountries is { Count: > 0 } pc)
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Country</div>
+                                    <div class="movies-stat-tile-value">@string.Join(" · ", pc)</div>
+                                </div>
+                            }
+                            @if (r.Kind == "movie" && r.Stats.Budget is long b && b > 0)
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Budget</div>
+                                    <div class="movies-stat-tile-value">@FormatMoney(b)</div>
+                                </div>
+                            }
+                            @if (r.Kind == "movie" && r.Stats.Revenue is long rv && rv > 0)
+                            {
+                                <div class="movies-stat-tile">
+                                    <div class="movies-stat-tile-label">Revenue</div>
+                                    <div class="movies-stat-tile-value">@FormatMoney(rv)</div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+            </div>
+
+            @if (r.Cast is { Count: > 0 })
+            {
+                <section class="movies-section movies-cast-section">
+                    <h3 class="movies-section-title">Cast</h3>
+                    <div class="movies-cast-row">
+                        @foreach (var c in r.Cast)
+                        {
+                            <div class="movies-cast-card">
+                                <div class="movies-cast-avatar">
+                                    @if (c.Profile is not null)
+                                    {
+                                        <img src="@c.Profile" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-person-fill"></i>
+                                    }
+                                </div>
+                                <div class="movies-cast-name">@c.Name</div>
+                                @if (!string.IsNullOrEmpty(c.Character))
+                                {
+                                    <div class="movies-cast-char">@c.Character</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+
+            @if (HasAnyProvider(r.Providers))
+            {
+                <section class="movies-section movies-providers-section">
+                    <h3 class="movies-section-title">
+                        Where to watch
+                        @if (!string.IsNullOrEmpty(r.Region))
+                        {
+                            <small>(@r.Region)</small>
+                        }
+                    </h3>
+                    @if (r.Providers!.Stream is { Count: > 0 } stream)
+                    {
+                        @ProviderGroup("Stream", stream)
+                    }
+                    @if (r.Providers.Rent is { Count: > 0 } rent)
+                    {
+                        @ProviderGroup("Rent", rent)
+                    }
+                    @if (r.Providers.Buy is { Count: > 0 } buy)
+                    {
+                        @ProviderGroup("Buy", buy)
+                    }
+                    @if (r.Providers.Free is { Count: > 0 } free)
+                    {
+                        @ProviderGroup("Free", free)
+                    }
+                    <div class="movies-providers-attr">Powered by JustWatch</div>
+                </section>
+            }
+
+            @if (r.Images is { Count: > 0 })
+            {
+                <section class="movies-section movies-gallery">
+                    <h3 class="movies-section-title">Gallery</h3>
+                    <div class="movies-gallery-large">
+                        <img src="@(_galleryActive ?? r.Images[0])" alt="" />
+                    </div>
+                    <div class="movies-gallery-thumbs">
+                        @foreach (var img in r.Images)
+                        {
+                            var src = img;
+                            <button type="button"
+                                    class="movies-gallery-thumb @(src == _galleryActive ? "active" : "")"
+                                    @onmouseover="() => _galleryActive = src"
+                                    @onfocus="() => _galleryActive = src"
+                                    @onclick="() => _galleryActive = src"
+                                    aria-label="Show image">
+                                <img src="@src" alt="" loading="lazy" />
+                            </button>
+                        }
+                    </div>
+                </section>
+            }
+        </article>
+    }
+    else if (!_busy)
+    {
+        <div class="movies-empty">
+            <i class="bi bi-film"></i>
+            <p>Pick a type and (optionally) some genres, then hit Randomize.</p>
+        </div>
+    }
+</div>
+
+@code {
+    private string _type = "movie";
+    private readonly HashSet<int> _selectedGenres = new();
+    private double _minRating = 0.0;
+    private bool _busy;
+    private string? _error;
+    private MovieResult? _result;
+    private string? _galleryActive;
+
+    private GenresResponse? _genres;
+    private List<Genre>? CurrentGenres => _type == "tv" ? _genres?.Tv : _genres?.Movie;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _genres = await Http.GetFromJsonAsync<GenresResponse>("api/movies/genres"); }
+        catch {}
+    }
+
+    private void SetType(string t)
+    {
+        if (_type == t) return;
+        _type = t;
+        _selectedGenres.Clear();   // movie and tv have different genre IDs
+    }
+
+    private void ToggleGenre(int id)
+    {
+        if (!_selectedGenres.Add(id)) _selectedGenres.Remove(id);
+    }
+
+    private void ClearGenres() => _selectedGenres.Clear();
+
+    private async Task Randomize()
+    {
+        _busy = true;
+        _error = null;
+        StateHasChanged();
+
+        try
+        {
+            var q = $"type={_type}";
+            if (_selectedGenres.Count > 0)
+                q += "&genres=" + string.Join(",", _selectedGenres);
+            if (_minRating > 0)
+                q += "&min_rating=" + _minRating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+
+            var res = await Http.GetAsync("api/movies/random?" + q);
+            if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _error = "No matches for those filters. Try lowering the rating or dropping a genre.";
+                return;
+            }
+            res.EnsureSuccessStatusCode();
+            _result = await res.Content.ReadFromJsonAsync<MovieResult>();
+            _galleryActive = _result?.Images?.FirstOrDefault();
+            Stats.Increment("movie");
+        }
+        catch
+        {
+            _error = "Couldn't pick. Try again in a moment.";
+        }
+        finally
+        {
+            _busy = false;
+            StateHasChanged();
+        }
+    }
+
+    private RenderFragment ProviderGroup(string label, List<Provider> items) => @<div class="movies-providers-row">
+        <div class="movies-providers-row-label">@label</div>
+        @foreach (var p in items)
+        {
+            <div class="movies-provider" title="@p.Name">
+                @if (p.Logo is not null)
+                {
+                    <img src="@p.Logo" alt="@p.Name" loading="lazy" />
+                }
+                <span class="movies-provider-name">@p.Name</span>
+            </div>
+        }
+    </div>;
+
+    private static bool HasStatTiles(MovieStats? s, string kind)
+    {
+        if (s is null) return false;
+        if (s.Popularity > 0) return true;
+        if (!string.IsNullOrEmpty(s.Status)) return true;
+        if (!string.IsNullOrEmpty(s.OriginalLanguage)) return true;
+        if (s.ProductionCountries is { Count: > 0 }) return true;
+        if (kind == "movie" && ((s.Budget ?? 0) > 0 || (s.Revenue ?? 0) > 0)) return true;
+        return false;
+    }
+
+    private static bool HasAnyProvider(MovieProviders? p) =>
+        p is not null && (
+            (p.Stream?.Count ?? 0) > 0 ||
+            (p.Rent?.Count   ?? 0) > 0 ||
+            (p.Buy?.Count    ?? 0) > 0 ||
+            (p.Free?.Count   ?? 0) > 0);
+
+    private static string FormatRuntime(int minutes)
+    {
+        if (minutes < 60) return $"{minutes} min";
+        int h = minutes / 60, m = minutes % 60;
+        return m == 0 ? $"{h}h" : $"{h}h {m}m";
+    }
+
+    private static string FormatMoney(long n)
+    {
+        if (n >= 1_000_000_000) return $"${(n / 1_000_000_000.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)}B";
+        if (n >= 1_000_000)     return $"${(n / 1_000_000.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)}M";
+        if (n >= 1_000)         return $"${(n / 1_000.0).ToString("0", System.Globalization.CultureInfo.InvariantCulture)}K";
+        return $"${n}";
+    }
+
+    public sealed record GenresResponse(List<Genre> Movie, List<Genre> Tv);
+
+    public sealed record Genre(int Id, string Name);
+
+    public sealed record MovieResult(
+        string Kind, int Id, string Title, string? Tagline, string? Year,
+        int? Runtime, int? Seasons, int? Episodes, string Overview,
+        List<string> Genres, string? Poster, string? Backdrop,
+        List<string> Images, List<Rating> Ratings,
+        MovieStats? Stats, List<CastMember>? Cast, MovieProviders? Providers, string? Region,
+        string? ImdbId, string? Homepage, MovieLinks? Links,
+        int TotalResults);
+
+    public sealed record Rating(string Source, double Score, double Max, int Votes);
+
+    public sealed record MovieStats(
+        int Popularity, string? Status, string? OriginalLanguage,
+        long? Budget, long? Revenue, List<string>? ProductionCountries);
+
+    public sealed record CastMember(string Name, string? Character, string? Profile);
+
+    public sealed record MovieProviders(
+        List<Provider>? Stream, List<Provider>? Rent,
+        List<Provider>? Buy, List<Provider>? Free, string? Link);
+
+    public sealed record Provider(string Name, string? Logo);
+
+    public sealed record MovieLinks(string Tmdb, string? Imdb);
+}

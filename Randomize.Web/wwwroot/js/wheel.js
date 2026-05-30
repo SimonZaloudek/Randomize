@@ -62,7 +62,7 @@ function drawPointer(ctx, cx, pivotY, tick) {
     ctx.translate(cx, pivotY);
     ctx.rotate(tick);
     ctx.beginPath();
-    ctx.moveTo(0, 16);       // tip — dips into the wheel
+    ctx.moveTo(0, 16);       // tip - dips into the wheel
     ctx.lineTo(-10, -9);
     ctx.lineTo(10, -9);
     ctx.closePath();

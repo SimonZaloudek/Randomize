@@ -1,4 +1,4 @@
-/* contact.css — split from app.css. Load order is fixed in index.html. */
+/* contact.css - split from app.css. Load order is fixed in index.html. */
 /* === CONTACT PAGE === */
 
 .contact-layout {
@@ -30,7 +30,7 @@
     gap: 0.5rem;
 }
 
-/* type chips — color-mix tints to the theme accent (purple/blue) */
+/* type chips - color-mix tints to the theme accent (purple/blue) */
 .contact-type {
     display: flex;
     flex-direction: column;
@@ -98,7 +98,7 @@
     resize: vertical;
 }
 
-/* honeypot — hidden from humans; neutral class name on purpose */
+/* honeypot - hidden from humans; neutral class name on purpose */
 .contact-aux-field {
     position: absolute;
     left: -9999px;

@@ -1,9 +1,10 @@
-/* base.css — split from app.css; load order fixed in index.html */
+/* base.css - split from app.css; load order fixed in index.html */
 /* === THEME === */
 /* base values = "modern"; the [data-theme="default"] block below overrides them */
 
 html {
     --surface-grad: linear-gradient(155deg, rgba(15, 14, 20, 0.94) 0%, rgba(6, 5, 10, 0.96) 100%);
+    --surface-solid: #0e0c14;
     --surface-border: rgba(140, 110, 230, 0.10);
     --surface-border-hover: rgba(140, 110, 230, 0.45);
     --surface-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 195, 225, 0.05);
@@ -21,6 +22,7 @@ html {
 
 html[data-theme="default"] {
     --surface-grad: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(17, 17, 17, 0.9));
+    --surface-solid: #18181b;
     --surface-border: rgba(255, 255, 255, 0.1);
     --surface-border-hover: rgba(255, 255, 255, 0.22);
     --surface-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -145,7 +147,7 @@ body {
         margin: 0;
     }
 
-/* === MODERN THEME — OTHER PAGES === */
+/* === MODERN THEME - OTHER PAGES === */
 /* extends the dark+purple palette to non-home pages when modern is active */
 
 /* dark content panel */

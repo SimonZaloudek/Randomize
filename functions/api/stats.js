@@ -1,4 +1,4 @@
-// /api/stats — GET returns the counters, POST { tool } increments one.
+// /api/stats - GET returns the counters, POST { tool } increments one.
 // Backed by the STATS KV namespace. Increments aren't atomic; that's fine here.
 
 const TOOLS = [
@@ -7,6 +7,7 @@ const TOOLS = [
   "wheel",
   "group",
   "shift",
+  "movie",        // movie / TV randomizer
   "coin-heads",
   "coin-tails"
 ];
@@ -49,7 +50,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Unknown tool" }, 400);
   }
 
-  // no rate limit on purpose — decorative counters, and a limiter would double
+  // no rate limit on purpose - decorative counters, and a limiter would double
   // the KV writes. The allow-list above caps what can be written.
   const key = `count:${tool}`;
   const cur = Number(await env.STATS.get(key) ?? 0);

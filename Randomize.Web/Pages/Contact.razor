@@ -5,7 +5,7 @@
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<PageTitle>Contact — Randomize</PageTitle>
+<PageTitle>Contact - Randomize</PageTitle>
 
 <h2 class="page-title">Contact</h2>
 
@@ -62,7 +62,7 @@
                 <ValidationMessage For="@(() => _form.Message)" />
             </label>
 
-            @* honeypot — hidden from humans; neutral class name on purpose *@
+            @* honeypot - hidden from humans; neutral class name on purpose *@
             <input type="text" name="website" tabindex="-1" autocomplete="off"
                    aria-hidden="true" class="contact-aux-field"
                    @bind="_form.Website" />
@@ -138,12 +138,12 @@
             }
             catch
             {
-                // transient error — retry
+                // transient error - retry
             }
             await Task.Delay(200);
         }
 
-        // script never loaded (blocker / network) — show a notice
+        // script never loaded (blocker / network) - show a notice
         if (!_turnstileRendered && !_disposed)
         {
             _turnstileFailed = true;
@@ -181,9 +181,9 @@
 
             if (res.IsSuccessStatusCode)
             {
-                _status = (true, "Thanks — your message is on its way.");
+                _status = (true, "Thanks - your message is on its way.");
                 _form = new ContactForm();
-                // tokens are single-use — refresh for the next submit
+                // tokens are single-use - refresh for the next submit
                 await ResetTurnstileSafe();
             }
             else if ((int)res.StatusCode == 429)
@@ -227,7 +227,7 @@
 
         // destroy the widget so the next mount starts clean
         try { await JS.InvokeVoidAsync("RandomizeTurnstile.remove"); }
-        catch { /* JS interop torn down — nothing to clean up */ }
+        catch { /* JS interop torn down - nothing to clean up */ }
     }
 
     public sealed class ContactForm
@@ -248,7 +248,7 @@
         [StringLength(5000, MinimumLength = 5, ErrorMessage = "Message must be 5–5000 characters.")]
         public string Message { get; set; } = "";
 
-        // Honeypot — must stay empty.
+        // Honeypot - must stay empty.
         public string? Website { get; set; }
     }
 }

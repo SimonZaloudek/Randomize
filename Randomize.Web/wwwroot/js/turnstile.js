@@ -21,7 +21,7 @@ window.RandomizeTurnstile = {
                 this._token = null;
                 return true;
             } catch {
-                // widget gone — fall through to a fresh mount
+                // widget gone - fall through to a fresh mount
                 this._widgetId = null;
             }
         }
@@ -55,7 +55,7 @@ window.RandomizeTurnstile = {
             try {
                 turnstile.reset(this._widgetId);
             } catch {
-                // detached — clear refs so the next render() mounts clean
+                // detached - clear refs so the next render() mounts clean
                 this._widgetId = null;
                 this._containerEl = null;
             }

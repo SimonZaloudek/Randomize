@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/home.css" />
     <link rel="stylesheet" href="css/tools.css" />
+    <link rel="stylesheet" href="css/movies.css" />
     <link rel="stylesheet" href="css/shiftplanner.css" />
     <link rel="stylesheet" href="css/contact.css" />
     <link rel="stylesheet" href="css/mobile.css" />
@@ -50,7 +51,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
-        // no service worker — unregister any left by older versions
+        // no service worker - unregister any left by older versions
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations()
                 .then(regs => regs.forEach(reg => reg.unregister()));
@@ -60,7 +61,7 @@
         }
 
         // drop only fires if dragstart set dataTransfer data, which Blazor can't
-        // do from C# — set it here for every draggable (group-shuffler drag-to-move)
+        // do from C# - set it here for every draggable (group-shuffler drag-to-move)
         document.addEventListener('dragstart', e => {
             if (e.dataTransfer) {
                 e.dataTransfer.setData('text/plain', '');

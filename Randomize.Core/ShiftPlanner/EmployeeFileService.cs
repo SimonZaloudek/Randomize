@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Text.Json;
 
@@ -97,7 +97,7 @@ namespace Randomize.Core.ShiftPlanner
             return employees;
         }
 
-        // JSON — the current save format
+        // JSON - the current save format
         public static string WriteEmployeesJson(IEnumerable<Employee> employees)
         {
             var dtos = employees.Select(e => new EmployeeDto

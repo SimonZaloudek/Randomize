@@ -1,4 +1,4 @@
-/* home.css — split from app.css; load order fixed in index.html */
+/* home.css - split from app.css; load order fixed in index.html */
 /* === HOME PAGE === */
 
 /* sized to content height so the absolute bg can stretch the full page */
@@ -66,7 +66,7 @@
     pointer-events: none;
 }
 
-/* static SVG waves — no per-frame cost */
+/* static SVG waves - no per-frame cost */
 .home-waves {
     position: absolute;
     inset: 0;
@@ -77,7 +77,7 @@
     transform: translateZ(0);
 }
 
-/* shooting stars — transform + opacity only */
+/* shooting stars - transform + opacity only */
 .home-shoot {
     position: absolute;
     top: 0;
@@ -113,7 +113,7 @@
     100% { transform: translate(30vw, 60vh) rotate(148deg); opacity: 0; }
 }
 
-/* floating particles — slow upward drift */
+/* floating particles - slow upward drift */
 .home-particle {
     position: absolute;
     width: 1.6px;
