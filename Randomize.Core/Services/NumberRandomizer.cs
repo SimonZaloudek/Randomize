@@ -72,7 +72,7 @@ namespace Randomize.Core.Services
             return start.AddDays(_random.Next(span + 1));
         }
 
-        // unused in the UI — kept for later
+        // unused in the UI - kept for later
         public string DecideYesNo(bool includeMaybe)
         {
             var options = includeMaybe

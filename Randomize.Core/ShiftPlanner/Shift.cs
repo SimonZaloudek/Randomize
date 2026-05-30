@@ -13,7 +13,7 @@ namespace Randomize.Core.ShiftPlanner
         }
 
         // 31 slots: 0–23 today, 24–30 next morning. Also hard-coded in
-        // ShiftPlannerService.AssignShifts and the Razor timeline — keep in sync.
+        // ShiftPlannerService.AssignShifts and the Razor timeline - keep in sync.
         private void ShiftInit()
         {
             for (int i = 0; i <= 30; i++)

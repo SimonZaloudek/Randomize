@@ -3,7 +3,7 @@
 // loop when hosted as static files.
 //
 // This file is kept ONLY so browsers that still have the old worker
-// registered will update to this one — which deletes its caches and
+// registered will update to this one - which deletes its caches and
 // unregisters itself. After that, no service worker runs at all and every
 // request goes straight to the network. There is intentionally no `fetch`
 // handler, so this worker never intercepts or caches anything.

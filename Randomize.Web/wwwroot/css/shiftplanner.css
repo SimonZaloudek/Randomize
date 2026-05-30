@@ -1,4 +1,4 @@
-/* shiftplanner.css — split from app.css. Load order is fixed in index.html. */
+/* shiftplanner.css - split from app.css. Load order is fixed in index.html. */
 /* === SHIFT PLANNER === */
 
 .timeline-container {
@@ -740,7 +740,7 @@
     border-radius: 4px;
 }
 
-/* Visible-range setter — small inputs in the card head. */
+/* Visible-range setter - small inputs in the card head. */
 .planner-visible-range {
     margin-left: auto;
     display: inline-flex;
@@ -763,7 +763,7 @@
     color: #555;
 }
 
-/* Custom-range row — sits under the presets. */
+/* Custom-range row - sits under the presets. */
 .demand-custom-row {
     display: flex;
     flex-wrap: wrap;
@@ -1042,7 +1042,7 @@
     text-overflow: ellipsis;
 }
 
-/* no nested card chrome — the wrapping .tool-card provides it */
+/* no nested card chrome - the wrapping .tool-card provides it */
 .planner-results .gantt-chart {
     background: transparent;
     border: none;

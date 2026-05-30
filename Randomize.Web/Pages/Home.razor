@@ -98,6 +98,13 @@
             <div class="home-feature-desc">Plan shifts randomly and fairly.</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
+
+        <NavLink href="/movies" class="home-feature-card">
+            <div class="home-feature-icon"><i class="bi bi-film"></i></div>
+            <div class="home-feature-title">Movies &amp; TV</div>
+            <div class="home-feature-desc">Pick a random movie or show by genre.</div>
+            <i class="bi bi-arrow-right home-feature-arrow"></i>
+        </NavLink>
     </div>
 
     <div class="home-tagline">
@@ -194,9 +201,9 @@
         }
     }
 
-    // "—" until stats load; InvariantCulture for consistent separators
+    // "-" until stats load; InvariantCulture for consistent separators
     private static string Format(int? n) =>
-        n is int v ? v.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) : "—";
+        n is int v ? v.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) : "-";
 
     public void Dispose()
     {
