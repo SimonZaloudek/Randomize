@@ -183,25 +183,53 @@
                 </div>
             </div>
 
-            <div class="movies-info-grid">
-
-                @if (r.Ratings is { Count: > 0 })
-                {
-                    <section class="movies-section movies-ratings-section">
-                        <h3 class="movies-section-title">Ratings</h3>
-                        <div class="movies-ratings">
-                            @foreach (var rating in r.Ratings)
-                            {
-                                <div class="movies-rating">
-                                    <div class="movies-rating-source">@rating.Source</div>
-                                    <div class="movies-rating-score">
-                                        @rating.Score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)<small>/@rating.Max.ToString("0", System.Globalization.CultureInfo.InvariantCulture)</small>
-                                    </div>
-                                    <div class="movies-rating-votes">@rating.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) votes</div>
+            @if (r.Ratings is { Count: > 0 })
+            {
+                <section class="movies-section movies-ratings-section">
+                    <h3 class="movies-section-title">Ratings</h3>
+                    <div class="movies-ratings">
+                        @foreach (var rating in r.Ratings)
+                        {
+                            var meta = RatingMeta(rating);
+                            <div class="movies-rating" style="--rating-color: @meta.Color">
+                                <div class="movies-rating-head">
+                                    @switch (rating.Source)
+                                    {
+                                        case "TMDB":
+                                            <span class="movies-brand movies-brand-tmdb">TMDb</span>
+                                            break;
+                                        case "IMDb":
+                                            <span class="movies-brand movies-brand-imdb">IMDb</span>
+                                            break;
+                                        case "Rotten Tomatoes":
+                                            <span class="movies-brand @(rating.Score >= 60 ? "movies-brand-rt-fresh" : "movies-brand-rt-rotten")"
+                                                  aria-label="@(rating.Score >= 60 ? "Fresh" : "Rotten")"></span>
+                                            <span class="movies-rating-source">Rotten Tomatoes</span>
+                                            break;
+                                        case "Metacritic":
+                                            <span class="movies-brand movies-brand-metacritic">M</span>
+                                            <span class="movies-rating-source">Metacritic</span>
+                                            break;
+                                        default:
+                                            <span class="movies-rating-source">@rating.Source</span>
+                                            break;
+                                    }
                                 </div>
-                            }
-                        </div>
-                    </section>
+                                <div class="movies-rating-score">
+                                    @FormatScore(rating.Score, rating.Max)<small>@FormatScoreSuffix(rating.Max)</small>
+                                </div>
+                                @if (rating.Source == "Rotten Tomatoes")
+                                {
+                                    <div class="movies-rating-tag">@(rating.Score >= 60 ? "Fresh" : "Rotten")</div>
+                                }
+                                else if (rating.Votes > 0)
+                                {
+                                    <div class="movies-rating-votes">@rating.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) votes</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </section>
                 }
 
                 @if (HasStatTiles(r.Stats, r.Kind))
@@ -254,7 +282,65 @@
                         </div>
                     </section>
                 }
-            </div>
+
+            @if (r.Awards is { } awards && HasAnyAward(awards))
+            {
+                <section class="movies-section movies-awards-section">
+                    <h3 class="movies-section-title">Awards</h3>
+                    <div class="movies-awards-row">
+                        @if (awards.Highlights is { Count: > 0 } highlights)
+                        {
+                            @foreach (var h in highlights)
+                            {
+                                <div class="movies-award @(h.Kind == "win" ? "win" : "nom")">
+                                    <i class="bi @(h.Kind == "win" ? "bi-trophy-fill" : "bi-star")"></i>
+                                    <div class="movies-award-count">@h.Count</div>
+                                    <div class="movies-award-label">
+                                        @h.Label@(h.Count == 1 ? "" : "s") @(h.Kind == "win" ? "won" : "nominated")
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            @if ((awards.TotalWins ?? 0) > 0)
+                            {
+                                <div class="movies-award win">
+                                    <i class="bi bi-trophy-fill"></i>
+                                    <div class="movies-award-count">@awards.TotalWins</div>
+                                    <div class="movies-award-label">@(awards.TotalWins == 1 ? "win" : "wins")</div>
+                                </div>
+                            }
+                            @if ((awards.TotalNominations ?? 0) > 0)
+                            {
+                                <div class="movies-award nom">
+                                    <i class="bi bi-star"></i>
+                                    <div class="movies-award-count">@awards.TotalNominations</div>
+                                    <div class="movies-award-label">@(awards.TotalNominations == 1 ? "nomination" : "nominations")</div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    @if (awards.Highlights is { Count: > 0 } && ((awards.TotalWins ?? 0) > 0 || (awards.TotalNominations ?? 0) > 0))
+                    {
+                        <div class="movies-awards-summary">
+                            @if ((awards.TotalWins ?? 0) > 0)
+                            {
+                                <span><strong>@awards.TotalWins!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> total wins</span>
+                            }
+                            @if ((awards.TotalWins ?? 0) > 0 && (awards.TotalNominations ?? 0) > 0)
+                            {
+                                <span class="movies-awards-sep">·</span>
+                            }
+                            @if ((awards.TotalNominations ?? 0) > 0)
+                            {
+                                <span><strong>@awards.TotalNominations!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> total nominations</span>
+                            }
+                        </div>
+                    }
+                </section>
+            }
 
             @if (r.Cast is { Count: > 0 })
             {
@@ -471,6 +557,33 @@
         return $"${n}";
     }
 
+    // /10 = one decimal, /100 = integer
+    private static string FormatScore(double score, double max) =>
+        max > 10
+            ? score.ToString("0", System.Globalization.CultureInfo.InvariantCulture)
+            : score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string FormatScoreSuffix(double max) =>
+        max == 100 ? "%" : $"/{max.ToString("0", System.Globalization.CultureInfo.InvariantCulture)}";
+
+    // brand colour + icon; RT/MC pick variant by score
+    private static (string Icon, string Color) RatingMeta(Rating r) => r.Source switch
+    {
+        "TMDB"                                  => ("bi-collection-play-fill", "#01b4e4"),
+        "IMDb"                                  => ("bi-star-fill",            "#f5c518"),
+        "Rotten Tomatoes" when r.Score >= 60    => ("bi-circle-fill",          "#fa320a"),
+        "Rotten Tomatoes"                        => ("bi-droplet-fill",         "#33a833"),
+        "Metacritic" when r.Score >= 75          => ("",                        "#66cc33"),
+        "Metacritic" when r.Score >= 50          => ("",                        "#ffcc33"),
+        "Metacritic"                             => ("",                        "#ff4d4d"),
+        _                                        => ("bi-info-circle",          "var(--accent-soft)")
+    };
+
+    private static bool HasAnyAward(Awards a) =>
+        (a.Highlights?.Count ?? 0) > 0 ||
+        (a.TotalWins ?? 0) > 0 ||
+        (a.TotalNominations ?? 0) > 0;
+
     public sealed record GenresResponse(List<Genre> Movie, List<Genre> Tv);
 
     public sealed record Genre(int Id, string Name);
@@ -482,9 +595,13 @@
         List<string> Images, List<Rating> Ratings,
         MovieStats? Stats, List<CastMember>? Cast, MovieProviders? Providers, string? Region,
         string? ImdbId, string? Homepage, MovieLinks? Links,
-        int TotalResults);
+        int TotalResults,
+        Awards? Awards);
 
     public sealed record Rating(string Source, double Score, double Max, int Votes);
+
+    public sealed record Awards(List<AwardHighlight>? Highlights, int? TotalWins, int? TotalNominations);
+    public sealed record AwardHighlight(string Kind, string Label, int Count);
 
     public sealed record MovieStats(
         int Popularity, string? Status, string? OriginalLanguage,

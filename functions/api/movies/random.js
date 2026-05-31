@@ -1,9 +1,11 @@
 // GET /api/movies/random - random TMDB pick by type, genres, min rating
 const TMDB = "https://api.themoviedb.org/3";
+const OMDB = "https://www.omdbapi.com";
 const IMG = "https://image.tmdb.org/t/p";
 
 const DISCOVER_TTL = 6 * 60 * 60;     // 6h
 const DETAIL_TTL   = 24 * 60 * 60;    // 24h
+const OMDB_TTL     = 24 * 60 * 60;    // 24h
 const PAGE_CAP     = 250;              // top ~5000 popularity-ranked results
 
 // looser vote floor at high ratings
@@ -68,7 +70,75 @@ export async function onRequestGet({ request, env }) {
 
   const out = shape(detail, type, country);
   out.totalResults = Number(first.total_results) || list.length;
+
+  // OMDb adds awards + IMDb rating; skipped if key/imdbId missing
+  const imdbId = detail.external_ids?.imdb_id;
+  if (imdbId && env.OMDB_API_KEY) {
+    const om = await cached(env, `omdb:${imdbId}`, OMDB_TTL,
+      () => omdb(imdbId, env.OMDB_API_KEY),
+      d => d?.Response === "True");
+    if (om) mergeOmdb(out, om);
+  }
+
   return json(out);
+}
+
+function mergeOmdb(out, om) {
+  out.awards = parseAwards(om.Awards);
+
+  if (om.imdbRating && om.imdbRating !== "N/A") {
+    out.ratings.push({
+      source: "IMDb",
+      score: parseFloat(om.imdbRating),
+      max: 10,
+      votes: parseInt((om.imdbVotes || "0").replace(/,/g, ""), 10) || 0
+    });
+  }
+
+  // RT mostly Patreon-tier (free returns it for some titles)
+  const rt = om.Ratings?.find(r => r.Source === "Rotten Tomatoes");
+  if (rt) {
+    const pct = parseInt(rt.Value, 10);
+    if (Number.isFinite(pct)) {
+      out.ratings.push({ source: "Rotten Tomatoes", score: pct, max: 100, votes: 0 });
+    }
+  }
+
+  const mc = om.Ratings?.find(r => r.Source === "Metacritic");
+  if (mc) {
+    const score = parseInt(mc.Value, 10);
+    if (Number.isFinite(score)) {
+      out.ratings.push({ source: "Metacritic", score, max: 100, votes: 0 });
+    }
+  }
+}
+
+function parseAwards(s) {
+  if (!s || s === "N/A") return null;
+
+  const map = { "Oscar": "Oscar", "Primetime Emmy": "Emmy", "Golden Globe": "Golden Globe", "BAFTA": "BAFTA" };
+  const highlights = [];
+  for (const [src, label] of Object.entries(map)) {
+    const won = s.match(new RegExp(`Won (\\d+) ${src}s?`, "i"));
+    if (won) highlights.push({ kind: "win", label, count: parseInt(won[1], 10) });
+    const nom = s.match(new RegExp(`Nominated for (\\d+) ${src}s?`, "i"));
+    if (nom) highlights.push({ kind: "nomination", label, count: parseInt(nom[1], 10) });
+  }
+
+  const summary = s.match(/(\d[\d,]*)\s+wins?\s+&\s+(\d[\d,]*)\s+nominations?/i);
+  const totalWins = summary ? parseInt(summary[1].replace(/,/g, ""), 10) : null;
+  const totalNominations = summary ? parseInt(summary[2].replace(/,/g, ""), 10) : null;
+
+  if (!highlights.length && totalWins == null) return null;
+  return { highlights, totalWins, totalNominations };
+}
+
+async function omdb(imdbId, key) {
+  const r = await fetch(`${OMDB}/?i=${imdbId}&apikey=${key}`, {
+    headers: { Accept: "application/json" }
+  });
+  if (!r.ok) return null;
+  return r.json();
 }
 
 function clampRating(s) {
