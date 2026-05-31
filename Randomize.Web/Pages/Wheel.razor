@@ -3,8 +3,10 @@
 @using Randomize.Web.Services
 @inject IJSRuntime JS
 @inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
 
-<h2 class="page-title">Spinning Wheel</h2>
+<h2 class="page-title">@Loc["wheel.title"]</h2>
 
 <div class="wheel-layout">
 
@@ -13,13 +15,13 @@
         <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
 
         <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
-            @(_spinning ? "Spinning…" : "Spin")
+            @(_spinning ? Loc["wheel.spinning"] : Loc["wheel.spinBtn"])
         </button>
 
         @if (!string.IsNullOrEmpty(selectedResult))
         {
             <div class="wheel-result" @key="_spinCount">
-                <span class="wheel-result-label">Winner</span>
+                <span class="wheel-result-label">@Loc["wheel.winner"]</span>
                 <span class="wheel-result-value">🎉 @selectedResult</span>
             </div>
         }
@@ -28,7 +30,7 @@
     <div class="wheel-panel tool-card">
         <div class="option-row">
             <label>
-                <span class="opt-key">Options:</span>
+                <span class="opt-key">@Loc["wheel.options"]</span>
                 <input type="number" min="2" max="16" class="tool-input-small"
                        disabled="@_spinning"
                        @bind-value="rawCountInput" @oninput="HandleInput" @onblur="HandleBlur" />
@@ -38,7 +40,7 @@
         <div class="option-row option-row-wrap">
             <label>
                 <input type="checkbox" @bind="_eliminate" disabled="@_spinning" />
-                Remove the winner after each spin
+                @Loc["wheel.eliminate"]
             </label>
         </div>
 
@@ -58,8 +60,8 @@
         {
             <div class="wheel-history">
                 <div class="wheel-history-head">
-                    <span>History</span>
-                    <button type="button" class="wheel-clear-btn" @onclick="ClearHistory">Clear</button>
+                    <span>@Loc["wheel.history"]</span>
+                    <button type="button" class="wheel-clear-btn" @onclick="ClearHistory">@Loc["wheel.clear"]</button>
                 </div>
                 <div class="wheel-history-list">
                     @foreach (var h in _history)
@@ -113,8 +115,19 @@
 
     protected override void OnInitialized()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         InitItems();
     }
+
+    private void OnLanguageChanged()
+    {
+        // refresh placeholders so "Option N" tracks the active language
+        InitItems();
+        InvokeAsync(StateHasChanged);
+        _ = RenderWheel();
+    }
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -158,7 +171,7 @@
             .Select(i => new WheelItem
             {
                 Label = current.ElementAtOrDefault(i - 1)?.Label ?? string.Empty,
-                Placeholder = $"Option {i}"
+                Placeholder = $"{Loc["wheel.option"]} {i}"
             })
             .ToList();
     }
@@ -198,7 +211,7 @@
                 _count = items.Count;
                 rawCountInput = items.Count.ToString();
                 for (int i = 0; i < items.Count; i++)
-                    items[i].Placeholder = $"Option {i + 1}";
+                    items[i].Placeholder = $"{Loc["wheel.option"]} {i + 1}";
                 await RenderWheel();
             }
         }

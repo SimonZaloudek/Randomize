@@ -1,55 +1,53 @@
 @inherits LayoutComponentBase
-@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
 
 <div class="app-container">
     <!-- Sidebar -->
     <div class="sidebar @(isSidebarOpen ? "open" : "closed")">
         <div class="sidebar-header">
             <img src="brand/RANDLOGO1.png" alt="Randomize Icon" class="logo" />
-            <div class="theme-switch" role="group" aria-label="Theme">
-                <button type="button" class="theme-opt @(theme == "default" ? "active" : "")"
-                        @onclick='() => SetTheme("default")'>Default</button>
-                <button type="button" class="theme-opt @(theme == "modern" ? "active" : "")"
-                        @onclick='() => SetTheme("modern")'>Modern</button>
-            </div>
         </div>
 
         <!-- A click on any NavLink bubbles up here and closes the sidebar on
              mobile. The theme switch sits outside this nav so it won't trigger. -->
         <nav class="sidebar-nav" @onclick="CloseSidebar">
             <NavLink href="/" class="nav-item" Match="NavLinkMatch.All">
-                <i class="bi bi-house"></i> Home
+                <i class="bi bi-house"></i> @Loc["nav.home"]
             </NavLink>
             <NavLink href="/string" class="nav-item">
-                <i class="bi bi-type"></i> Text Randomizers
+                <i class="bi bi-type"></i> @Loc["nav.text"]
             </NavLink>
             <NavLink href="/number" class="nav-item">
-                <i class="bi bi-123"></i> Number Randomizers
+                <i class="bi bi-123"></i> @Loc["nav.number"]
             </NavLink>
             <NavLink href="/wheel" class="nav-item">
-                <i class="bi bi-arrow-repeat"></i> Spinning Wheel
+                <i class="bi bi-arrow-repeat"></i> @Loc["nav.wheel"]
             </NavLink>
             <NavLink href="/groupshuffler" class="nav-item">
-                <i class="bi bi-people-fill"></i> Group Shuffler
+                <i class="bi bi-people-fill"></i> @Loc["nav.groupshuffler"]
             </NavLink>
             <NavLink href="/shiftplanner" class="nav-item">
-                <i class="bi bi-clock"></i> Shift Planner
+                <i class="bi bi-clock"></i> @Loc["nav.shiftplanner"]
             </NavLink>
             <NavLink href="/movies" class="nav-item">
-                <i class="bi bi-film"></i> Movies &amp; TV
+                <i class="bi bi-film"></i> @Loc["nav.movies"]
             </NavLink>
 
             <div class="nav-divider" aria-hidden="true"></div>
 
+            <NavLink href="/settings" class="nav-item">
+                <i class="bi bi-gear"></i> @Loc["nav.settings"]
+            </NavLink>
             <NavLink href="/contact" class="nav-item">
-                <i class="bi bi-envelope"></i> Contact
+                <i class="bi bi-envelope"></i> @Loc["nav.contact"]
             </NavLink>
         </nav>
 
         <!-- Version + About -->
         <div class="sidebar-footer">
             <span class="sidebar-version">Beta v0.60</span>
-            <a href="https://github.com/SimonZaloudek/Randomize" target="_blank" rel="noopener" class="sidebar-about">About</a>
+            <a href="https://github.com/SimonZaloudek/Randomize" target="_blank" rel="noopener" class="sidebar-about">@Loc["nav.about"]</a>
         </div>
     </div>
 
@@ -74,34 +72,21 @@
 </div>
 
 @code {
+    // theme is applied by index.html on initial load + Settings page on change
     private bool isSidebarOpen = false;
-    private string theme = "modern";
-
-    private void ToggleSidebar()
-    {
-        isSidebarOpen = !isSidebarOpen;
-    }
-
-    // Used by the NavLink bubble and the backdrop tap. Harmless on desktop -
-    // the CSS keeps the sidebar visible there regardless of this flag.
-    private void CloseSidebar()
-    {
-        isSidebarOpen = false;
-    }
 
     protected override async Task OnInitializedAsync()
     {
-        var saved = await JS.InvokeAsync<string>("localStorage.getItem", "theme");
-        if (saved is "default" or "modern")
-        {
-            theme = saved;
-        }
+        Loc.LanguageChanged += OnLanguageChanged;
+        await Loc.InitializeAsync();
     }
 
-    private async Task SetTheme(string value)
-    {
-        theme = value;
-        await JS.InvokeVoidAsync("localStorage.setItem", "theme", value);
-        await JS.InvokeVoidAsync("document.documentElement.setAttribute", "data-theme", value);
-    }
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
+
+    // no-op on desktop - CSS keeps the sidebar visible there
+    private void CloseSidebar() => isSidebarOpen = false;
 }

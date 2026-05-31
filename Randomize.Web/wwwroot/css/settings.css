@@ -1,0 +1,268 @@
+/* settings.css */
+/* === SETTINGS PAGE === */
+
+.settings-layout {
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.settings-section {
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+    box-shadow: var(--surface-shadow);
+}
+
+.settings-section-title {
+    margin: 0 0 6px;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.settings-section-hint {
+    margin: 0 0 18px;
+    color: #888;
+    font-size: 0.88rem;
+}
+
+/* theme picker */
+.settings-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+}
+
+.settings-theme-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+    /* flex column so grid-stretched cards absorb the extra height inside the
+       body (card-coloured padding) rather than as a visible band above text */
+    display: flex;
+    flex-direction: column;
+}
+
+    .settings-theme-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--surface-border-hover);
+    }
+
+    .settings-theme-card.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+
+.settings-theme-swatch {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    flex-shrink: 0;
+    background-size: cover;
+    overflow: hidden;
+}
+
+    /* fades the bottom edge into the card body so bright-ending gradients
+       (Tropical, Light) don't end on a hard line. Pseudo-element overlay
+       is unambiguous about which edge gets darkened. */
+    .settings-theme-swatch::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 36px;
+        background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
+        pointer-events: none;
+    }
+
+.settings-theme-body {
+    flex: 1;
+    padding: 10px 14px 12px;
+}
+
+.settings-theme-name {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.settings-theme-desc {
+    margin-top: 3px;
+    color: #888;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.settings-theme-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* language + future inputs */
+.settings-input {
+    width: 100%;
+    max-width: 280px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    color: #ddd;
+    font-size: 0.92rem;
+    font-family: inherit;
+}
+
+    .settings-input:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+/* themed dropdown - the native <select> options can't be styled, so we use a
+   button + absolute-positioned menu instead. backdrop catches outside clicks. */
+.settings-select {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+}
+
+.settings-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    color: #ddd;
+    font-size: 0.92rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+    .settings-select-trigger:hover {
+        border-color: var(--surface-border-hover);
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .settings-select-trigger.open {
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+.settings-select-label {
+    color: #fff;
+    font-weight: 500;
+}
+
+.settings-select-chevron {
+    color: #888;
+    font-size: 0.85rem;
+    transition: transform 180ms ease, color 180ms ease;
+}
+
+.settings-select-trigger.open .settings-select-chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+}
+
+.settings-select-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    background: transparent;
+}
+
+.settings-select-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: rgba(20, 20, 24, 0.96);
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.settings-select-menu li {
+    list-style: none;
+}
+
+.settings-select-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #ddd;
+    font-size: 0.92rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+    .settings-select-option:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+    }
+
+    .settings-select-option.active {
+        background: color-mix(in srgb, var(--accent) 18%, transparent);
+        color: #fff;
+    }
+
+        .settings-select-option.active i {
+            color: var(--accent);
+        }
+
+@media (max-width: 540px) {
+    .settings-section {
+        padding: 18px 18px;
+    }
+
+    .settings-theme-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+    }
+
+    .settings-theme-swatch {
+        height: 64px;
+    }
+}

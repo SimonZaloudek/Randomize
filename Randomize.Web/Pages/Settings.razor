@@ -1,0 +1,144 @@
+@page "/settings"
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["settings.pageTitle"]</PageTitle>
+
+<h2 class="page-title">@Loc["settings.title"]</h2>
+
+<div class="settings-layout">
+
+    <section class="settings-section">
+        <h3 class="settings-section-title">@Loc["settings.appearance.title"]</h3>
+        <p class="settings-section-hint">@Loc["settings.appearance.hint"]</p>
+
+        <div class="settings-theme-grid" role="radiogroup" aria-label="@Loc["settings.appearance.title"]">
+            @foreach (var t in _themes)
+            {
+                var id = t.Id;
+                var active = _activeTheme == id;
+                <button type="button"
+                        class="settings-theme-card @(active ? "active" : "")"
+                        role="radio"
+                        aria-checked="@(active ? "true" : "false")"
+                        @onclick="() => SelectTheme(id)">
+                    <div class="settings-theme-swatch" style="background: @t.Preview"></div>
+                    <div class="settings-theme-body">
+                        <div class="settings-theme-name">@Loc[$"theme.{id}.name"]</div>
+                        <div class="settings-theme-desc">@Loc[$"theme.{id}.desc"]</div>
+                    </div>
+                    @if (active)
+                    {
+                        <div class="settings-theme-check" aria-hidden="true">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                    }
+                </button>
+            }
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h3 class="settings-section-title">@Loc["settings.language.title"]</h3>
+        <p class="settings-section-hint">@Loc["settings.language.hint"]</p>
+
+        <div class="settings-select">
+            <button type="button"
+                    class="settings-select-trigger @(_langMenuOpen ? "open" : "")"
+                    aria-haspopup="listbox"
+                    aria-expanded="@(_langMenuOpen ? "true" : "false")"
+                    aria-label="@Loc["settings.language.title"]"
+                    @onclick="ToggleLangMenu">
+                <span class="settings-select-label">@CurrentLanguageLabel</span>
+                <i class="bi bi-chevron-down settings-select-chevron"></i>
+            </button>
+            @if (_langMenuOpen)
+            {
+                <div class="settings-select-backdrop" @onclick="CloseLangMenu"></div>
+                <ul class="settings-select-menu" role="listbox">
+                    @foreach (var lang in _languages)
+                    {
+                        var active = lang.Code == Loc.CurrentLanguage;
+                        <li role="option" aria-selected="@(active ? "true" : "false")">
+                            <button type="button"
+                                    class="settings-select-option @(active ? "active" : "")"
+                                    @onclick="() => SelectLanguage(lang.Code)">
+                                <span>@lang.Label</span>
+                                @if (active)
+                                {
+                                    <i class="bi bi-check-lg"></i>
+                                }
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+
+</div>
+
+@code {
+    private string _activeTheme = "modern";
+    private bool _langMenuOpen = false;
+
+    private record ThemeOption(string Id, string Preview);
+    private record LanguageOption(string Code, string Label);
+
+    // names + descriptions live in i18n JSON; this list only holds IDs and swatches
+    private readonly ThemeOption[] _themes =
+    {
+        new("default",  "linear-gradient(135deg, #1a1a1d 0%, #4a90e2 100%)"),
+        new("modern",   "linear-gradient(135deg, #0e0c14 0%, #8a6bff 100%)"),
+        new("crimson",  "linear-gradient(135deg, #14080a 0%, #dc2626 100%)"),
+        new("tropical", "linear-gradient(135deg, #a855f7 0%, #fb923c 100%)"),
+        new("light",    "linear-gradient(135deg, #ffffff 0%, #0071e3 100%)"),
+        new("forest",   "linear-gradient(135deg, #0a1f12 0%, #16a34a 100%)")
+    };
+
+    // labels are endonyms - shown in the option's own language regardless of UI lang
+    private readonly LanguageOption[] _languages =
+    {
+        new("en", "English"),
+        new("sk", "Slovenčina"),
+        new("es", "Español")
+    };
+
+    private string CurrentLanguageLabel =>
+        _languages.FirstOrDefault(l => l.Code == Loc.CurrentLanguage)?.Label ?? "English";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        try
+        {
+            var saved = await JS.InvokeAsync<string>("localStorage.getItem", "theme");
+            if (!string.IsNullOrEmpty(saved) && _themes.Any(t => t.Id == saved))
+            {
+                _activeTheme = saved;
+            }
+        }
+        catch { /* JS interop not ready yet - keep default */ }
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private async Task SelectTheme(string id)
+    {
+        _activeTheme = id;
+        await JS.InvokeVoidAsync("localStorage.setItem", "theme", id);
+        await JS.InvokeVoidAsync("document.documentElement.setAttribute", "data-theme", id);
+    }
+
+    private void ToggleLangMenu() => _langMenuOpen = !_langMenuOpen;
+    private void CloseLangMenu() => _langMenuOpen = false;
+
+    private async Task SelectLanguage(string code)
+    {
+        _langMenuOpen = false;
+        await Loc.SetLanguageAsync(code);
+    }
+}

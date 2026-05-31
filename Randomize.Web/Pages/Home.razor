@@ -1,9 +1,10 @@
 @page "/"
 @using Randomize.Web.Services
 @inject StatsClient Stats
+@inject LocalizationService Loc
 @implements IDisposable
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@Loc["nav.home"]</PageTitle>
 
 <div class="home-page">
     <div class="home-bg" aria-hidden="true">
@@ -66,101 +67,101 @@
     <div class="home-feature-grid">
         <NavLink href="/string" class="home-feature-card">
             <div class="home-feature-icon home-feature-icon-text">Aa</div>
-            <div class="home-feature-title">Text Randomizers</div>
-            <div class="home-feature-desc">Random words, names, sentences and more.</div>
+            <div class="home-feature-title">@Loc["home.feature.text.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.text.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
         <NavLink href="/number" class="home-feature-card">
             <div class="home-feature-icon home-feature-icon-text">123</div>
-            <div class="home-feature-title">Number Randomizers</div>
-            <div class="home-feature-desc">Generate random numbers, ranges, dates and more.</div>
+            <div class="home-feature-title">@Loc["home.feature.number.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.number.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
         <NavLink href="/wheel" class="home-feature-card">
             <div class="home-feature-icon"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="home-feature-title">Spinning Wheel</div>
-            <div class="home-feature-desc">Spin to decide between options.</div>
+            <div class="home-feature-title">@Loc["home.feature.wheel.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.wheel.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
         <NavLink href="/groupshuffler" class="home-feature-card">
             <div class="home-feature-icon"><i class="bi bi-people-fill"></i></div>
-            <div class="home-feature-title">Group Shuffler</div>
-            <div class="home-feature-desc">Shuffle names and create random groups.</div>
+            <div class="home-feature-title">@Loc["home.feature.groupshuffler.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.groupshuffler.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
         <NavLink href="/shiftplanner" class="home-feature-card">
             <div class="home-feature-icon"><i class="bi bi-clock"></i></div>
-            <div class="home-feature-title">Shift Planner</div>
-            <div class="home-feature-desc">Plan shifts randomly and fairly.</div>
+            <div class="home-feature-title">@Loc["home.feature.shiftplanner.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.shiftplanner.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
         <NavLink href="/movies" class="home-feature-card">
             <div class="home-feature-icon"><i class="bi bi-film"></i></div>
-            <div class="home-feature-title">Movies &amp; TV</div>
-            <div class="home-feature-desc">Pick a random movie or show by genre.</div>
+            <div class="home-feature-title">@Loc["home.feature.movies.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.movies.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
     </div>
 
     <div class="home-tagline">
-        <h2 class="home-tagline-title">Randomize anything, anytime!</h2>
+        <h2 class="home-tagline-title">@Loc["home.tagline"]</h2>
 
         <div class="home-stats-grid">
             <div class="home-stat-pill">
                 <i class="bi bi-lightning-charge home-stat-icon"></i>
-                <div class="home-stat-value">Instant</div>
-                <div class="home-stat-label">Results</div>
+                <div class="home-stat-value">@Loc["home.stat.instant.value"]</div>
+                <div class="home-stat-label">@Loc["home.stat.instant.label"]</div>
             </div>
             <div class="home-stat-pill">
                 <i class="bi bi-shield-check home-stat-icon"></i>
-                <div class="home-stat-value">100%</div>
-                <div class="home-stat-label">Free</div>
+                <div class="home-stat-value">@Loc["home.stat.free.value"]</div>
+                <div class="home-stat-label">@Loc["home.stat.free.label"]</div>
             </div>
             <div class="home-stat-pill">
                 <i class="bi bi-lock home-stat-icon"></i>
-                <div class="home-stat-value">Private</div>
-                <div class="home-stat-label">No data shared</div>
+                <div class="home-stat-value">@Loc["home.stat.private.value"]</div>
+                <div class="home-stat-label">@Loc["home.stat.private.label"]</div>
             </div>
             <div class="home-stat-pill">
                 <i class="bi bi-infinity home-stat-icon"></i>
-                <div class="home-stat-value">Unlimited</div>
-                <div class="home-stat-label">Possibilities</div>
+                <div class="home-stat-value">@Loc["home.stat.unlimited.value"]</div>
+                <div class="home-stat-label">@Loc["home.stat.unlimited.label"]</div>
             </div>
         </div>
     </div>
 
-    <section class="home-livestats-card" aria-label="Live counters">
+    <section class="home-livestats-card" aria-label="@Loc["home.livestats.aria"]">
         <span class="home-livestats-live" aria-hidden="true">
             <span class="home-livestats-dot"></span>
         </span>
 
-        <h2 class="home-livestats-title">Live Statistics</h2>
+        <h2 class="home-livestats-title">@Loc["home.livestats.title"]</h2>
 
         <div class="home-stats-grid home-livestats-grid">
             <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-shuffle home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.Total)</div>
-                <div class="home-stat-label">Randomizations</div>
+                <div class="home-stat-label">@Loc["home.livestats.randomizations"]</div>
             </div>
             <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-arrow-repeat home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.WheelSpins)</div>
-                <div class="home-stat-label">Wheel spins</div>
+                <div class="home-stat-label">@Loc["home.livestats.wheelSpins"]</div>
             </div>
             <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-coin home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.HeadsLanded)</div>
-                <div class="home-stat-label">Heads landed</div>
+                <div class="home-stat-label">@Loc["home.livestats.headsLanded"]</div>
             </div>
             <div class="home-stat-pill home-livestat-pill">
                 <i class="bi bi-cone-striped home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.DaysWithoutAccident)</div>
-                <div class="home-stat-label">Days without an accident</div>
+                <div class="home-stat-label">@Loc["home.livestats.daysNoAccident"]</div>
             </div>
         </div>
     </section>
@@ -174,9 +175,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         _stats = await Stats.GetAsync(_cts.Token);
         _ = PollAsync();
     }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
     // Background refresh loop.
     private async Task PollAsync()
@@ -207,6 +211,7 @@
 
     public void Dispose()
     {
+        Loc.LanguageChanged -= OnLanguageChanged;
         _cts.Cancel();
         _cts.Dispose();
     }

@@ -30,7 +30,7 @@
     transform: translate(-50%, -50%);
     width: 52%;
     height: 62%;
-    background: radial-gradient(ellipse, rgba(140, 110, 230, 0.5), transparent 70%);
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%);
     filter: blur(42px);
     opacity: 0.3;
     animation: home-hero-glow 5s ease-in-out infinite;
@@ -60,9 +60,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(ellipse 65% 55% at 50% 45%, rgba(38, 26, 78, 0.14), transparent 75%),
-        linear-gradient(180deg, #050409 0%, #020104 100%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 3%, #050507) 0%, #020104 100%);
     pointer-events: none;
 }
 
@@ -77,6 +75,15 @@
     transform: translateZ(0);
 }
 
+/* override the inline stop-color attributes so waves follow the active accent */
+.home-waves stop {
+    stop-color: var(--accent);
+}
+
+    .home-waves stop[stop-opacity="0"] {
+        stop-color: color-mix(in srgb, var(--accent) 50%, #000);
+    }
+
 /* shooting stars - transform + opacity only */
 .home-shoot {
     position: absolute;
@@ -86,7 +93,7 @@
     height: 1.5px;
     background: linear-gradient(90deg,
         rgba(255, 255, 255, 0) 0%,
-        rgba(180, 170, 255, 0.4) 60%,
+        color-mix(in srgb, var(--accent-soft) 40%, transparent) 60%,
         rgba(255, 255, 255, 0.95) 95%,
         #ffffff 100%);
     border-radius: 999px;
@@ -118,9 +125,9 @@
     position: absolute;
     width: 1.6px;
     height: 1.6px;
-    background: rgba(210, 200, 255, 0.85);
+    background: color-mix(in srgb, var(--accent-soft) 85%, white);
     border-radius: 50%;
-    box-shadow: 0 0 4px rgba(170, 150, 255, 0.55);
+    box-shadow: 0 0 4px color-mix(in srgb, var(--accent-soft) 55%, transparent);
     opacity: 0;
     animation: home-particle-drift 8s ease-in-out infinite;
     will-change: opacity, transform;
