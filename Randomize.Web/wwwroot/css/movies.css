@@ -415,46 +415,110 @@
         font-size: 0.85rem;
     }
 
-/* two-column on wide screens */
-.movies-info-grid {
-    display: grid;
-    grid-template-columns: minmax(280px, 1fr) 2fr;
-    gap: 1px;                       /* the gap doubles as a divider line */
-    background: rgba(255, 255, 255, 0.05);
-}
-
-    .movies-info-grid > .movies-section {
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
 /* === Ratings === */
 .movies-ratings {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
 }
 
+/* --rating-color is set per card via inline style */
 .movies-rating {
-    flex: 1;
-    min-width: 200px;
-    padding: 18px 20px;
+    padding: 14px 16px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--surface-border);
+    border-top: 2px solid var(--rating-color, var(--accent-soft));
     border-radius: 12px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
+
+.movies-rating-head {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--rating-color, var(--accent-soft));
+}
+
+    .movies-rating-head i {
+        font-size: 0.95rem;
+        line-height: 1;
+    }
 
 .movies-rating-source {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    color: var(--accent-soft);
     font-weight: 600;
-    margin-bottom: 8px;
+}
+
+/* brand badges, CSS-drawn (no copied logo assets) */
+.movies-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* wordmarks */
+.movies-brand-tmdb,
+.movies-brand-imdb,
+.movies-brand-metacritic {
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+}
+
+.movies-brand-tmdb {
+    background: linear-gradient(90deg, #01b4e4 0%, #90cea1 100%);
+    color: #032541;
+}
+
+.movies-brand-imdb {
+    background: #f5c518;
+    color: #000;
+    letter-spacing: 0;
+}
+
+.movies-brand-metacritic {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: var(--rating-color, #66cc33);
+    color: #000;
+    border-radius: 3px;
+    font-size: 0.74rem;
+}
+
+/* RT fresh */
+.movies-brand-rt-fresh,
+.movies-brand-rt-rotten {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    /* uppercase text sits visually higher than geometric centre - nudge to match */
+    transform: translateY(-1px);
+}
+
+.movies-brand-rt-fresh {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='13' r='7' fill='%23fa320a'/><polygon points='12,4 14.5,7.5 9.5,7.5' fill='%2333a833'/></svg>");
+}
+
+/* RT rotten - organic blob via bezier curves */
+.movies-brand-rt-rotten {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 Q14 4 16 4 Q20 4 19 8 Q22 9 21 12 Q23 15 19 16 Q21 19 17 19 Q17 22 13 20 Q12 22 11 20 Q7 22 7 19 Q3 19 5 16 Q1 15 3 12 Q1 9 4 8 Q3 4 7 4 Q10 4 12 2 Z' fill='%2333a833'/></svg>");
 }
 
 .movies-rating-score {
-    font-size: 2.4rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #fff;
     line-height: 1;
@@ -462,46 +526,127 @@
 }
 
     .movies-rating-score small {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #777;
         font-weight: 400;
         margin-left: 2px;
     }
 
 .movies-rating-votes {
-    margin-top: 6px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #888;
+}
+
+.movies-rating-tag {
+    font-size: 0.7rem;
+    color: var(--rating-color, var(--accent-soft));
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
 }
 
 /* === Quick stats === */
 .movies-quick-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
 }
 
 .movies-stat-tile {
-    padding: 14px 16px;
+    padding: 10px 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--surface-border);
     border-radius: 10px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .movies-stat-tile-label {
     color: #888;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 6px;
 }
 
 .movies-stat-tile-value {
     color: #fff;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+}
+
+/* === Awards === */
+.movies-awards-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.movies-award {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    min-width: 180px;
+}
+
+    .movies-award.win {
+        background: rgba(255, 196, 76, 0.08);
+        border-color: rgba(255, 196, 76, 0.3);
+    }
+
+        .movies-award.win i {
+            color: #ffc44c;
+        }
+
+    .movies-award.nom i {
+        color: var(--accent-soft);
+    }
+
+    .movies-award i {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+.movies-award-count {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.movies-award-label {
+    color: #bbb;
+    font-size: 0.78rem;
+    line-height: 1.25;
+}
+
+.movies-awards-summary {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    color: #888;
+    font-size: 0.82rem;
+}
+
+    .movies-awards-summary strong {
+        color: #ddd;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+.movies-awards-sep {
+    color: #444;
 }
 
 /* === Cast === */
@@ -692,11 +837,6 @@
     .movies-overview { text-align: left; }
 
     .movies-section { padding: 22px 20px; }
-
-    /* stack ratings + stats on mobile */
-    .movies-info-grid {
-        grid-template-columns: 1fr;
-    }
 
     .movies-filter { padding: 18px 18px; }
 }
