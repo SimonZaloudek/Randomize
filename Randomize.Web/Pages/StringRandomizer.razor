@@ -3,22 +3,24 @@
 @using Randomize.Web.Services
 @inject StringRandomizerService StringService
 @inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
 
-<h2 class="page-title">Text Randomizers</h2>
+<h2 class="page-title">@Loc["string.title"]</h2>
 
 <div class="tool-grid">
 
     <!-- 1. Shuffle list -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-shuffle"></i> Shuffle List</h3>
-        <p class="tool-card-hint">Pick a random line from your list.</p>
+        <h3 class="tool-card-title"><i class="bi bi-shuffle"></i> @Loc["string.shuffle.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.shuffle.hint"]</p>
         <div class="tool-card-body">
             <textarea class="tool-input tool-textarea"
                       @bind="_shuffleInput"
                       @bind:event="oninput"
-                      placeholder="Enter items, one per line"></textarea>
+                      placeholder="@Loc["string.shuffle.placeholder"]"></textarea>
         </div>
-        <button class="tool-btn" @onclick="DoShuffle">Pick One</button>
+        <button class="tool-btn" @onclick="DoShuffle">@Loc["string.shuffle.btn"]</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_shuffleResult))
             {
@@ -26,22 +28,22 @@
             }
             else
             {
-                <span class="tool-result-empty">No pick yet</span>
+                <span class="tool-result-empty">@Loc["string.shuffle.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 2. Weighted pick -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-sliders"></i> Weighted Pick</h3>
-        <p class="tool-card-hint">Prefix each line with <code>weight:</code> - higher weight wins more often.</p>
+        <h3 class="tool-card-title"><i class="bi bi-sliders"></i> @Loc["string.weighted.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.weighted.hintBefore"]<code>weight:</code>@Loc["string.weighted.hintAfter"]</p>
         <div class="tool-card-body">
             <textarea class="tool-input tool-textarea"
                       @bind="_weightedInput"
                       @bind:event="oninput"
                       placeholder="@_weightedPlaceholder"></textarea>
         </div>
-        <button class="tool-btn" @onclick="DoWeighted">Pick Weighted</button>
+        <button class="tool-btn" @onclick="DoWeighted">@Loc["string.weighted.btn"]</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_weightedResult))
             {
@@ -49,18 +51,18 @@
             }
             else
             {
-                <span class="tool-result-empty">No pick yet</span>
+                <span class="tool-result-empty">@Loc["string.weighted.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 3. Password generator -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-shield-lock"></i> Password Generator</h3>
-        <p class="tool-card-hint">Build a secure password from chosen character types.</p>
+        <h3 class="tool-card-title"><i class="bi bi-shield-lock"></i> @Loc["string.pw.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.pw.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Length:</span>
+                <label><span class="opt-key">@Loc["string.pw.length"]</span>
                     <input type="number" min="4" max="128" @bind="_pwLength" class="tool-input-small" />
                 </label>
             </div>
@@ -68,10 +70,10 @@
                 <label><input type="checkbox" @bind="_pwUpper" /> A–Z</label>
                 <label><input type="checkbox" @bind="_pwLower" /> a–z</label>
                 <label><input type="checkbox" @bind="_pwDigits" /> 0–9</label>
-                <label><input type="checkbox" @bind="_pwSymbols" /> Symbols</label>
+                <label><input type="checkbox" @bind="_pwSymbols" /> @Loc["string.pw.symbols"]</label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">Generate</button>
+        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">@Loc["string.pw.btn"]</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_pwResult))
             {
@@ -79,26 +81,26 @@
             }
             else
             {
-                <span class="tool-result-empty">No password yet</span>
+                <span class="tool-result-empty">@Loc["string.pw.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 4. Token generator -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-key"></i> Token Generator</h3>
-        <p class="tool-card-hint">Random string from a chosen character set.</p>
+        <h3 class="tool-card-title"><i class="bi bi-key"></i> @Loc["string.token.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.token.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Length:</span>
+                <label><span class="opt-key">@Loc["string.token.length"]</span>
                     <input type="number" min="1" max="256" @bind="_tokenLength" class="tool-input-small" />
                 </label>
-                <label><span class="opt-key">Charset:</span>
+                <label><span class="opt-key">@Loc["string.token.charset"]</span>
                     <select class="tool-input-small" @bind="_tokenCharsetKey">
-                        <option value="alphanumeric">Alphanumeric</option>
-                        <option value="hex">Hex</option>
-                        <option value="base64">Base64</option>
-                        <option value="custom">Custom</option>
+                        <option value="alphanumeric">@Loc["string.token.charset.alphanumeric"]</option>
+                        <option value="hex">@Loc["string.token.charset.hex"]</option>
+                        <option value="base64">@Loc["string.token.charset.base64"]</option>
+                        <option value="custom">@Loc["string.token.charset.custom"]</option>
                     </select>
                 </label>
             </div>
@@ -108,10 +110,10 @@
                        type="text"
                        @bind="_tokenCustom"
                        @bind:event="oninput"
-                       placeholder="Custom characters, e.g. ABCDEF0123" />
+                       placeholder="@Loc["string.token.customPlaceholder"]" />
             }
         </div>
-        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">Generate</button>
+        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">@Loc["string.token.btn"]</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_tokenResult))
             {
@@ -119,15 +121,15 @@
             }
             else
             {
-                <span class="tool-result-empty">No token yet</span>
+                <span class="tool-result-empty">@Loc["string.token.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 5. Coin flip -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-coin"></i> Coin Flip</h3>
-        <p class="tool-card-hint">Heads or tails - pure 50/50 odds.</p>
+        <h3 class="tool-card-title"><i class="bi bi-coin"></i> @Loc["string.coin.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.coin.hint"]</p>
         <div class="tool-card-body">
             <div class="coin-stage">
                 <div class="coin" style="transform: rotateY(@(_coinRotation)deg)">
@@ -136,7 +138,7 @@
                 </div>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">Flip</button>
+        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">@Loc["string.coin.btn"]</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_coinResult))
             {
@@ -144,15 +146,15 @@
             }
             else
             {
-                <span class="tool-result-empty">@(_coinFlipping ? "Flipping…" : "Click flip")</span>
+                <span class="tool-result-empty">@(_coinFlipping ? Loc["string.coin.flipping"] : Loc["string.coin.empty"])</span>
             }
         </div>
     </section>
 
     <!-- 6. Random emoji -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-emoji-smile"></i> Random Emoji</h3>
-        <p class="tool-card-hint">Get a random emoji from a curated set.</p>
+        <h3 class="tool-card-title"><i class="bi bi-emoji-smile"></i> @Loc["string.emoji.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.emoji.hint"]</p>
         <div class="tool-card-body">
             <div class="emoji-display">
                 @if (!string.IsNullOrEmpty(_emojiResult))
@@ -165,15 +167,15 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoEmoji">Surprise Me</button>
+        <button class="tool-btn" @onclick="DoEmoji">@Loc["string.emoji.btn"]</button>
         <div class="tool-result">
             @if (!string.IsNullOrEmpty(_emojiResult))
             {
-                <span>You got: @_emojiResult</span>
+                <span>@Loc["string.emoji.got"] @_emojiResult</span>
             }
             else
             {
-                <span class="tool-result-empty">No emoji yet</span>
+                <span class="tool-result-empty">@Loc["string.emoji.empty"]</span>
             }
         </div>
     </section>
@@ -226,6 +228,15 @@
         "⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋","⛳","🏆","🥇","🥈","🥉"
     };
 
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
     private void DoShuffle()
     {
         var items = _shuffleInput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -272,7 +283,7 @@
 
         await Task.Delay(1100);
 
-        _coinResult = heads ? "Heads" : "Tails";
+        _coinResult = heads ? Loc["string.coin.heads"] : Loc["string.coin.tails"];
         _coinFlipping = false;
 
         Stats.Increment("string");

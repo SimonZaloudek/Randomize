@@ -6,23 +6,25 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject IJSRuntime JS
 @inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
 
-<h2 class="page-title">Shift Planner</h2>
+<h2 class="page-title">@Loc["planner.title"]</h2>
 
 <div class="planner-layout">
 
     <!-- ============ HOURLY DEMAND ============ -->
     <section class="planner-card tool-card">
         <div class="planner-card-head">
-            <h3 class="planner-section-title">Hourly demand</h3>
+            <h3 class="planner-section-title">@Loc["planner.hourlyDemand"]</h3>
 
             <!-- hour 0–23 + moon checkbox to mark it as next-day -->
-            <div class="planner-visible-range" title="Hours shown in the timeline">
-                <span class="planner-visible-label">Show</span>
+            <div class="planner-visible-range" title="@Loc["planner.hoursShownTitle"]">
+                <span class="planner-visible-label">@Loc["planner.show"]</span>
                 <span class="time-input-group">
                     <input type="number" class="tool-input-small" min="0" max="@(_visibleFromNext ? 6 : 23)"
                            @bind="VisibleFromHour" />
-                    <label class="nextday-checkbox" title="From next day">
+                    <label class="nextday-checkbox" title="@Loc["planner.fromNextDayTitle"]">
                         <input type="checkbox" @bind="VisibleFromNext" />
                         <i class="bi bi-moon"></i>
                     </label>
@@ -31,7 +33,7 @@
                 <span class="time-input-group">
                     <input type="number" class="tool-input-small" min="0" max="@(_visibleToNext ? 6 : 23)"
                            @bind="VisibleToHour" />
-                    <label class="nextday-checkbox" title="To next day">
+                    <label class="nextday-checkbox" title="@Loc["planner.toNextDayTitle"]">
                         <input type="checkbox" @bind="VisibleToNext" />
                         <i class="bi bi-moon"></i>
                     </label>
@@ -40,20 +42,20 @@
         </div>
 
         <div class="demand-presets">
-            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("morning")'>+ Morning (8–12)</button>
-            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("daytime")'>+ Daytime (8–18)</button>
-            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("evening")'>+ Evening (16–22)</button>
-            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("night")'>+ Night (22–06)</button>
-            <button type="button" class="planner-chip planner-chip-quiet" @onclick='() => ApplyPreset("clear")'>Clear</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("morning")'>@Loc["planner.preset.morning"]</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("daytime")'>@Loc["planner.preset.daytime"]</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("evening")'>@Loc["planner.preset.evening"]</button>
+            <button type="button" class="planner-chip" @onclick='() => ApplyPreset("night")'>@Loc["planner.preset.night"]</button>
+            <button type="button" class="planner-chip planner-chip-quiet" @onclick='() => ApplyPreset("clear")'>@Loc["planner.preset.clear"]</button>
         </div>
 
         <div class="demand-custom-row">
-            <span class="demand-custom-label">Custom range</span>
-            <input type="number" class="tool-input-small" min="0" max="30" placeholder="From" @bind="_customFrom" />
+            <span class="demand-custom-label">@Loc["planner.customRange"]</span>
+            <input type="number" class="tool-input-small" min="0" max="30" placeholder="@Loc["planner.customFromPlaceholder"]" @bind="_customFrom" />
             <span class="demand-custom-sep">–</span>
-            <input type="number" class="tool-input-small" min="0" max="30" placeholder="To" @bind="_customTo" />
-            <button type="button" class="planner-chip" @onclick="AddCustomRange">+ Add</button>
-            <button type="button" class="planner-chip planner-chip-quiet" @onclick="SubtractCustomRange">− Deduct</button>
+            <input type="number" class="tool-input-small" min="0" max="30" placeholder="@Loc["planner.customToPlaceholder"]" @bind="_customTo" />
+            <button type="button" class="planner-chip" @onclick="AddCustomRange">@Loc["planner.customAdd"]</button>
+            <button type="button" class="planner-chip planner-chip-quiet" @onclick="SubtractCustomRange">@Loc["planner.customDeduct"]</button>
         </div>
 
         <div class="planner-scroll">
@@ -79,12 +81,12 @@
         @if (TotalDemand > 0 || _employees.Count > 0)
         {
             <div class="planner-summary @(TotalCapacity >= TotalDemand ? "" : "short")">
-                <span>Demand: <strong>@TotalDemand h</strong></span>
-                <span>Capacity: <strong>@TotalCapacity h</strong></span>
+                <span>@Loc["planner.summary.demand"] <strong>@TotalDemand @Loc["planner.summary.hours"]</strong></span>
+                <span>@Loc["planner.summary.capacity"] <strong>@TotalCapacity @Loc["planner.summary.hours"]</strong></span>
                 @if (TotalDemand > 0)
                 {
                     <span class="planner-summary-status">
-                        @(TotalCapacity >= TotalDemand ? "Enough capacity" : "Capacity short")
+                        @(TotalCapacity >= TotalDemand ? Loc["planner.summary.enough"] : Loc["planner.summary.short"])
                     </span>
                 }
             </div>
@@ -95,43 +97,43 @@
     <section class="planner-card tool-card planner-form-card">
         <div class="planner-card-head planner-card-head-tight">
             <h3 class="planner-section-title">
-                @(_editingId is null ? "Add employee" : "Edit employee")
+                @(_editingId is null ? Loc["planner.add"] : Loc["planner.edit"])
             </h3>
         </div>
 
         <div class="employee-form">
-            <input type="text" class="tool-input" placeholder="Employee name" @bind="_newEmployee.Name" />
+            <input type="text" class="tool-input" placeholder="@Loc["planner.empPlaceholder"]" @bind="_newEmployee.Name" />
 
             <div class="employee-form-row">
-                <input type="number" class="tool-input-small employee-form-input" placeholder="Max hours"
+                <input type="number" class="tool-input-small employee-form-input" placeholder="@Loc["planner.maxHoursPlaceholder"]"
                        min="1" max="12" @bind="_newEmployee.MaxHours" />
 
                 <span class="time-input-group">
-                    <input type="number" class="tool-input-small" placeholder="Start"
+                    <input type="number" class="tool-input-small" placeholder="@Loc["planner.startPlaceholder"]"
                            min="0" max="@(_newEmployee.StartNextDay ? 6 : 23)"
                            @bind="_newEmployee.ScheduleStart" />
-                    <label class="nextday-checkbox" title="Starts next day">
+                    <label class="nextday-checkbox" title="@Loc["planner.startsNextDayTitle"]">
                         <input type="checkbox" @bind="_newEmployee.StartNextDay" />
                         <i class="bi bi-moon"></i>
                     </label>
                 </span>
 
                 <span class="time-input-group">
-                    <input type="number" class="tool-input-small" placeholder="End"
+                    <input type="number" class="tool-input-small" placeholder="@Loc["planner.endPlaceholder"]"
                            min="@GetEndMin()" max="@(_newEmployee.EndNextDay ? 6 : 23)"
                            @bind="_newEmployee.ScheduleEnd" />
-                    <label class="nextday-checkbox" title="Ends next day">
+                    <label class="nextday-checkbox" title="@Loc["planner.endsNextDayTitle"]">
                         <input type="checkbox" @bind="_newEmployee.EndNextDay" />
                         <i class="bi bi-moon"></i>
                     </label>
                 </span>
 
                 <button class="tool-btn planner-form-btn" @onclick="SaveEmployee">
-                    @(_editingId is null ? "Add" : "Update")
+                    @(_editingId is null ? Loc["planner.addBtn"] : Loc["planner.updateBtn"])
                 </button>
                 @if (_editingId is not null)
                 {
-                    <button type="button" class="planner-chip planner-chip-quiet" @onclick="CancelEdit">Cancel</button>
+                    <button type="button" class="planner-chip planner-chip-quiet" @onclick="CancelEdit">@Loc["planner.cancelBtn"]</button>
                 }
             </div>
 
@@ -147,11 +149,11 @@
     {
         <section class="planner-card tool-card">
             <div class="planner-card-head">
-                <h3 class="planner-section-title">Employees (@_employees.Count)</h3>
+                <h3 class="planner-section-title">@Loc["planner.employees"] (@_employees.Count)</h3>
                 <div class="planner-card-actions">
-                    <button type="button" class="planner-chip" @onclick="SaveToFile" title="Save roster as JSON">Save</button>
-                    <label class="planner-chip" title="Load roster (JSON or legacy TXT)">
-                        Load
+                    <button type="button" class="planner-chip" @onclick="SaveToFile" title="@Loc["planner.saveTitle"]">@Loc["planner.save"]</button>
+                    <label class="planner-chip" title="@Loc["planner.loadTitle"]">
+                        @Loc["planner.load"]
                         <InputFile OnChange="LoadFromFile" accept=".json,.txt" class="planner-file-input" />
                     </label>
                 </div>
@@ -165,23 +167,23 @@
                     <div class="employee-card @(_editingId == emp.Id ? "editing" : "")" style="--emp-color:@color">
                         <span class="employee-color-chip"></span>
                         <span class="employee-name">@emp.Name</span>
-                        <span class="emp-hours">max @emp.MaxHours h</span>
+                        <span class="emp-hours">@Loc["planner.emp.maxPrefix"] @emp.MaxHours @Loc["planner.summary.hours"]</span>
                         @if (emp.ScheduleStart.HasValue && emp.ScheduleEnd.HasValue)
                         {
                             <span class="emp-time">@((MarkupString)$"{emp.DisplayStart} – {emp.DisplayEnd}")</span>
                         }
                         else
                         {
-                            <span class="emp-time-muted">No schedule</span>
+                            <span class="emp-time-muted">@Loc["planner.emp.noSchedule"]</span>
                         }
                         <span class="employee-card-actions">
-                            <button type="button" class="employee-icon-btn" @onclick="@(() => EditEmployee(emp))" title="Edit">
+                            <button type="button" class="employee-icon-btn" @onclick="@(() => EditEmployee(emp))" title="@Loc["planner.emp.editTitle"]">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
-                            <button type="button" class="employee-icon-btn" @onclick="@(() => DuplicateEmployee(emp))" title="Duplicate">
+                            <button type="button" class="employee-icon-btn" @onclick="@(() => DuplicateEmployee(emp))" title="@Loc["planner.emp.duplicateTitle"]">
                                 <i class="bi bi-stickies"></i>
                             </button>
-                            <button type="button" class="employee-icon-btn employee-icon-btn-danger" @onclick="@(() => DeleteEmployee(emp))" title="Remove">
+                            <button type="button" class="employee-icon-btn employee-icon-btn-danger" @onclick="@(() => DeleteEmployee(emp))" title="@Loc["planner.emp.removeTitle"]">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </span>
@@ -195,7 +197,7 @@
     @if (_employees.Count > 0)
     {
         <button class="tool-btn planner-randomize" @onclick="RandomizeShifts">
-            Randomize Shifts
+            @Loc["planner.randomizeBtn"]
         </button>
     }
 
@@ -204,17 +206,17 @@
     {
         <section class="planner-card tool-card planner-results" @key="_resultKey">
             <div class="planner-card-head">
-                <h3 class="planner-section-title">Assignment results</h3>
+                <h3 class="planner-section-title">@Loc["planner.results.title"]</h3>
                 <div class="planner-card-actions">
-                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanCsv" title="Download as CSV (for spreadsheets)">Export CSV</button>
-                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanJson" title="Download as JSON">Export JSON</button>
+                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanCsv" title="@Loc["planner.results.exportCsvTitle"]">@Loc["planner.results.exportCsv"]</button>
+                    <button type="button" class="planner-chip" @onclick="ExportShiftPlanJson" title="@Loc["planner.results.exportJsonTitle"]">@Loc["planner.results.exportJson"]</button>
                 </div>
             </div>
 
             @if (_assignmentResult.UnassignedEmployees.Count > 0)
             {
                 <div class="planner-info">
-                    <strong>@_assignmentResult.UnassignedEmployees.Count</strong> not assigned:
+                    <strong>@_assignmentResult.UnassignedEmployees.Count</strong> @Loc["planner.results.notAssigned"]
                     @string.Join(", ", _assignmentResult.UnassignedEmployees.Select(e => e.Name))
                 </div>
             }
@@ -222,11 +224,11 @@
             @if (_assignmentResult.UnfilledHours.Count > 0)
             {
                 <div class="planner-warning">
-                    <strong>@_assignmentResult.UnfilledHours.Count</strong> hour(s) unfilled:
+                    <strong>@_assignmentResult.UnfilledHours.Count</strong> @Loc["planner.results.unfilled"]
                     @string.Join(", ", _assignmentResult.UnfilledHours.Select(h =>
                     {
                         var localH = h % 24;
-                        return h >= 24 ? $"{localH}:00 (next day)" : $"{localH}:00";
+                        return h >= 24 ? $"{localH}:00 {Loc["planner.results.nextDaySuffix"]}" : $"{localH}:00";
                     }))
                 </div>
             }
@@ -235,7 +237,7 @@
                 <div class="gantt-chart">
                     <div class="gantt-header">
                         <div class="gantt-names-column">
-                            <div class="gantt-header-label">Employee</div>
+                            <div class="gantt-header-label">@Loc["planner.results.employeeCol"]</div>
                             @foreach (var emp in _assignmentResult.AssignedEmployees)
                             {
                                 var startHour = emp.AssignedStart % 24;
@@ -286,16 +288,16 @@
 
             <div class="coverage-stats">
                 <div class="stat-item">
-                    <span class="stat-label">Employees assigned</span>
+                    <span class="stat-label">@Loc["planner.results.empAssigned"]</span>
                     <span class="stat-value">@_assignmentResult.AssignedEmployees.Count / @_employees.Count</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Hours with coverage</span>
+                    <span class="stat-label">@Loc["planner.results.hoursCoverage"]</span>
                     <span class="stat-value">@_assignmentResult.HourCoverage.Count(x => x.Value > 0) / @(VisibleToTotal - VisibleFromTotal + 1)</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Total hours assigned</span>
-                    <span class="stat-value">@_assignmentResult.AssignedEmployees.Sum(e => e.AssignedEnd - e.AssignedStart) h</span>
+                    <span class="stat-label">@Loc["planner.results.totalAssigned"]</span>
+                    <span class="stat-value">@_assignmentResult.AssignedEmployees.Sum(e => e.AssignedEnd - e.AssignedStart) @Loc["planner.summary.hours"]</span>
                 </div>
             </div>
         </section>
@@ -535,11 +537,20 @@
         return Math.Min(_newEmployee.ScheduleStart.Value + 1, 23);
     }
 
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
     private void SaveEmployee()
     {
         if (string.IsNullOrWhiteSpace(_newEmployee.Name))
         {
-            _validationMessage = "Name is required.";
+            _validationMessage = Loc["planner.error.nameRequired"];
             return;
         }
 
@@ -557,7 +568,7 @@
 
         if (start.HasValue && end.HasValue && end <= start)
         {
-            _validationMessage = "Schedule end must be later than start time.";
+            _validationMessage = Loc["planner.error.endAfterStart"];
             return;
         }
 
@@ -633,7 +644,7 @@
     {
         _employees.Add(new Employee
         {
-            Name = $"Copy of {emp.Name}",
+            Name = $"{Loc["planner.emp.copyOfPrefix"]} {emp.Name}",
             MaxHours = emp.MaxHours,
             ScheduleStart = emp.ScheduleStart,
             ScheduleEnd = emp.ScheduleEnd,
@@ -666,10 +677,10 @@
 
     // ----- Export solved plan -----
 
-    private static string FormatHour(int h)
+    private string FormatHour(int h)
     {
         int local = h % 24;
-        return h >= 24 ? $"{local}:00 (next day)" : $"{local}:00";
+        return h >= 24 ? $"{local}:00 {Loc["planner.results.nextDaySuffix"]}" : $"{local}:00";
     }
 
     private async Task ExportShiftPlanCsv()

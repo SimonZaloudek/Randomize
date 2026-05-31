@@ -3,26 +3,28 @@
 @using Randomize.Web.Services
 @inject NumberRandomizerService NumberService
 @inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
 
-<h2 class="page-title">Number Randomizers</h2>
+<h2 class="page-title">@Loc["number.title"]</h2>
 
 <div class="tool-grid">
 
     <!-- 1. Random number -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-hash"></i> Random Number</h3>
-        <p class="tool-card-hint">A random whole number between two values.</p>
+        <h3 class="tool-card-title"><i class="bi bi-hash"></i> @Loc["number.rn.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.rn.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Min:</span>
+                <label><span class="opt-key">@Loc["number.rn.min"]</span>
                     <input type="number" @bind="_rnMin" class="tool-input-small" />
                 </label>
-                <label><span class="opt-key">Max:</span>
+                <label><span class="opt-key">@Loc["number.rn.max"]</span>
                     <input type="number" @bind="_rnMax" class="tool-input-small" />
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRandomNumber">Pick</button>
+        <button class="tool-btn" @onclick="DoRandomNumber">@Loc["number.rn.btn"]</button>
         <div class="tool-result">
             @if (_rnResult is not null)
             {
@@ -30,18 +32,18 @@
             }
             else
             {
-                <span class="tool-result-empty">No number yet</span>
+                <span class="tool-result-empty">@Loc["number.rn.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 2. Dice roller -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-dice-5"></i> Dice Roller</h3>
-        <p class="tool-card-hint">Roll up to five dice and total them up.</p>
+        <h3 class="tool-card-title"><i class="bi bi-dice-5"></i> @Loc["number.dice.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.dice.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Dice:</span>
+                <label><span class="opt-key">@Loc["number.dice.count"]</span>
                     <input type="number" min="1" max="5" @bind="_diceCount" class="tool-input-small" />
                 </label>
             </div>
@@ -69,7 +71,7 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRoll" disabled="@_diceRolling">Roll</button>
+        <button class="tool-btn" @onclick="DoRoll" disabled="@_diceRolling">@Loc["number.dice.btn"]</button>
         <div class="tool-result">
             @if (_diceResult is not null)
             {
@@ -77,29 +79,29 @@
             }
             else
             {
-                <span class="tool-result-empty">@(_diceRolling ? "Rolling…" : "No roll yet")</span>
+                <span class="tool-result-empty">@(_diceRolling ? Loc["number.dice.rolling"] : Loc["number.dice.empty"])</span>
             }
         </div>
     </section>
 
     <!-- 3. Lottery -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-ticket-perforated"></i> Lottery</h3>
-        <p class="tool-card-hint">Draw unique numbers, one by one - like a lottery pick.</p>
+        <h3 class="tool-card-title"><i class="bi bi-ticket-perforated"></i> @Loc["number.lotto.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.lotto.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Draw:</span>
+                <label><span class="opt-key">@Loc["number.lotto.draw"]</span>
                     <input type="number" min="1" max="20" @bind="_lottoCount" class="tool-input-small" />
                 </label>
                 <label>
-                    <span class="opt-key">of 1–</span>
+                    <span class="opt-key">@Loc["number.lotto.of"]</span>
                     <input type="number" min="2" @bind="_lottoMax" class="tool-input-small" />
                 </label>
             </div>
             <div class="lotto-balls">
                 @if (_lottoNumbers.Count == 0)
                 {
-                    <span class="tool-result-empty">@(_lottoDrawing ? "Drawing…" : "No draw yet")</span>
+                    <span class="tool-result-empty">@(_lottoDrawing ? Loc["number.lotto.drawing"] : Loc["number.lotto.empty"])</span>
                 }
                 else
                 {
@@ -110,11 +112,11 @@
                 }
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoDraw" disabled="@(_lottoDrawing || !CanDraw)">Draw</button>
+        <button class="tool-btn" @onclick="DoDraw" disabled="@(_lottoDrawing || !CanDraw)">@Loc["number.lotto.btn"]</button>
         <div class="tool-result">
             @if (!CanDraw)
             {
-                <span class="tool-result-empty">Draw count can't exceed the range</span>
+                <span class="tool-result-empty">@Loc["number.lotto.exceeds"]</span>
             }
             else if (_lottoNumbers.Count > 0 && !_lottoDrawing)
             {
@@ -122,34 +124,34 @@
             }
             else
             {
-                <span class="tool-result-empty">Numbers 1–@_lottoMax</span>
+                <span class="tool-result-empty">@Loc["number.lotto.numbersIn"]@_lottoMax</span>
             }
         </div>
     </section>
 
     <!-- 4. Multiple numbers -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-list-ol"></i> Multiple Numbers</h3>
-        <p class="tool-card-hint">Generate a whole batch of random numbers at once.</p>
+        <h3 class="tool-card-title"><i class="bi bi-list-ol"></i> @Loc["number.multi.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.multi.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Count:</span>
+                <label><span class="opt-key">@Loc["number.multi.count"]</span>
                     <input type="number" min="1" max="100" @bind="_mnCount" class="tool-input-small" />
                 </label>
             </div>
             <div class="option-row">
-                <label><span class="opt-key">Min:</span>
+                <label><span class="opt-key">@Loc["number.multi.min"]</span>
                     <input type="number" @bind="_mnMin" class="tool-input-small" />
                 </label>
-                <label><span class="opt-key">Max:</span>
+                <label><span class="opt-key">@Loc["number.multi.max"]</span>
                     <input type="number" @bind="_mnMax" class="tool-input-small" />
                 </label>
             </div>
             <div class="option-row option-row-wrap">
-                <label><input type="checkbox" @bind="_mnUnique" /> No repeats</label>
+                <label><input type="checkbox" @bind="_mnUnique" /> @Loc["number.multi.noRepeats"]</label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoMultiple">Generate</button>
+        <button class="tool-btn" @onclick="DoMultiple">@Loc["number.multi.btn"]</button>
         <div class="tool-result">
             @if (_mnResult.Length > 0)
             {
@@ -162,28 +164,28 @@
             }
             else
             {
-                <span class="tool-result-empty">No numbers yet</span>
+                <span class="tool-result-empty">@Loc["number.multi.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 5. Random date -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-calendar-event"></i> Random Date</h3>
-        <p class="tool-card-hint">A random calendar date between two dates.</p>
+        <h3 class="tool-card-title"><i class="bi bi-calendar-event"></i> @Loc["number.date.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.date.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">From:</span>
+                <label><span class="opt-key">@Loc["number.date.from"]</span>
                     <input type="date" @bind="_dateStart" class="tool-input-small" />
                 </label>
             </div>
             <div class="option-row">
-                <label><span class="opt-key">To:</span>
+                <label><span class="opt-key">@Loc["number.date.to"]</span>
                     <input type="date" @bind="_dateEnd" class="tool-input-small" />
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoRandomDate">Pick Date</button>
+        <button class="tool-btn" @onclick="DoRandomDate">@Loc["number.date.btn"]</button>
         <div class="tool-result">
             @if (_dateResult is not null)
             {
@@ -191,23 +193,23 @@
             }
             else
             {
-                <span class="tool-result-empty">No date yet</span>
+                <span class="tool-result-empty">@Loc["number.date.empty"]</span>
             }
         </div>
     </section>
 
     <!-- 6. PIN generator -->
     <section class="tool-card">
-        <h3 class="tool-card-title"><i class="bi bi-lock"></i> PIN Generator</h3>
-        <p class="tool-card-hint">A random numeric PIN code of the chosen length.</p>
+        <h3 class="tool-card-title"><i class="bi bi-lock"></i> @Loc["number.pin.title"]</h3>
+        <p class="tool-card-hint">@Loc["number.pin.hint"]</p>
         <div class="tool-card-body">
             <div class="option-row">
-                <label><span class="opt-key">Digits:</span>
+                <label><span class="opt-key">@Loc["number.pin.digits"]</span>
                     <input type="number" min="3" max="12" @bind="_pinLength" class="tool-input-small" />
                 </label>
             </div>
         </div>
-        <button class="tool-btn" @onclick="DoPin">Generate</button>
+        <button class="tool-btn" @onclick="DoPin">@Loc["number.pin.btn"]</button>
         <div class="tool-result tool-result-mono">
             @if (!string.IsNullOrEmpty(_pinResult))
             {
@@ -215,7 +217,7 @@
             }
             else
             {
-                <span class="tool-result-empty">No PIN yet</span>
+                <span class="tool-result-empty">@Loc["number.pin.empty"]</span>
             }
         </div>
     </section>
@@ -272,6 +274,15 @@
     private int _pinLength = 4;
     private string? _pinResult;
 
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
     private void DoRandomNumber()
     {
         if (_rnMin > _rnMax) (_rnMin, _rnMax) = (_rnMax, _rnMin);
@@ -302,8 +313,8 @@
         _dice = final;
         _diceRolling = false;
         _diceResult = final.Length == 1
-            ? $"You rolled {final[0]}"
-            : $"Rolls: {string.Join(", ", final)}   ·   Total: {final.Sum()}";
+            ? $"{Loc["number.dice.singleResult"]} {final[0]}"
+            : $"{Loc["number.dice.rolls"]} {string.Join(", ", final)}   ·   {Loc["number.dice.total"]} {final.Sum()}";
 
         Stats.Increment("number");
     }

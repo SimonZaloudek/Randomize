@@ -3,25 +3,27 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
 
-<PageTitle>Movies & TV - Randomize</PageTitle>
+<PageTitle>@Loc["movies.pageTitle"]</PageTitle>
 
 <div class="movies-page">
 
     <header class="movies-filter">
         <div class="movies-filter-head">
-            <h2>Random movie or series</h2>
-            <p>Pick the type, optionally narrow by genre and minimum rating, hit randomize.</p>
+            <h2>@Loc["movies.title"]</h2>
+            <p>@Loc["movies.subtitle"]</p>
         </div>
 
-        <div class="movies-type-toggle" role="radiogroup" aria-label="Type">
+        <div class="movies-type-toggle" role="radiogroup" aria-label="@Loc["movies.typeAria"]">
             <button type="button"
                     class="movies-type-opt @(_type=="movie" ? "active" : "")"
                     role="radio"
                     aria-checked="@(_type=="movie" ? "true" : "false")"
                     @onclick='() => SetType("movie")'
                     disabled="@_busy">
-                <i class="bi bi-film"></i> Movies
+                <i class="bi bi-film"></i> @Loc["movies.type.movie"]
             </button>
             <button type="button"
                     class="movies-type-opt @(_type=="tv" ? "active" : "")"
@@ -29,13 +31,13 @@
                     aria-checked="@(_type=="tv" ? "true" : "false")"
                     @onclick='() => SetType("tv")'
                     disabled="@_busy">
-                <i class="bi bi-tv"></i> TV Series
+                <i class="bi bi-tv"></i> @Loc["movies.type.tv"]
             </button>
         </div>
 
         @if (CurrentGenres is { Count: > 0 })
         {
-            <div class="movies-genre-chips" role="group" aria-label="Genres">
+            <div class="movies-genre-chips" role="group" aria-label="@Loc["movies.genresAria"]">
                 @foreach (var g in CurrentGenres)
                 {
                     var id = g.Id;
@@ -51,7 +53,7 @@
                 {
                     <button type="button" class="movies-genre-clear"
                             @onclick="ClearGenres" disabled="@_busy">
-                        Clear
+                        @Loc["movies.genre.clear"]
                     </button>
                 }
             </div>
@@ -59,7 +61,7 @@
 
         <div class="movies-min-rating">
             <label class="movies-min-rating-label" for="min-rating">
-                Min rating:
+                @Loc["movies.minRating"]
                 <strong>@_minRating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</strong>
                 <span class="movies-min-rating-star">★</span>
             </label>
@@ -72,11 +74,11 @@
         <button class="tool-btn movies-randomize" @onclick="Randomize" disabled="@_busy">
             @if (_busy)
             {
-                <span><i class="bi bi-arrow-clockwise movies-spin"></i> Picking…</span>
+                <span><i class="bi bi-arrow-clockwise movies-spin"></i> @Loc["movies.picking"]</span>
             }
             else
             {
-                <span><i class="bi bi-shuffle"></i> Randomize</span>
+                <span><i class="bi bi-shuffle"></i> @Loc["movies.randomize"]</span>
             }
         </button>
 
@@ -85,15 +87,15 @@
             <div class="movies-pool @(pool.TotalResults <= 3 ? "tight" : "")">
                 @if (pool.TotalResults == 1)
                 {
-                    <span><i class="bi bi-info-circle"></i> Only <strong>1</strong> title matches these filters - that's why it keeps repeating. Lower the rating or drop a genre for variety.</span>
+                    <span><i class="bi bi-info-circle"></i> @Loc["movies.pool.onlyOneBefore"]<strong>1</strong>@Loc["movies.pool.onlyOneAfter"]</span>
                 }
                 else if (pool.TotalResults <= 3)
                 {
-                    <span><i class="bi bi-info-circle"></i> Only <strong>@pool.TotalResults</strong> titles match - expect repeats.</span>
+                    <span><i class="bi bi-info-circle"></i> @Loc["movies.pool.onlyFewBefore"]<strong>@pool.TotalResults</strong>@Loc["movies.pool.onlyFewAfter"]</span>
                 }
                 else
                 {
-                    <span><strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> titles match these filters</span>
+                    <span><strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["movies.pool.matchAfter"]</span>
                 }
             </div>
         }
@@ -136,11 +138,11 @@
                             }
                             @if (r.Seasons is int s && s > 0)
                             {
-                                <span>@s @(s == 1 ? "season" : "seasons")</span>
+                                <span>@s @(s == 1 ? Loc["movies.season"] : Loc["movies.seasons"])</span>
                             }
                             @if (r.Episodes is int ep && ep > 0)
                             {
-                                <span>@ep episodes</span>
+                                <span>@ep @Loc["movies.episodes"]</span>
                             }
                         </div>
 
@@ -175,7 +177,7 @@
                             @if (!string.IsNullOrEmpty(r.Homepage))
                             {
                                 <a href="@r.Homepage" target="_blank" rel="noopener" class="movies-link">
-                                    <i class="bi bi-house"></i> Official
+                                    <i class="bi bi-house"></i> @Loc["movies.official"]
                                 </a>
                             }
                         </div>
@@ -186,7 +188,7 @@
             @if (r.Ratings is { Count: > 0 })
             {
                 <section class="movies-section movies-ratings-section">
-                    <h3 class="movies-section-title">Ratings</h3>
+                    <h3 class="movies-section-title">@Loc["movies.section.ratings"]</h3>
                     <div class="movies-ratings">
                         @foreach (var rating in r.Ratings)
                         {
@@ -220,11 +222,11 @@
                                 </div>
                                 @if (rating.Source == "Rotten Tomatoes")
                                 {
-                                    <div class="movies-rating-tag">@(rating.Score >= 60 ? "Fresh" : "Rotten")</div>
+                                    <div class="movies-rating-tag">@(rating.Score >= 60 ? Loc["movies.rating.fresh"] : Loc["movies.rating.rotten"])</div>
                                 }
                                 else if (rating.Votes > 0)
                                 {
-                                    <div class="movies-rating-votes">@rating.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) votes</div>
+                                    <div class="movies-rating-votes">@rating.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) @Loc["movies.rating.votes"]</div>
                                 }
                             </div>
                         }
@@ -235,47 +237,47 @@
                 @if (HasStatTiles(r.Stats, r.Kind))
                 {
                     <section class="movies-section movies-stats-section">
-                        <h3 class="movies-section-title">Stats</h3>
+                        <h3 class="movies-section-title">@Loc["movies.section.stats"]</h3>
                         <div class="movies-quick-stats">
                             @if (r.Stats!.Popularity > 0)
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Popularity</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.popularity"]</div>
                                     <div class="movies-stat-tile-value">@r.Stats.Popularity.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</div>
                                 </div>
                             }
                             @if (!string.IsNullOrEmpty(r.Stats!.Status))
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Status</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.status"]</div>
                                     <div class="movies-stat-tile-value">@r.Stats.Status</div>
                                 </div>
                             }
                             @if (!string.IsNullOrEmpty(r.Stats!.OriginalLanguage))
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Language</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.language"]</div>
                                     <div class="movies-stat-tile-value">@r.Stats.OriginalLanguage</div>
                                 </div>
                             }
                             @if (r.Stats.ProductionCountries is { Count: > 0 } pc)
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Country</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.country"]</div>
                                     <div class="movies-stat-tile-value">@string.Join(" · ", pc)</div>
                                 </div>
                             }
                             @if (r.Kind == "movie" && r.Stats.Budget is long b && b > 0)
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Budget</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.budget"]</div>
                                     <div class="movies-stat-tile-value">@FormatMoney(b)</div>
                                 </div>
                             }
                             @if (r.Kind == "movie" && r.Stats.Revenue is long rv && rv > 0)
                             {
                                 <div class="movies-stat-tile">
-                                    <div class="movies-stat-tile-label">Revenue</div>
+                                    <div class="movies-stat-tile-label">@Loc["movies.stat.revenue"]</div>
                                     <div class="movies-stat-tile-value">@FormatMoney(rv)</div>
                                 </div>
                             }
@@ -286,7 +288,7 @@
             @if (r.Awards is { } awards && HasAnyAward(awards))
             {
                 <section class="movies-section movies-awards-section">
-                    <h3 class="movies-section-title">Awards</h3>
+                    <h3 class="movies-section-title">@Loc["movies.section.awards"]</h3>
                     <div class="movies-awards-row">
                         @if (awards.Highlights is { Count: > 0 } highlights)
                         {
@@ -296,7 +298,7 @@
                                     <i class="bi @(h.Kind == "win" ? "bi-trophy-fill" : "bi-star")"></i>
                                     <div class="movies-award-count">@h.Count</div>
                                     <div class="movies-award-label">
-                                        @h.Label@(h.Count == 1 ? "" : "s") @(h.Kind == "win" ? "won" : "nominated")
+                                        @h.Label@(h.Count == 1 ? "" : "s") @(h.Kind == "win" ? Loc["movies.award.won"] : Loc["movies.award.nominated"])
                                     </div>
                                 </div>
                             }
@@ -308,7 +310,7 @@
                                 <div class="movies-award win">
                                     <i class="bi bi-trophy-fill"></i>
                                     <div class="movies-award-count">@awards.TotalWins</div>
-                                    <div class="movies-award-label">@(awards.TotalWins == 1 ? "win" : "wins")</div>
+                                    <div class="movies-award-label">@(awards.TotalWins == 1 ? Loc["movies.award.win"] : Loc["movies.award.wins"])</div>
                                 </div>
                             }
                             @if ((awards.TotalNominations ?? 0) > 0)
@@ -316,7 +318,7 @@
                                 <div class="movies-award nom">
                                     <i class="bi bi-star"></i>
                                     <div class="movies-award-count">@awards.TotalNominations</div>
-                                    <div class="movies-award-label">@(awards.TotalNominations == 1 ? "nomination" : "nominations")</div>
+                                    <div class="movies-award-label">@(awards.TotalNominations == 1 ? Loc["movies.award.nomination"] : Loc["movies.award.nominations"])</div>
                                 </div>
                             }
                         }
@@ -327,7 +329,7 @@
                         <div class="movies-awards-summary">
                             @if ((awards.TotalWins ?? 0) > 0)
                             {
-                                <span><strong>@awards.TotalWins!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> total wins</span>
+                                <span><strong>@awards.TotalWins!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["movies.award.totalWinsAfter"]</span>
                             }
                             @if ((awards.TotalWins ?? 0) > 0 && (awards.TotalNominations ?? 0) > 0)
                             {
@@ -335,7 +337,7 @@
                             }
                             @if ((awards.TotalNominations ?? 0) > 0)
                             {
-                                <span><strong>@awards.TotalNominations!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong> total nominations</span>
+                                <span><strong>@awards.TotalNominations!.Value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["movies.award.totalNominationsAfter"]</span>
                             }
                         </div>
                     }
@@ -345,7 +347,7 @@
             @if (r.Cast is { Count: > 0 })
             {
                 <section class="movies-section movies-cast-section">
-                    <h3 class="movies-section-title">Cast</h3>
+                    <h3 class="movies-section-title">@Loc["movies.section.cast"]</h3>
                     <div class="movies-cast-row">
                         @foreach (var c in r.Cast)
                         {
@@ -375,7 +377,7 @@
             {
                 <section class="movies-section movies-providers-section">
                     <h3 class="movies-section-title">
-                        Where to watch
+                        @Loc["movies.section.providers"]
                         @if (!string.IsNullOrEmpty(r.Region))
                         {
                             <small>(@r.Region)</small>
@@ -383,28 +385,28 @@
                     </h3>
                     @if (r.Providers!.Stream is { Count: > 0 } stream)
                     {
-                        @ProviderGroup("Stream", stream)
+                        @ProviderGroup(Loc["movies.providers.stream"], stream)
                     }
                     @if (r.Providers.Rent is { Count: > 0 } rent)
                     {
-                        @ProviderGroup("Rent", rent)
+                        @ProviderGroup(Loc["movies.providers.rent"], rent)
                     }
                     @if (r.Providers.Buy is { Count: > 0 } buy)
                     {
-                        @ProviderGroup("Buy", buy)
+                        @ProviderGroup(Loc["movies.providers.buy"], buy)
                     }
                     @if (r.Providers.Free is { Count: > 0 } free)
                     {
-                        @ProviderGroup("Free", free)
+                        @ProviderGroup(Loc["movies.providers.free"], free)
                     }
-                    <div class="movies-providers-attr">Powered by JustWatch</div>
+                    <div class="movies-providers-attr">@Loc["movies.providers.attr"]</div>
                 </section>
             }
 
             @if (r.Images is { Count: > 0 })
             {
                 <section class="movies-section movies-gallery">
-                    <h3 class="movies-section-title">Gallery</h3>
+                    <h3 class="movies-section-title">@Loc["movies.section.gallery"]</h3>
                     <div class="movies-gallery-large">
                         <img src="@(_galleryActive ?? r.Images[0])" alt="" />
                     </div>
@@ -417,7 +419,7 @@
                                     @onmouseover="() => _galleryActive = src"
                                     @onfocus="() => _galleryActive = src"
                                     @onclick="() => _galleryActive = src"
-                                    aria-label="Show image">
+                                    aria-label="@Loc["movies.gallery.aria"]">
                                 <img src="@src" alt="" loading="lazy" />
                             </button>
                         }
@@ -430,7 +432,7 @@
     {
         <div class="movies-empty">
             <i class="bi bi-film"></i>
-            <p>Pick a type and (optionally) some genres, then hit Randomize.</p>
+            <p>@Loc["movies.empty"]</p>
         </div>
     }
 </div>
@@ -449,9 +451,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         try { _genres = await Http.GetFromJsonAsync<GenresResponse>("api/movies/genres"); }
         catch {}
     }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     private void SetType(string t)
     {
@@ -487,7 +494,7 @@
             var res = await Http.GetAsync("api/movies/random?" + q, cts.Token);
             if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                _error = "No matches for those filters. Try lowering the rating or dropping a genre.";
+                _error = Loc["movies.error.noMatches"];
                 return;
             }
             res.EnsureSuccessStatusCode();
@@ -497,11 +504,11 @@
         }
         catch (OperationCanceledException)
         {
-            _error = "Took too long. Try again.";
+            _error = Loc["movies.error.timeout"];
         }
         catch
         {
-            _error = "Couldn't pick. Try again in a moment.";
+            _error = Loc["movies.error.generic"];
         }
         finally
         {

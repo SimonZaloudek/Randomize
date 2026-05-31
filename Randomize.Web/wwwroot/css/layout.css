@@ -205,7 +205,7 @@
 .content {
     flex: 1;
     padding: 36px;
-    background: #111;
+    background: var(--content-bg, #111);
     position: relative;
     overflow-y: auto;
     overflow-x: clip;

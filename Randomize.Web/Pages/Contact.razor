@@ -3,23 +3,21 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject IJSRuntime JS
+@inject LocalizationService Loc
 @implements IAsyncDisposable
 
-<PageTitle>Contact - Randomize</PageTitle>
+<PageTitle>@Loc["contact.pageTitle"]</PageTitle>
 
-<h2 class="page-title">Contact</h2>
+<h2 class="page-title">@Loc["contact.title"]</h2>
 
 <div class="contact-layout">
     <section class="contact-card tool-card">
-        <p class="contact-intro">
-            Found a bug, have an idea, or want a new randomizer? Send a note and it
-            lands straight in my inbox.
-        </p>
+        <p class="contact-intro">@Loc["contact.intro"]</p>
 
         <EditForm Model="_form" OnValidSubmit="Submit" class="contact-form">
             <DataAnnotationsValidator />
 
-            <div class="contact-type-row" role="radiogroup" aria-label="Message type">
+            <div class="contact-type-row" role="radiogroup" aria-label="@Loc["contact.typeAria"]">
                 @foreach (var opt in _typeOptions)
                 {
                     var value = opt.Value;
@@ -30,34 +28,34 @@
                             @onclick="() => _form.Type = value"
                             disabled="@_busy">
                         <i class="bi @opt.Icon"></i>
-                        <span>@opt.Label</span>
+                        <span>@Loc[opt.LabelKey]</span>
                     </button>
                 }
             </div>
 
             <label class="contact-field">
-                <span class="contact-field-label">Your email</span>
-                <InputText class="tool-input" type="email" placeholder="you@example.com"
+                <span class="contact-field-label">@Loc["contact.email"]</span>
+                <InputText class="tool-input" type="email" placeholder="@Loc["contact.emailPlaceholder"]"
                            @bind-Value="_form.Email" disabled="@_busy" />
                 <ValidationMessage For="@(() => _form.Email)" />
             </label>
 
             <label class="contact-field">
-                <span class="contact-field-label">Name <span class="contact-field-hint">(optional)</span></span>
-                <InputText class="tool-input" placeholder="What should I call you?"
+                <span class="contact-field-label">@Loc["contact.name"] <span class="contact-field-hint">@Loc["contact.nameHint"]</span></span>
+                <InputText class="tool-input" placeholder="@Loc["contact.namePlaceholder"]"
                            @bind-Value="_form.Name" disabled="@_busy" />
             </label>
 
             <label class="contact-field">
-                <span class="contact-field-label">Subject</span>
-                <InputText class="tool-input" placeholder="A short title"
+                <span class="contact-field-label">@Loc["contact.subject"]</span>
+                <InputText class="tool-input" placeholder="@Loc["contact.subjectPlaceholder"]"
                            @bind-Value="_form.Subject" disabled="@_busy" />
             </label>
 
             <label class="contact-field">
-                <span class="contact-field-label">Message</span>
+                <span class="contact-field-label">@Loc["contact.message"]</span>
                 <InputTextArea class="tool-input tool-textarea contact-message" rows="6"
-                               placeholder="Tell me what's up…"
+                               placeholder="@Loc["contact.messagePlaceholder"]"
                                @bind-Value="_form.Message" disabled="@_busy" />
                 <ValidationMessage For="@(() => _form.Message)" />
             </label>
@@ -73,18 +71,18 @@
             {
                 <div class="contact-status err" role="status">
                     <i class="bi bi-exclamation-circle-fill"></i>
-                    <span>Couldn't load the verification widget. Disable any ad/privacy blockers and reload the page to send a message.</span>
+                    <span>@Loc["contact.turnstileFail"]</span>
                 </div>
             }
 
             <button type="submit" class="tool-btn contact-submit" disabled="@_busy">
                 @if (_busy)
                 {
-                    <span>Sending…</span>
+                    <span>@Loc["contact.sending"]</span>
                 }
                 else
                 {
-                    <span>Send message</span>
+                    <span>@Loc["contact.send"]</span>
                 }
             </button>
 
@@ -109,14 +107,21 @@
     private bool _turnstileFailed;
     private bool _disposed;
 
-    private record TypeOption(string Value, string Label, string Icon);
+    private record TypeOption(string Value, string LabelKey, string Icon);
 
     private readonly TypeOption[] _typeOptions = new[]
     {
-        new TypeOption("bug",     "Report a bug",   "bi-bug"),
-        new TypeOption("feature", "Feature idea",   "bi-lightbulb"),
-        new TypeOption("other",   "Other",          "bi-chat-dots")
+        new TypeOption("bug",     "contact.type.bug",     "bi-bug"),
+        new TypeOption("feature", "contact.type.feature", "bi-lightbulb"),
+        new TypeOption("other",   "contact.type.other",   "bi-chat-dots")
     };
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -163,8 +168,8 @@
             if (string.IsNullOrEmpty(token))
             {
                 _status = (false, _turnstileRendered
-                    ? "Please complete the verification challenge above."
-                    : "Couldn't load the verification widget. Disable blockers and reload to send.");
+                    ? Loc["contact.verifyPending"]
+                    : Loc["contact.verifyMissing"]);
                 return;
             }
 
@@ -181,30 +186,30 @@
 
             if (res.IsSuccessStatusCode)
             {
-                _status = (true, "Thanks - your message is on its way.");
+                _status = (true, Loc["contact.success"]);
                 _form = new ContactForm();
                 // tokens are single-use - refresh for the next submit
                 await ResetTurnstileSafe();
             }
             else if ((int)res.StatusCode == 429)
             {
-                _status = (false, "Too many messages from this connection. Please try again later.");
+                _status = (false, Loc["contact.rateLimit"]);
                 await ResetTurnstileSafe();
             }
             else if ((int)res.StatusCode == 403)
             {
-                _status = (false, "Verification failed. Please try again.");
+                _status = (false, Loc["contact.verifyFail"]);
                 await ResetTurnstileSafe();
             }
             else
             {
-                _status = (false, "Couldn't send. Please try again in a minute.");
+                _status = (false, Loc["contact.sendFail"]);
                 await ResetTurnstileSafe();
             }
         }
         catch
         {
-            _status = (false, "Network error. Please try again.");
+            _status = (false, Loc["contact.networkErr"]);
             await ResetTurnstileSafe();
         }
         finally
@@ -222,6 +227,8 @@
 
     public async ValueTask DisposeAsync()
     {
+        Loc.LanguageChanged -= OnLanguageChanged;
+
         // stop the retry loop touching JS after teardown
         _disposed = true;
 
