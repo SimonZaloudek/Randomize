@@ -59,6 +59,21 @@
             </div>
         }
 
+        <div class="movies-year-range">
+            <label class="movies-year-range-label">@Loc["movies.releaseYear"]</label>
+            <div class="movies-year-inputs">
+                <input type="number" class="movies-year-input"
+                       min="1900" max="2030"
+                       placeholder="@Loc["movies.releaseFrom"]"
+                       @bind="_fromYear" disabled="@_busy" />
+                <span class="movies-year-sep">–</span>
+                <input type="number" class="movies-year-input"
+                       min="1900" max="2030"
+                       placeholder="@Loc["movies.releaseTo"]"
+                       @bind="_toYear" disabled="@_busy" />
+            </div>
+        </div>
+
         <div class="movies-min-rating">
             <label class="movies-min-rating-label" for="min-rating">
                 @Loc["movies.minRating"]
@@ -68,6 +83,17 @@
             <input id="min-rating" type="range"
                    min="0" max="9.5" step="0.5"
                    @bind="_minRating" @bind:event="oninput"
+                   disabled="@_busy" />
+        </div>
+
+        <div class="movies-min-rating">
+            <label class="movies-min-rating-label" for="min-votes">
+                @Loc["movies.minVotes"]
+                <strong>@(_minVotes == 0 ? Loc["movies.anyVotes"] : _minVotes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))</strong>
+            </label>
+            <input id="min-votes" type="range"
+                   min="0" max="5000" step="100"
+                   @bind="_minVotes" @bind:event="oninput"
                    disabled="@_busy" />
         </div>
 
@@ -441,6 +467,9 @@
     private string _type = "movie";
     private readonly HashSet<int> _selectedGenres = new();
     private double _minRating = 0.0;
+    private int _minVotes = 0;
+    private int? _fromYear;
+    private int? _toYear;
     private bool _busy;
     private string? _error;
     private MovieResult? _result;
@@ -485,11 +514,19 @@
 
         try
         {
+            // swap if user inverted the range
+            int? from = _fromYear, to = _toYear;
+            if (from is int f && to is int t && f > t) (from, to) = (to, from);
+
             var q = $"type={_type}";
             if (_selectedGenres.Count > 0)
                 q += "&genres=" + string.Join(",", _selectedGenres);
             if (_minRating > 0)
                 q += "&min_rating=" + _minRating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            if (_minVotes > 0)
+                q += "&min_votes=" + _minVotes;
+            if (from is int fy) q += "&from_year=" + fy;
+            if (to is int ty) q += "&to_year=" + ty;
 
             var res = await Http.GetAsync("api/movies/random?" + q, cts.Token);
             if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
