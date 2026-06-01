@@ -24,23 +24,34 @@ export async function onRequestGet({ request, env }) {
   const genres = (url.searchParams.get("genres") || "")
     .split(",").map(s => s.trim()).filter(s => /^\d+$/.test(s));
   const minRating = clampRating(url.searchParams.get("min_rating"));
+  const fromYear = clampYear(url.searchParams.get("from_year"));
+  const toYear = clampYear(url.searchParams.get("to_year"));
+  const userMinVotes = clampVotes(url.searchParams.get("min_votes"));
 
   // CF sets cf.country on prod; falls back to US locally
   const country = (request.cf && request.cf.country) || "US";
 
+  // user value overrides the safety scaler when explicitly set
+  const minVotes = userMinVotes != null ? userMinVotes : minVotesFor(minRating);
+
   const params = new URLSearchParams({
     include_adult: "false",
     sort_by: "popularity.desc",
-    "vote_count.gte": String(minVotesFor(minRating)),
+    "vote_count.gte": String(minVotes),
     language: "en-US",
   });
   if (genres.length) params.set("with_genres", genres.join(","));
   if (minRating > 0) params.set("vote_average.gte", String(minRating));
 
-  // bump v* if the discover query params change meaning
-  const filterKey = `${type}:${genres.join(",")}:${minRating}`;
+  // TMDB uses primary_release_date for movies, first_air_date for TV
+  const dateField = type === "tv" ? "first_air_date" : "primary_release_date";
+  if (fromYear != null) params.set(`${dateField}.gte`, `${fromYear}-01-01`);
+  if (toYear != null) params.set(`${dateField}.lte`, `${toYear}-12-31`);
 
-  const first = await cached(env, `tmdb:discover:v2:${filterKey}:1`, DISCOVER_TTL,
+  // bump v* if the discover query params change meaning
+  const filterKey = `${type}:${genres.join(",")}:${minRating}:${minVotes}:${fromYear ?? ""}-${toYear ?? ""}`;
+
+  const first = await cached(env, `tmdb:discover:v3:${filterKey}:1`, DISCOVER_TTL,
     () => tmdb(`${TMDB}/discover/${type}?${params}&page=1`, env.TMDB_API_KEY),
     d => Array.isArray(d?.results));
 
@@ -52,7 +63,7 @@ export async function onRequestGet({ request, env }) {
   const page = 1 + Math.floor(Math.random() * totalPages);
 
   const pageData = page === 1 ? first : await cached(env,
-    `tmdb:discover:v2:${filterKey}:${page}`, DISCOVER_TTL,
+    `tmdb:discover:v3:${filterKey}:${page}`, DISCOVER_TTL,
     () => tmdb(`${TMDB}/discover/${type}?${params}&page=${page}`, env.TMDB_API_KEY),
     d => Array.isArray(d?.results));
 
@@ -146,6 +157,24 @@ function clampRating(s) {
   if (!Number.isFinite(n) || n < 0) return 0;
   if (n > 9.5) return 9.5;
   return Math.round(n * 10) / 10;
+}
+
+// null = unset, so the URL param is omitted (no filter)
+function clampYear(s) {
+  if (s == null || s === "") return null;
+  const n = parseInt(s, 10);
+  if (!Number.isFinite(n)) return null;
+  if (n < 1900) return 1900;
+  if (n > 2100) return 2100;
+  return n;
+}
+
+function clampVotes(s) {
+  if (s == null || s === "") return null;
+  const n = parseInt(s, 10);
+  if (!Number.isFinite(n) || n < 0) return null;
+  if (n > 100000) return 100000;
+  return n;
 }
 
 function shape(d, type, country) {

@@ -161,6 +161,55 @@
     accent-color: var(--accent);
 }
 
+/* release year range - two compact number inputs */
+.movies-year-range {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.movies-year-range-label {
+    color: #aaa;
+    font-size: 0.88rem;
+}
+
+.movies-year-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.movies-year-input {
+    width: 92px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    color: #ddd;
+    font-size: 0.92rem;
+    font-family: inherit;
+    text-align: center;
+}
+
+    .movies-year-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .movies-year-input::-webkit-inner-spin-button,
+    .movies-year-input::-webkit-outer-spin-button {
+        opacity: 0.45;
+    }
+
+.movies-year-sep {
+    color: #666;
+    font-size: 1rem;
+}
+
 /* primary action */
 .movies-randomize {
     width: 100%;
