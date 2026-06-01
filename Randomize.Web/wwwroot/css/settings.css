@@ -141,8 +141,7 @@
         cursor: not-allowed;
     }
 
-/* themed dropdown - the native <select> options can't be styled, so we use a
-   button + absolute-positioned menu instead. backdrop catches outside clicks. */
+/* native <select> options can't be themed; this is the custom replacement */
 .settings-select {
     position: relative;
     width: 100%;

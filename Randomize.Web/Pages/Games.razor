@@ -1,0 +1,724 @@
+@page "/games"
+@using Randomize.Web.Services
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["games.pageTitle"]</PageTitle>
+
+<div class="games-page">
+
+    <header class="games-filter">
+        <div class="games-filter-head">
+            <h2>@Loc["games.title"]</h2>
+            <p>@Loc["games.subtitle"]</p>
+        </div>
+
+        <div class="games-multi-row">
+            @if (_filters?.Genres is { Count: > 0 } genres)
+            {
+                <div class="games-multi">
+                    <button type="button"
+                            class="games-multi-trigger @(_openMenu == "genres" ? "open" : "")"
+                            aria-haspopup="listbox"
+                            aria-expanded="@(_openMenu == "genres" ? "true" : "false")"
+                            @onclick='() => ToggleMenu("genres")'
+                            disabled="@_busy">
+                        <span class="games-multi-label">@Loc["games.genres"]</span>
+                        @if (_selectedGenres.Count > 0)
+                        {
+                            <span class="games-multi-count">@_selectedGenres.Count</span>
+                        }
+                        <i class="bi bi-chevron-down games-multi-chevron"></i>
+                    </button>
+                    @if (_openMenu == "genres")
+                    {
+                        <div class="games-multi-backdrop" @onclick="CloseMenu"></div>
+                        <div class="games-multi-panel" role="listbox" aria-multiselectable="true">
+                            <div class="games-multi-list">
+                                @foreach (var g in genres)
+                                {
+                                    var id = g.Id;
+                                    var sel = _selectedGenres.Contains(id);
+                                    <button type="button"
+                                            class="games-multi-option @(sel ? "active" : "")"
+                                            role="option"
+                                            aria-selected="@(sel ? "true" : "false")"
+                                            @onclick="() => ToggleGenre(id)">
+                                        <i class="bi @(sel ? "bi-check-square-fill" : "bi-square")"></i>
+                                        <span>@g.Name</span>
+                                    </button>
+                                }
+                            </div>
+                            @if (_selectedGenres.Count > 0)
+                            {
+                                <div class="games-multi-foot">
+                                    <button type="button" class="games-multi-clear"
+                                            @onclick="() => _selectedGenres.Clear()">
+                                        @Loc["games.clear"]
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (_filters?.Platforms is { Count: > 0 } platforms)
+            {
+                <div class="games-multi">
+                    <button type="button"
+                            class="games-multi-trigger @(_openMenu == "platforms" ? "open" : "")"
+                            aria-haspopup="listbox"
+                            aria-expanded="@(_openMenu == "platforms" ? "true" : "false")"
+                            @onclick='() => ToggleMenu("platforms")'
+                            disabled="@_busy">
+                        <span class="games-multi-label">@Loc["games.platforms"]</span>
+                        @if (_selectedPlatforms.Count > 0)
+                        {
+                            <span class="games-multi-count">@_selectedPlatforms.Count</span>
+                        }
+                        <i class="bi bi-chevron-down games-multi-chevron"></i>
+                    </button>
+                    @if (_openMenu == "platforms")
+                    {
+                        <div class="games-multi-backdrop" @onclick="CloseMenu"></div>
+                        <div class="games-multi-panel" role="listbox" aria-multiselectable="true">
+                            <div class="games-multi-list">
+                                @foreach (var p in platforms)
+                                {
+                                    var id = p.Id;
+                                    var sel = _selectedPlatforms.Contains(id);
+                                    <button type="button"
+                                            class="games-multi-option @(sel ? "active" : "")"
+                                            role="option"
+                                            aria-selected="@(sel ? "true" : "false")"
+                                            @onclick="() => TogglePlatform(id)">
+                                        <i class="bi @(sel ? "bi-check-square-fill" : "bi-square")"></i>
+                                        <span>@p.Name</span>
+                                    </button>
+                                }
+                            </div>
+                            @if (_selectedPlatforms.Count > 0)
+                            {
+                                <div class="games-multi-foot">
+                                    <button type="button" class="games-multi-clear"
+                                            @onclick="() => _selectedPlatforms.Clear()">
+                                        @Loc["games.clear"]
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="games-modes" role="group" aria-label="@Loc["games.modes"]">
+            @foreach (var m in _modes)
+            {
+                var id = m.Id;
+                var sel = _selectedModes.Contains(id);
+                <button type="button"
+                        class="games-mode @(sel ? "active" : "")"
+                        @onclick="() => ToggleMode(id)"
+                        disabled="@_busy">
+                    <i class="bi @m.Icon"></i>
+                    <span>@Loc[m.LabelKey]</span>
+                </button>
+            }
+        </div>
+
+        <div class="games-controls-row">
+            <div class="games-year-range">
+                <label class="games-slider-label">@Loc["games.releaseYear"]</label>
+                <div class="games-year-inputs">
+                    <input type="number" class="games-year-input"
+                           min="1970" max="2030"
+                           placeholder="@Loc["games.releaseFrom"]"
+                           @bind="_fromYear" disabled="@_busy" />
+                    <span class="games-year-sep">–</span>
+                    <input type="number" class="games-year-input"
+                           min="1970" max="2030"
+                           placeholder="@Loc["games.releaseTo"]"
+                           @bind="_toYear" disabled="@_busy" />
+                </div>
+            </div>
+
+            <div class="games-slider">
+                <label class="games-slider-label" for="games-min-rating">
+                    @Loc["games.minRating"]
+                    <strong>@(_minRating == 0 ? Loc["games.anyVotes"] : _minRating.ToString())</strong>
+                    @if (_minRating > 0)
+                    {
+                        <span class="games-slider-suffix">/ 100</span>
+                    }
+                </label>
+                <input id="games-min-rating" type="range"
+                       min="0" max="95" step="5"
+                       @bind="_minRating" @bind:event="oninput"
+                       disabled="@_busy" />
+            </div>
+
+            <div class="games-slider">
+                <label class="games-slider-label" for="games-min-votes">
+                    @Loc["games.minVotes"]
+                    <strong>@(_minVotes == 0 ? Loc["games.anyVotes"] : _minVotes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))</strong>
+                </label>
+                <input id="games-min-votes" type="range"
+                       min="0" max="2000" step="50"
+                       @bind="_minVotes" @bind:event="oninput"
+                       disabled="@_busy" />
+            </div>
+        </div>
+
+        <button class="tool-btn games-randomize" @onclick="Randomize" disabled="@_busy">
+            @if (_busy)
+            {
+                <span><i class="bi bi-arrow-clockwise games-spin"></i> @Loc["games.picking"]</span>
+            }
+            else
+            {
+                <span><i class="bi bi-controller"></i> @Loc["games.randomize"]</span>
+            }
+        </button>
+
+        @if (_result is { TotalResults: > 0 } pool && _error is null)
+        {
+            <div class="games-pool @(pool.TotalResults <= 3 ? "tight" : "")">
+                @if (pool.TotalResults == 1)
+                {
+                    <span><i class="bi bi-info-circle"></i> @Loc["games.pool.onlyOneBefore"]<strong>1</strong>@Loc["games.pool.onlyOneAfter"]</span>
+                }
+                else if (pool.TotalResults <= 3)
+                {
+                    <span><i class="bi bi-info-circle"></i> @Loc["games.pool.onlyFewBefore"]<strong>@pool.TotalResults</strong>@Loc["games.pool.onlyFewAfter"]</span>
+                }
+                else
+                {
+                    <span><strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["games.pool.matchAfter"]</span>
+                }
+            </div>
+        }
+
+        @if (_error is not null)
+        {
+            <div class="games-error" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>@_error</span>
+            </div>
+        }
+    </header>
+
+    @if (_result is { } r)
+    {
+        <article class="games-result" @key="r.Id">
+            <!-- Hero -->
+            <div class="games-hero"
+                 style="@(r.Backdrop is null ? "" : $"background-image: url('{r.Backdrop}');")">
+                <div class="games-hero-fade" aria-hidden="true"></div>
+                <div class="games-hero-inner">
+                    @if (r.Cover is not null)
+                    {
+                        <img src="@r.Cover" alt="@(r.Name) cover" class="games-cover" loading="lazy" />
+                    }
+                    <div class="games-hero-info">
+                        @if (!string.IsNullOrEmpty(r.Franchise))
+                        {
+                            <div class="games-franchise">@r.Franchise</div>
+                        }
+                        <h1 class="games-title">@r.Name</h1>
+
+                        @if (r.SteamPlayers is int sp && sp > 0)
+                        {
+                            <div class="games-live-players" title="@Loc["games.steamPlayersTitle"]">
+                                <span class="games-live-dot"></span>
+                                <strong>@sp.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>
+                                @Loc["games.playingNow"]
+                            </div>
+                        }
+
+                        <div class="games-meta">
+                            @if (r.Year is int yr)
+                            {
+                                <span>@yr</span>
+                            }
+                            @if (r.Platforms.Count > 0)
+                            {
+                                <span>@string.Join(" · ", r.Platforms.Take(4).Select(p => p.Abbr ?? p.Name))@(r.Platforms.Count > 4 ? $" +{r.Platforms.Count - 4}" : "")</span>
+                            }
+                        </div>
+
+                        @if (r.Genres.Count > 0)
+                        {
+                            <div class="games-genre-pills">
+                                @foreach (var g in r.Genres)
+                                {
+                                    <span class="games-genre-pill">@g</span>
+                                }
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(r.Summary))
+                        {
+                            <p class="games-summary">@r.Summary</p>
+                        }
+
+                        <div class="games-cta-row">
+                            <button class="games-cta games-cta-primary" @onclick="Randomize" disabled="@_busy">
+                                <i class="bi bi-dice-5-fill"></i> @Loc["games.reroll"]
+                            </button>
+                            @if (!string.IsNullOrEmpty(r.IgdbUrl))
+                            {
+                                <a href="@r.IgdbUrl" target="_blank" rel="noopener" class="games-cta">
+                                    <i class="bi bi-box-arrow-up-right"></i> IGDB
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single combined details card with internal section dividers -->
+            <div class="games-details">
+
+                @if (r.Ratings is { Count: > 0 })
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.ratings"]</h3>
+                        <div class="games-ratings">
+                            @foreach (var rt in r.Ratings)
+                            {
+                                var meta = RatingMeta(rt.Source);
+                                <div class="games-rating" style="--rating-color: @meta.Color">
+                                    <div class="games-rating-head">
+                                        <i class="bi @meta.Icon"></i>
+                                        <span>@meta.Label</span>
+                                    </div>
+                                    @if (rt.Source == "Steam")
+                                    {
+                                        <div class="games-rating-score">@rt.Score<small>%</small></div>
+                                        @if (!string.IsNullOrEmpty(rt.Summary))
+                                        {
+                                            <div class="games-rating-tag">@rt.Summary</div>
+                                        }
+                                        <div class="games-rating-votes">@rt.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) @Loc["games.rating.reviews"]</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="games-rating-score">@rt.Score<small>/100</small></div>
+                                        <div class="games-rating-votes">@rt.Votes.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) @Loc["games.rating.votes"]</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (r.Stores is { Count: > 0 } stores)
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.stores"]</h3>
+                        <div class="games-stores">
+                            @foreach (var s in stores)
+                            {
+                                <a href="@s.Url" target="_blank" rel="noopener"
+                                   class="games-store games-store-@s.Icon @(s.Direct ? "" : "search")"
+                                   title="@(s.Direct ? Loc["games.store.direct"] : Loc["games.store.search"])">
+                                    <i class="bi @StoreIcon(s.Icon)"></i>
+                                    <span>@s.Name</span>
+                                    @if (!s.Direct)
+                                    {
+                                        <i class="bi bi-search games-store-search-icon"></i>
+                                    }
+                                </a>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (r.TimeToBeat is { } ttb && (ttb.Hastily.HasValue || ttb.Normally.HasValue || ttb.Completely.HasValue))
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.timeToBeat"]</h3>
+                        <div class="games-ttb">
+                            @if (ttb.Hastily is int h)
+                            {
+                                <div class="games-ttb-tile">
+                                    <i class="bi bi-stopwatch"></i>
+                                    <div class="games-ttb-label">@Loc["games.ttb.story"]</div>
+                                    <div class="games-ttb-value">@FormatHours(h)</div>
+                                </div>
+                            }
+                            @if (ttb.Normally is int n)
+                            {
+                                <div class="games-ttb-tile">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    <div class="games-ttb-label">@Loc["games.ttb.extras"]</div>
+                                    <div class="games-ttb-value">@FormatHours(n)</div>
+                                </div>
+                            }
+                            @if (ttb.Completely is int c)
+                            {
+                                <div class="games-ttb-tile">
+                                    <i class="bi bi-trophy"></i>
+                                    <div class="games-ttb-label">@Loc["games.ttb.completionist"]</div>
+                                    <div class="games-ttb-value">@FormatHours(c)</div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (!string.IsNullOrEmpty(r.YoutubeId))
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.trailer"]</h3>
+                        @if (_trailerPlaying)
+                        {
+                            <div class="games-trailer">
+                                <iframe src="@($"https://www.youtube.com/embed/{r.YoutubeId}?autoplay=1&rel=0")"
+                                        title="Trailer"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen></iframe>
+                            </div>
+                        }
+                        else
+                        {
+                            @* hqdefault always exists for every YT video; maxresdefault often 404s and flashes a broken image *@
+                            <button type="button" class="games-trailer games-trailer-thumb"
+                                    @onclick="() => _trailerPlaying = true"
+                                    style="@($"background-image: url('https://img.youtube.com/vi/{r.YoutubeId}/hqdefault.jpg');")"
+                                    aria-label="@Loc["games.playTrailer"]">
+                                <span class="games-trailer-play">
+                                    <i class="bi bi-play-fill"></i>
+                                </span>
+                            </button>
+                        }
+                    </section>
+                }
+
+                @if (HasDetails(r))
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.details"]</h3>
+                        <div class="games-detail-grid">
+                            @if (r.Developers.Count > 0)
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.developer"]</div>
+                                    <div class="games-detail-value">@string.Join(", ", r.Developers)</div>
+                                </div>
+                            }
+                            @if (r.Publishers.Count > 0)
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.publisher"]</div>
+                                    <div class="games-detail-value">@string.Join(", ", r.Publishers)</div>
+                                </div>
+                            }
+                            @if (r.GameModes.Count > 0)
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.modes"]</div>
+                                    <div class="games-detail-value">@string.Join(", ", r.GameModes)</div>
+                                </div>
+                            }
+                            @if (r.Perspectives.Count > 0)
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.perspectives"]</div>
+                                    <div class="games-detail-value">@string.Join(", ", r.Perspectives)</div>
+                                </div>
+                            }
+                            @if (r.Themes.Count > 0)
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.themes"]</div>
+                                    <div class="games-detail-value">@string.Join(", ", r.Themes)</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(r.ReleaseDate))
+                            {
+                                <div class="games-detail-tile">
+                                    <div class="games-detail-label">@Loc["games.detail.released"]</div>
+                                    <div class="games-detail-value">@r.ReleaseDate</div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (r.SteamReviews is { Count: > 0 } reviews)
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.reviews"]</h3>
+                        <div class="games-reviews">
+                            @foreach (var rv in reviews)
+                            {
+                                <div class="games-review @(rv.Recommended ? "rec" : "not-rec")">
+                                    <div class="games-review-head">
+                                        <i class="bi @(rv.Recommended ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-down-fill")"></i>
+                                        <span class="games-review-verdict">
+                                            @(rv.Recommended ? Loc["games.review.recommended"] : Loc["games.review.notRecommended"])
+                                        </span>
+                                        @if (rv.PlaytimeHours > 0)
+                                        {
+                                            <span class="games-review-playtime">@rv.PlaytimeHours @Loc["games.review.hoursPlayed"]</span>
+                                        }
+                                    </div>
+                                    <p class="games-review-text">@rv.Text</p>
+                                    @if (rv.VotesUp > 0)
+                                    {
+                                        <div class="games-review-helpful">
+                                            <i class="bi bi-hand-thumbs-up"></i>
+                                            @rv.VotesUp.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) @Loc["games.review.helpful"]
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (r.Similar is { Count: > 0 } similar)
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.similar"]</h3>
+                        <div class="games-similar">
+                            @foreach (var sg in similar)
+                            {
+                                <a href="@(sg.Url ?? "#")"
+                                   target="_blank" rel="noopener"
+                                   class="games-similar-card"
+                                   title="@sg.Name">
+                                    @if (!string.IsNullOrEmpty(sg.Cover))
+                                    {
+                                        <img src="@sg.Cover" alt="@sg.Name" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="games-similar-cover-empty"><i class="bi bi-controller"></i></div>
+                                    }
+                                    <div class="games-similar-meta">
+                                        <div class="games-similar-name">@sg.Name</div>
+                                        @if (sg.Year is int sy)
+                                        {
+                                            <div class="games-similar-year">@sy</div>
+                                        }
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (r.Screenshots is { Count: > 0 })
+                {
+                    <section class="games-section-inline">
+                        <h3 class="games-section-title">@Loc["games.section.screenshots"]</h3>
+                        <div class="games-gallery-large">
+                            <img src="@(_galleryActive ?? r.Screenshots[0])" alt="" />
+                        </div>
+                        <div class="games-gallery-thumbs">
+                            @foreach (var img in r.Screenshots)
+                            {
+                                var src = img;
+                                <button type="button"
+                                        class="games-gallery-thumb @(src == _galleryActive ? "active" : "")"
+                                        @onmouseover="() => _galleryActive = src"
+                                        @onfocus="() => _galleryActive = src"
+                                        @onclick="() => _galleryActive = src"
+                                        aria-label="@Loc["games.gallery.aria"]">
+                                    <img src="@src" alt="" loading="lazy" />
+                                </button>
+                            }
+                        </div>
+                    </section>
+                }
+            </div>
+        </article>
+    }
+    else if (!_busy)
+    {
+        <div class="games-empty">
+            <i class="bi bi-controller"></i>
+            <p>@Loc["games.empty"]</p>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly HashSet<int> _selectedGenres = new();
+    private readonly HashSet<int> _selectedPlatforms = new();
+    private readonly HashSet<int> _selectedModes = new();
+    private int _minRating = 0;
+    private int _minVotes = 0;
+    private int? _fromYear;
+    private int? _toYear;
+    private bool _busy;
+    private string? _error;
+    private GameResult? _result;
+    private string? _galleryActive;
+    private FiltersResponse? _filters;
+    private string? _openMenu;  // "genres" | "platforms" | null
+    private bool _trailerPlaying;
+
+    private record ModeOption(int Id, string LabelKey, string Icon);
+
+    // IGDB game_modes IDs
+    private readonly ModeOption[] _modes =
+    {
+        new(1, "games.mode.singleplayer", "bi-person-fill"),
+        new(2, "games.mode.multiplayer",  "bi-people-fill"),
+        new(3, "games.mode.coop",         "bi-controller")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        try { _filters = await Http.GetFromJsonAsync<FiltersResponse>("api/games/filters"); }
+        catch { }
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void ToggleGenre(int id)
+    {
+        if (!_selectedGenres.Add(id)) _selectedGenres.Remove(id);
+    }
+
+    private void TogglePlatform(int id)
+    {
+        if (!_selectedPlatforms.Add(id)) _selectedPlatforms.Remove(id);
+    }
+
+    private void ToggleMode(int id)
+    {
+        if (!_selectedModes.Add(id)) _selectedModes.Remove(id);
+    }
+
+    private void ToggleMenu(string name) =>
+        _openMenu = _openMenu == name ? null : name;
+
+    private void CloseMenu() => _openMenu = null;
+
+    private async Task Randomize()
+    {
+        _busy = true;
+        _error = null;
+        _trailerPlaying = false;
+        StateHasChanged();
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+        try
+        {
+            int? from = _fromYear, to = _toYear;
+            if (from is int f && to is int t && f > t) (from, to) = (to, from);
+
+            var q = new List<string>();
+            if (_selectedGenres.Count > 0)
+                q.Add("genres=" + string.Join(",", _selectedGenres));
+            if (_selectedPlatforms.Count > 0)
+                q.Add("platforms=" + string.Join(",", _selectedPlatforms));
+            if (_selectedModes.Count > 0)
+                q.Add("modes=" + string.Join(",", _selectedModes));
+            if (_minRating > 0)
+                q.Add("min_rating=" + _minRating);
+            if (_minVotes > 0)
+                q.Add("min_votes=" + _minVotes);
+            if (from is int fy) q.Add("from_year=" + fy);
+            if (to is int ty) q.Add("to_year=" + ty);
+
+            var url = "api/games/random" + (q.Count > 0 ? "?" + string.Join("&", q) : "");
+            var res = await Http.GetAsync(url, cts.Token);
+            if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _error = Loc["games.error.noMatches"];
+                return;
+            }
+            res.EnsureSuccessStatusCode();
+            _result = await res.Content.ReadFromJsonAsync<GameResult>(cts.Token);
+            _galleryActive = _result?.Screenshots?.FirstOrDefault();
+            Stats.Increment("game");
+        }
+        catch (OperationCanceledException)
+        {
+            _error = Loc["games.error.timeout"];
+        }
+        catch
+        {
+            _error = Loc["games.error.generic"];
+        }
+        finally
+        {
+            _busy = false;
+            StateHasChanged();
+        }
+    }
+
+    // IGDB returns seconds
+    private static string FormatHours(int seconds)
+    {
+        if (seconds < 60) return "—";
+        var hours = Math.Round(seconds / 3600.0);
+        return $"{hours:0}h";
+    }
+
+    private static bool HasDetails(GameResult r) =>
+        r.Developers.Count > 0 || r.Publishers.Count > 0 ||
+        r.GameModes.Count > 0 || r.Perspectives.Count > 0 ||
+        r.Themes.Count > 0 || !string.IsNullOrEmpty(r.ReleaseDate);
+
+    // Bootstrap Icons brand glyphs where available
+    private static string StoreIcon(string icon) => icon switch
+    {
+        "steam"       => "bi-steam",
+        "xbox"        => "bi-xbox",
+        "playstation" => "bi-playstation",
+        "nintendo"    => "bi-nintendo-switch",
+        "microsoft"   => "bi-microsoft",
+        "apple"       => "bi-apple",
+        "android"     => "bi-google-play",
+        _             => "bi-controller"
+    };
+
+    private (string Label, string Icon, string Color) RatingMeta(string source) => source switch
+    {
+        "Steam"   => (Loc["games.rating.steam"],   "bi-steam",         "#66c0f4"),
+        "Critics" => (Loc["games.rating.critics"], "bi-mortarboard-fill", "#f5c518"),
+        "IGDB"    => (Loc["games.rating.igdb"],    "bi-people-fill",   "#9147ff"),
+        _         => (source, "bi-star-fill", "#888")
+    };
+
+    public sealed record FiltersResponse(List<Genre> Genres, List<Platform> Platforms);
+    public sealed record Genre(int Id, string Name);
+    public sealed record Platform(int Id, string Name);
+
+    public sealed record GameResult(
+        int Id, string Name, string? Slug, string Summary, string? Storyline,
+        int? Year, string? ReleaseDate,
+        string? Cover, string? Backdrop, List<string> Screenshots,
+        List<string> Genres,
+        List<GamePlatform> Platforms,
+        List<string> GameModes, List<string> Perspectives, List<string> Themes,
+        List<string> Developers, List<string> Publishers, string? Franchise,
+        List<GameRating> Ratings, List<GameStore> Stores,
+        string? IgdbUrl, GameTimeToBeat? TimeToBeat, string? YoutubeId,
+        List<SimilarGame> Similar,
+        int? SteamPlayers, string? SteamAppId, List<SteamReview>? SteamReviews,
+        int TotalResults);
+
+    public sealed record GamePlatform(int Id, string Name, string? Abbr);
+    public sealed record GameRating(string Source, int Score, int Max, int Votes, string? Summary);
+    public sealed record GameStore(string Name, string Icon, string Url, bool Direct);
+    public sealed record GameTimeToBeat(int? Hastily, int? Normally, int? Completely);
+    public sealed record SimilarGame(int Id, string Name, string? Cover, int? Year, string? Url);
+    public sealed record SteamReview(string Text, bool Recommended, int VotesUp, int PlaytimeHours, long? Timestamp);
+}
