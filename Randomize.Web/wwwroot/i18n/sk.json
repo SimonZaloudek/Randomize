@@ -404,7 +404,7 @@
   "rps.type.paper": "Papier",
   "rps.type.scissors": "Nožnice",
   "rps.behavior": "Správanie",
-  "rps.behavior.seek": "Lov",
+  "rps.behavior.seek": "Lov (beta)",
   "rps.behavior.random": "Náhodné",
   "rps.behavior.hybrid": "Hybrid",
   "rps.speed": "Rýchlosť",

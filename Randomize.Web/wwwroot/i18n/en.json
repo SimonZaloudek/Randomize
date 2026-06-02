@@ -404,7 +404,7 @@
   "rps.type.paper": "Paper",
   "rps.type.scissors": "Scissors",
   "rps.behavior": "Behavior",
-  "rps.behavior.seek": "Hunt",
+  "rps.behavior.seek": "Hunt (beta)",
   "rps.behavior.random": "Random",
   "rps.behavior.hybrid": "Hybrid",
   "rps.speed": "Speed",
