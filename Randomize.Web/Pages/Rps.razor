@@ -186,10 +186,10 @@
     private View _view = View.Setup;
 
     private readonly string[] _types = { "rock", "paper", "scissors" };
-    private readonly string[] _behaviors = { "seek", "random" };
+    private readonly string[] _behaviors = { "random", "seek" };
     private readonly double[] _speedPresets = { 0.5, 1.0, 1.5, 2.0, 3.0, 5.0 };
     private readonly string[] _skins = { "default" };
-    private readonly string[] _arenas = { "classic", "dark", "theme" };
+    private readonly string[] _arenas = { "classic", "theme", "dark" };
 
     private Dictionary<string, int> _counts = new()
     {
@@ -206,9 +206,9 @@
         ["scissors"] = 0
     };
 
-    private string _behavior = "seek";
+    private string _behavior = "random";
     private string _skin = "default";
-    private string _arena = "classic";
+    private string _arena = "theme";
     private double _speed = 1.0;
 
     private string? _winner;
@@ -271,7 +271,7 @@
             counts = _counts,
             behavior = _behavior,
             speed = _speed,
-            arenaBg = _arena == "classic" ? "#f1f0e8" : null
+            arenaBg = _arena == "classic" ? "#f1f0e8" : null  // dark + theme let the CSS frame show through
         });
         Stats.Increment("rps");
     }
@@ -314,7 +314,7 @@
             counts = _counts,
             behavior = _behavior,
             speed = _speed,
-            arenaBg = _arena == "classic" ? "#f1f0e8" : null
+            arenaBg = _arena == "classic" ? "#f1f0e8" : null  // dark + theme let the CSS frame show through
         });
     }
 

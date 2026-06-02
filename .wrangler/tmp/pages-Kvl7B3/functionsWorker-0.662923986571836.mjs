@@ -1,9 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/pages-Buc6KE/functionsWorker-0.836724569855271.mjs
-var __defProp2 = Object.defineProperty;
-var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+// api/games/filters.js
 var IGDB = "https://api.igdb.com/v4";
 var TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 var TTL = 7 * 24 * 60 * 60;
@@ -61,7 +59,6 @@ async function onRequestGet({ env }) {
   });
 }
 __name(onRequestGet, "onRequestGet");
-__name2(onRequestGet, "onRequestGet");
 async function getToken(env) {
   const hit = await env.STATS.get(TOKEN_KEY, { type: "json" });
   if (hit && hit.expires_at > Math.floor(Date.now() / 1e3) + 60) {
@@ -83,7 +80,6 @@ async function getToken(env) {
   return data.access_token;
 }
 __name(getToken, "getToken");
-__name2(getToken, "getToken");
 async function igdb(url, body, token, clientId) {
   const r = await fetch(url, {
     method: "POST",
@@ -99,7 +95,6 @@ async function igdb(url, body, token, clientId) {
   return r.json();
 }
 __name(igdb, "igdb");
-__name2(igdb, "igdb");
 async function cached(env, key, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
@@ -110,7 +105,6 @@ async function cached(env, key, fetcher, validate) {
   return data;
 }
 __name(cached, "cached");
-__name2(cached, "cached");
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
@@ -118,7 +112,8 @@ function json(obj, status = 200) {
   });
 }
 __name(json, "json");
-__name2(json, "json");
+
+// api/games/random.js
 var IGDB2 = "https://api.igdb.com/v4";
 var TOKEN_URL2 = "https://id.twitch.tv/oauth2/token";
 var IMG = "https://images.igdb.com/igdb/image/upload";
@@ -132,7 +127,6 @@ function minVotesFor(rating) {
   return 0;
 }
 __name(minVotesFor, "minVotesFor");
-__name2(minVotesFor, "minVotesFor");
 async function onRequestGet2({ request, env }) {
   if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET || !env.STATS) {
     return json2({ error: "Server not configured" }, 500);
@@ -240,8 +234,7 @@ async function onRequestGet2({ request, env }) {
   };
   return json2(out);
 }
-__name(onRequestGet2, "onRequestGet2");
-__name2(onRequestGet2, "onRequestGet");
+__name(onRequestGet2, "onRequestGet");
 async function fetchSimilar(env, token, similarIds) {
   if (!Array.isArray(similarIds) || similarIds.length === 0) return [];
   const ids = similarIds.slice(0, 6).join(",");
@@ -267,7 +260,6 @@ async function fetchSimilar(env, token, similarIds) {
   }));
 }
 __name(fetchSimilar, "fetchSimilar");
-__name2(fetchSimilar, "fetchSimilar");
 var STEAM_SOURCE = 1;
 var STEAM_WEBSITE = 13;
 function pickSteamAppId(externals, websites) {
@@ -285,7 +277,6 @@ function pickSteamAppId(externals, websites) {
   return null;
 }
 __name(pickSteamAppId, "pickSteamAppId");
-__name2(pickSteamAppId, "pickSteamAppId");
 async function fetchSteamReviews(appId) {
   try {
     const reviewsUrl = `https://store.steampowered.com/appreviews/${appId}?json=1&language=english&num_per_page=3&review_type=all&purchase_type=all&filter=all`;
@@ -336,7 +327,6 @@ async function fetchSteamReviews(appId) {
   }
 }
 __name(fetchSteamReviews, "fetchSteamReviews");
-__name2(fetchSteamReviews, "fetchSteamReviews");
 async function getToken2(env) {
   const hit = await env.STATS.get(TOKEN_KEY2, { type: "json" });
   if (hit && hit.expires_at > Math.floor(Date.now() / 1e3) + 60) {
@@ -357,8 +347,7 @@ async function getToken2(env) {
   });
   return data.access_token;
 }
-__name(getToken2, "getToken2");
-__name2(getToken2, "getToken");
+__name(getToken2, "getToken");
 async function igdb2(url, body, token, clientId) {
   const r = await fetch(url, {
     method: "POST",
@@ -373,8 +362,7 @@ async function igdb2(url, body, token, clientId) {
   if (!r.ok) return null;
   return r.json();
 }
-__name(igdb2, "igdb2");
-__name2(igdb2, "igdb");
+__name(igdb2, "igdb");
 async function igdbDetail(id, token, clientId) {
   const fields = [
     "id",
@@ -421,7 +409,6 @@ async function igdbDetail(id, token, clientId) {
   );
 }
 __name(igdbDetail, "igdbDetail");
-__name2(igdbDetail, "igdbDetail");
 function shape(g, ttb, similar) {
   const cover = g.cover?.image_id ? `${IMG}/t_cover_big/${g.cover.image_id}.jpg` : null;
   const screenshots = (g.screenshots || []).slice(0, 10).map((s) => `${IMG}/t_screenshot_huge/${s.image_id}.jpg`);
@@ -484,7 +471,6 @@ function shape(g, ttb, similar) {
   };
 }
 __name(shape, "shape");
-__name2(shape, "shape");
 var STORE_MAP = {
   1: { name: "Steam", icon: "steam" },
   5: { name: "GOG", icon: "gog" },
@@ -529,7 +515,6 @@ function searchUrl(icon, name) {
   }
 }
 __name(searchUrl, "searchUrl");
-__name2(searchUrl, "searchUrl");
 var WEBSITE_TO_ICON = {
   13: "steam",
   15: "itch",
@@ -576,12 +561,10 @@ function mergeStores(externals, websites, platforms, gameName) {
   return result;
 }
 __name(mergeStores, "mergeStores");
-__name2(mergeStores, "mergeStores");
 function parseIds(s) {
   return (s || "").split(",").map((x) => x.trim()).filter((x) => /^\d+$/.test(x));
 }
 __name(parseIds, "parseIds");
-__name2(parseIds, "parseIds");
 function clampRating(s) {
   const n = Number(s);
   if (!Number.isFinite(n) || n < 0) return 0;
@@ -589,7 +572,6 @@ function clampRating(s) {
   return Math.round(n);
 }
 __name(clampRating, "clampRating");
-__name2(clampRating, "clampRating");
 function clampYear(s) {
   if (s == null || s === "") return null;
   const n = parseInt(s, 10);
@@ -599,7 +581,6 @@ function clampYear(s) {
   return n;
 }
 __name(clampYear, "clampYear");
-__name2(clampYear, "clampYear");
 function clampVotes(s) {
   if (s == null || s === "") return null;
   const n = parseInt(s, 10);
@@ -608,17 +589,14 @@ function clampVotes(s) {
   return n;
 }
 __name(clampVotes, "clampVotes");
-__name2(clampVotes, "clampVotes");
 function unixYearStart(y) {
   return Math.floor(Date.UTC(y, 0, 1) / 1e3);
 }
 __name(unixYearStart, "unixYearStart");
-__name2(unixYearStart, "unixYearStart");
 function unixYearEnd(y) {
   return Math.floor(Date.UTC(y, 11, 31, 23, 59, 59) / 1e3);
 }
 __name(unixYearEnd, "unixYearEnd");
-__name2(unixYearEnd, "unixYearEnd");
 async function cached2(env, key, ttl, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
@@ -628,16 +606,16 @@ async function cached2(env, key, ttl, fetcher, validate) {
   }
   return data;
 }
-__name(cached2, "cached2");
-__name2(cached2, "cached");
+__name(cached2, "cached");
 function json2(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
 }
-__name(json2, "json2");
-__name2(json2, "json");
+__name(json2, "json");
+
+// api/movies/genres.js
 var TMDB = "https://api.themoviedb.org/3";
 var TTL2 = 7 * 24 * 60 * 60;
 async function onRequestGet3({ env }) {
@@ -661,8 +639,7 @@ async function onRequestGet3({ env }) {
     tv: tv?.genres || []
   });
 }
-__name(onRequestGet3, "onRequestGet3");
-__name2(onRequestGet3, "onRequestGet");
+__name(onRequestGet3, "onRequestGet");
 async function tmdb(url, key) {
   const sep = url.includes("?") ? "&" : "?";
   const r = await fetch(`${url}${sep}api_key=${key}`, {
@@ -672,7 +649,6 @@ async function tmdb(url, key) {
   return r.json();
 }
 __name(tmdb, "tmdb");
-__name2(tmdb, "tmdb");
 async function cached3(env, key, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
@@ -682,16 +658,16 @@ async function cached3(env, key, fetcher, validate) {
   }
   return data;
 }
-__name(cached3, "cached3");
-__name2(cached3, "cached");
+__name(cached3, "cached");
 function json3(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
 }
-__name(json3, "json3");
-__name2(json3, "json");
+__name(json3, "json");
+
+// api/movies/random.js
 var TMDB2 = "https://api.themoviedb.org/3";
 var OMDB = "https://www.omdbapi.com";
 var IMG2 = "https://image.tmdb.org/t/p";
@@ -703,8 +679,7 @@ function minVotesFor2(rating) {
   if (rating >= 9) return 25;
   return 50;
 }
-__name(minVotesFor2, "minVotesFor2");
-__name2(minVotesFor2, "minVotesFor");
+__name(minVotesFor2, "minVotesFor");
 async function onRequestGet4({ request, env }) {
   if (!env.TMDB_API_KEY || !env.STATS) {
     return json4({ error: "Server not configured" }, 500);
@@ -778,8 +753,7 @@ async function onRequestGet4({ request, env }) {
   }
   return json4(out);
 }
-__name(onRequestGet4, "onRequestGet4");
-__name2(onRequestGet4, "onRequestGet");
+__name(onRequestGet4, "onRequestGet");
 function mergeOmdb(out, om) {
   out.awards = parseAwards(om.Awards);
   if (om.imdbRating && om.imdbRating !== "N/A") {
@@ -806,7 +780,6 @@ function mergeOmdb(out, om) {
   }
 }
 __name(mergeOmdb, "mergeOmdb");
-__name2(mergeOmdb, "mergeOmdb");
 function parseAwards(s) {
   if (!s || s === "N/A") return null;
   const map = { "Oscar": "Oscar", "Primetime Emmy": "Emmy", "Golden Globe": "Golden Globe", "BAFTA": "BAFTA" };
@@ -824,7 +797,6 @@ function parseAwards(s) {
   return { highlights, totalWins, totalNominations };
 }
 __name(parseAwards, "parseAwards");
-__name2(parseAwards, "parseAwards");
 async function omdb(imdbId, key) {
   const r = await fetch(`${OMDB}/?i=${imdbId}&apikey=${key}`, {
     headers: { Accept: "application/json" }
@@ -833,15 +805,13 @@ async function omdb(imdbId, key) {
   return r.json();
 }
 __name(omdb, "omdb");
-__name2(omdb, "omdb");
 function clampRating2(s) {
   const n = Number(s);
   if (!Number.isFinite(n) || n < 0) return 0;
   if (n > 9.5) return 9.5;
   return Math.round(n * 10) / 10;
 }
-__name(clampRating2, "clampRating2");
-__name2(clampRating2, "clampRating");
+__name(clampRating2, "clampRating");
 function clampYear2(s) {
   if (s == null || s === "") return null;
   const n = parseInt(s, 10);
@@ -850,8 +820,7 @@ function clampYear2(s) {
   if (n > 2100) return 2100;
   return n;
 }
-__name(clampYear2, "clampYear2");
-__name2(clampYear2, "clampYear");
+__name(clampYear2, "clampYear");
 function clampVotes2(s) {
   if (s == null || s === "") return null;
   const n = parseInt(s, 10);
@@ -859,8 +828,7 @@ function clampVotes2(s) {
   if (n > 1e5) return 1e5;
   return n;
 }
-__name(clampVotes2, "clampVotes2");
-__name2(clampVotes2, "clampVotes");
+__name(clampVotes2, "clampVotes");
 function shape2(d, type, country) {
   const isMovie = type === "movie";
   const date = (isMovie ? d.release_date : d.first_air_date) || "";
@@ -872,7 +840,7 @@ function shape2(d, type, country) {
   }));
   const wp = d["watch/providers"]?.results || {};
   const region = wp[country] || wp.US || null;
-  const mapProv = /* @__PURE__ */ __name2((arr) => (arr || []).map((p) => ({
+  const mapProv = /* @__PURE__ */ __name((arr) => (arr || []).map((p) => ({
     name: p.provider_name,
     logo: p.logo_path ? `${IMG2}/w92${p.logo_path}` : null
   })), "mapProv");
@@ -925,8 +893,7 @@ function shape2(d, type, country) {
     }
   };
 }
-__name(shape2, "shape2");
-__name2(shape2, "shape");
+__name(shape2, "shape");
 async function tmdb2(url, key) {
   const sep = url.includes("?") ? "&" : "?";
   const r = await fetch(`${url}${sep}api_key=${key}`, {
@@ -935,8 +902,7 @@ async function tmdb2(url, key) {
   if (!r.ok) return null;
   return r.json();
 }
-__name(tmdb2, "tmdb2");
-__name2(tmdb2, "tmdb");
+__name(tmdb2, "tmdb");
 async function cached4(env, key, ttl, fetcher, validate) {
   const hit = await env.STATS.get(key, { type: "json" });
   if (hit) return hit;
@@ -946,16 +912,16 @@ async function cached4(env, key, ttl, fetcher, validate) {
   }
   return data;
 }
-__name(cached4, "cached4");
-__name2(cached4, "cached");
+__name(cached4, "cached");
 function json4(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
 }
-__name(json4, "json4");
-__name2(json4, "json");
+__name(json4, "json");
+
+// api/contact.js
 var ALLOWED_TYPES = ["bug", "feature", "other"];
 var TYPE_LABELS = {
   bug: "Bug report",
@@ -1041,7 +1007,6 @@ ${message}
   return json5({ ok: true }, 200);
 }
 __name(onRequestPost, "onRequestPost");
-__name2(onRequestPost, "onRequestPost");
 async function onRequest() {
   return new Response("Method Not Allowed", {
     status: 405,
@@ -1049,7 +1014,6 @@ async function onRequest() {
   });
 }
 __name(onRequest, "onRequest");
-__name2(onRequest, "onRequest");
 async function verifyTurnstile(secret, token, ip) {
   try {
     const form = new FormData();
@@ -1068,27 +1032,25 @@ async function verifyTurnstile(secret, token, ip) {
   }
 }
 __name(verifyTurnstile, "verifyTurnstile");
-__name2(verifyTurnstile, "verifyTurnstile");
 function sanitize(v, max) {
   if (v == null) return "";
   return String(v).trim().slice(0, max);
 }
 __name(sanitize, "sanitize");
-__name2(sanitize, "sanitize");
 function sanitizeLine(v, max) {
   if (v == null) return "";
   return String(v).replace(/[\r\n]+/g, " ").trim().slice(0, max);
 }
 __name(sanitizeLine, "sanitizeLine");
-__name2(sanitizeLine, "sanitizeLine");
 function json5(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
 }
-__name(json5, "json5");
-__name2(json5, "json");
+__name(json5, "json");
+
+// api/stats.js
 var TOOLS = [
   "string",
   // text randomizers
@@ -1128,8 +1090,7 @@ async function onRequestGet5({ env }) {
     counts
   });
 }
-__name(onRequestGet5, "onRequestGet5");
-__name2(onRequestGet5, "onRequestGet");
+__name(onRequestGet5, "onRequestGet");
 async function onRequestPost2({ request, env }) {
   if (!env.STATS) return json6({ error: "Server not configured" }, 500);
   let body;
@@ -1147,8 +1108,7 @@ async function onRequestPost2({ request, env }) {
   await env.STATS.put(key, String(cur + 1));
   return json6({ ok: true, count: cur + 1 });
 }
-__name(onRequestPost2, "onRequestPost2");
-__name2(onRequestPost2, "onRequestPost");
+__name(onRequestPost2, "onRequestPost");
 function daysSinceReset() {
   const now = /* @__PURE__ */ new Date();
   const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
@@ -1160,7 +1120,6 @@ function daysSinceReset() {
   return Math.max(0, Math.round((todayUtc - resetUtc) / MS_PER_DAY));
 }
 __name(daysSinceReset, "daysSinceReset");
-__name2(daysSinceReset, "daysSinceReset");
 function sum(counts) {
   let n = 0;
   for (const [k, v] of Object.entries(counts)) {
@@ -1170,15 +1129,15 @@ function sum(counts) {
   return n;
 }
 __name(sum, "sum");
-__name2(sum, "sum");
 function json6(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
 }
-__name(json6, "json6");
-__name2(json6, "json");
+__name(json6, "json");
+
+// ../.wrangler/tmp/pages-Kvl7B3/functionsRoutes-0.7776420376406541.mjs
 var routes = [
   {
     routePath: "/api/games/filters",
@@ -1237,6 +1196,8 @@ var routes = [
     modules: [onRequest]
   }
 ];
+
+// ../../../../../AppData/Roaming/npm/node_modules/wrangler/node_modules/path-to-regexp/dist.es2015/index.js
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -1321,7 +1282,6 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
-__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -1332,18 +1292,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name2(function(type) {
+  var tryConsume = /* @__PURE__ */ __name(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name2(function(type) {
+  var mustConsume = /* @__PURE__ */ __name(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name2(function() {
+  var consumeText = /* @__PURE__ */ __name(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -1351,7 +1311,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name2(function(value2) {
+  var isSafe = /* @__PURE__ */ __name(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -1359,7 +1319,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -1422,14 +1382,12 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
-__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
-__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -1443,7 +1401,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -1462,17 +1420,14 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
-__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
-__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
-__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -1493,7 +1448,6 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
-__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -1501,12 +1455,10 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
-__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
-__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -1562,7 +1514,6 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
-__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -1571,7 +1522,8 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-__name2(pathToRegexp, "pathToRegexp");
+
+// ../../../../../AppData/Roaming/npm/node_modules/wrangler/templates/pages-template-worker.ts
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -1622,14 +1574,13 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
-__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name2(async (input, init) => {
+    const next = /* @__PURE__ */ __name(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -1656,7 +1607,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name2(() => {
+          passThroughOnException: /* @__PURE__ */ __name(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -1684,14 +1635,16 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name2((response) => (
+var cloneResponse = /* @__PURE__ */ __name((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
+
+// ../../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -1707,6 +1660,8 @@ var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
+
+// ../../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -1716,8 +1671,7 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-__name2(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -1729,17 +1683,20 @@ var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
+
+// ../.wrangler/tmp/bundle-8aGhcD/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
+
+// ../../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
-__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -1751,7 +1708,6 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
-__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -1759,18 +1715,16 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-__name2(__facade_invoke__, "__facade_invoke__");
+
+// ../.wrangler/tmp/bundle-8aGhcD/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
-  static {
-    __name(this, "___Facade_ScheduledController__");
-  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
     this.#noRetry = noRetry;
   }
   static {
-    __name2(this, "__Facade_ScheduledController__");
+    __name(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -1787,7 +1741,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -1796,7 +1750,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -1812,7 +1766,6 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
-__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -1821,7 +1774,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -1829,7 +1782,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -1852,7 +1805,6 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
-__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -1860,178 +1812,8 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-
-// ../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
-  try {
-    return await middlewareCtx.next(request, env);
-  } finally {
-    try {
-      if (request.body !== null && !request.bodyUsed) {
-        const reader = request.body.getReader();
-        while (!(await reader.read()).done) {
-        }
-      }
-    } catch (e) {
-      console.error("Failed to drain the unused request body.", e);
-    }
-  }
-}, "drainBody");
-var middleware_ensure_req_body_drained_default2 = drainBody2;
-
-// ../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
-function reduceError2(e) {
-  return {
-    name: e?.name,
-    message: e?.message ?? String(e),
-    stack: e?.stack,
-    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
-  };
-}
-__name(reduceError2, "reduceError");
-var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
-  try {
-    return await middlewareCtx.next(request, env);
-  } catch (e) {
-    const error = reduceError2(e);
-    return Response.json(error, {
-      status: 500,
-      headers: { "MF-Experimental-Error-Stack": "true" }
-    });
-  }
-}, "jsonError");
-var middleware_miniflare3_json_error_default2 = jsonError2;
-
-// .wrangler/tmp/bundle-DFRBHJ/middleware-insertion-facade.js
-var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
-  middleware_ensure_req_body_drained_default2,
-  middleware_miniflare3_json_error_default2
-];
-var middleware_insertion_facade_default2 = middleware_loader_entry_default;
-
-// ../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/common.ts
-var __facade_middleware__2 = [];
-function __facade_register__2(...args) {
-  __facade_middleware__2.push(...args.flat());
-}
-__name(__facade_register__2, "__facade_register__");
-function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
-  const [head, ...tail] = middlewareChain;
-  const middlewareCtx = {
-    dispatch,
-    next(newRequest, newEnv) {
-      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
-    }
-  };
-  return head(request, env, ctx, middlewareCtx);
-}
-__name(__facade_invokeChain__2, "__facade_invokeChain__");
-function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
-  return __facade_invokeChain__2(request, env, ctx, dispatch, [
-    ...__facade_middleware__2,
-    finalMiddleware
-  ]);
-}
-__name(__facade_invoke__2, "__facade_invoke__");
-
-// .wrangler/tmp/bundle-DFRBHJ/middleware-loader.entry.ts
-var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
-  constructor(scheduledTime, cron, noRetry) {
-    this.scheduledTime = scheduledTime;
-    this.cron = cron;
-    this.#noRetry = noRetry;
-  }
-  static {
-    __name(this, "__Facade_ScheduledController__");
-  }
-  #noRetry;
-  noRetry() {
-    if (!(this instanceof ___Facade_ScheduledController__2)) {
-      throw new TypeError("Illegal invocation");
-    }
-    this.#noRetry();
-  }
-};
-function wrapExportedHandler2(worker) {
-  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
-    return worker;
-  }
-  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
-    __facade_register__2(middleware);
-  }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
-    if (worker.fetch === void 0) {
-      throw new Error("Handler does not export a fetch() function.");
-    }
-    return worker.fetch(request, env, ctx);
-  }, "fetchDispatcher");
-  return {
-    ...worker,
-    fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
-        if (type === "scheduled" && worker.scheduled !== void 0) {
-          const controller = new __Facade_ScheduledController__2(
-            Date.now(),
-            init.cron ?? "",
-            () => {
-            }
-          );
-          return worker.scheduled(controller, env, ctx);
-        }
-      }, "dispatcher");
-      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
-    }
-  };
-}
-__name(wrapExportedHandler2, "wrapExportedHandler");
-function wrapWorkerEntrypoint2(klass) {
-  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
-    return klass;
-  }
-  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
-    __facade_register__2(middleware);
-  }
-  return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
-      this.env = env;
-      this.ctx = ctx;
-      if (super.fetch === void 0) {
-        throw new Error("Entrypoint class does not define a fetch() function.");
-      }
-      return super.fetch(request);
-    }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
-      if (type === "scheduled" && super.scheduled !== void 0) {
-        const controller = new __Facade_ScheduledController__2(
-          Date.now(),
-          init.cron ?? "",
-          () => {
-          }
-        );
-        return super.scheduled(controller);
-      }
-    }, "#dispatcher");
-    fetch(request) {
-      return __facade_invoke__2(
-        request,
-        this.env,
-        this.ctx,
-        this.#dispatcher,
-        this.#fetchDispatcher
-      );
-    }
-  };
-}
-__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
-var WRAPPED_ENTRY2;
-if (typeof middleware_insertion_facade_default2 === "object") {
-  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
-} else if (typeof middleware_insertion_facade_default2 === "function") {
-  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
-}
-var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
 export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default2 as default
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
 };
-//# sourceMappingURL=functionsWorker-0.836724569855271.js.map
+//# sourceMappingURL=functionsWorker-0.662923986571836.mjs.map

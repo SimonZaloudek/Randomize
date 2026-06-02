@@ -12,7 +12,7 @@
     const BASE_SPEED = 60;
     const SEEK_STRENGTH = 0.7;
     const FLEE_STRENGTH = 0.9;
-    const EFFECT_DURATION = 0.4;
+    const EFFECT_DURATION = 0.3;
 
     let canvas = null;
     let ctx = null;
@@ -270,11 +270,11 @@
 
         // splash rings drawn behind glyphs so the new symbol stays in focus
         for (const fx of effects) {
-            const t = fx.age / EFFECT_DURATION;          // 0 → 1
-            const radius = RADIUS * (0.7 + t * 0.8);
-            const alpha = (1 - t) * 0.4;
+            const t = fx.age / EFFECT_DURATION;
+            const radius = RADIUS * (0.4 + t * 0.45);
+            const alpha = (1 - t) * 0.2;
             ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.arc(fx.x, fx.y, radius, 0, Math.PI * 2);
             ctx.stroke();
