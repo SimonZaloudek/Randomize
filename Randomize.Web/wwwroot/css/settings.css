@@ -208,12 +208,10 @@
     margin: 0;
     padding: 6px;
     list-style: none;
-    background: rgba(20, 20, 24, 0.96);
+    background: #14141a;
     border: 1px solid var(--surface-border);
     border-radius: 10px;
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .settings-select-menu li {

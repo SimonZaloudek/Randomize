@@ -303,6 +303,7 @@
     background: var(--surface-solid);
     border: 1px solid var(--surface-border);
     box-shadow: var(--surface-shadow);
+    contain: layout style paint;
     opacity: 0;
     transform: translateY(8px);
     animation: movies-fade-in 360ms ease-out forwards;

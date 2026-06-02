@@ -394,6 +394,8 @@
     border-radius: 18px;
     box-shadow: var(--surface-shadow);
     overflow: hidden;
+    /* sections inside don't invalidate parents */
+    contain: layout style paint;
 }
 
 .games-hero {
