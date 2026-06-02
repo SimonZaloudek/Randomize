@@ -8,6 +8,7 @@ const TOOLS = [
   "group",
   "shift",
   "movie",        // movie / TV randomizer
+  "game",         // video game randomizer
   "coin-heads",
   "coin-tails"
 ];
