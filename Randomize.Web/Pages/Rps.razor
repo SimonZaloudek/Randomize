@@ -1,0 +1,354 @@
+@page "/rps"
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IAsyncDisposable
+
+<PageTitle>@Loc["rps.pageTitle"]</PageTitle>
+
+<div class="rps-page">
+
+    @if (_view == View.Setup)
+    {
+        <section class="rps-setup tool-card">
+            <h2 class="rps-title">@Loc["rps.title"]</h2>
+            <p class="rps-subtitle">@Loc["rps.subtitle"]</p>
+
+            <div class="rps-counts">
+                @foreach (var t in _types)
+                {
+                    var type = t;
+                    <div class="rps-count-row">
+                        <div class="rps-count-icon">@Glyph(type)</div>
+                        <div class="rps-count-name">@Loc[$"rps.type.{type}"]</div>
+                        <div class="rps-count-control">
+                            <button type="button" class="rps-arrow" @onclick="() => Bump(type, -1)" aria-label="−">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <span class="rps-count-value">@_counts[type]</span>
+                            <button type="button" class="rps-arrow" @onclick="() => Bump(type, +1)" aria-label="+">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="rps-section">
+                <div class="rps-section-label">@Loc["rps.behavior"]</div>
+                <div class="rps-chip-row">
+                    @foreach (var b in _behaviors)
+                    {
+                        var key = b;
+                        <button type="button"
+                                class="rps-chip @(_behavior == key ? "active" : "")"
+                                @onclick="() => _behavior = key">
+                            @Loc[$"rps.behavior.{key}"]
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div class="rps-section">
+                <label class="rps-section-label" for="rps-speed">
+                    @Loc["rps.speed"]
+                    <strong>@_speed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)×</strong>
+                </label>
+                <input id="rps-speed" type="range"
+                       min="0.5" max="5" step="0.5"
+                       @bind="_speed" @bind:event="oninput" />
+            </div>
+
+            <div class="rps-section">
+                <div class="rps-section-label">@Loc["rps.skin"]</div>
+                <div class="rps-pick-row">
+                    @foreach (var s in _skins)
+                    {
+                        var key = s;
+                        <button type="button"
+                                class="rps-pick @(_skin == key ? "active" : "")"
+                                @onclick="() => _skin = key">
+                            @Loc[$"rps.skin.{key}"]
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div class="rps-section">
+                <div class="rps-section-label">@Loc["rps.arena"]</div>
+                <div class="rps-pick-row">
+                    @foreach (var a in _arenas)
+                    {
+                        var key = a;
+                        <button type="button"
+                                class="rps-pick @(_arena == key ? "active" : "")"
+                                @onclick="() => _arena = key">
+                            @Loc[$"rps.arena.{key}"]
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <button class="tool-btn rps-start" @onclick="StartSim" disabled="@(TotalCount < 2)">
+                <i class="bi bi-play-fill"></i> @Loc["rps.start"]
+            </button>
+
+            @if (TotalCount < 2)
+            {
+                <div class="rps-hint">@Loc["rps.hint.minTwo"]</div>
+            }
+        </section>
+    }
+    else if (_view == View.Sim)
+    {
+        <section class="rps-arena-wrap">
+            <div class="rps-arena-frame" style="@ArenaStyle">
+                <canvas id="rps-canvas" class="rps-canvas"></canvas>
+
+                @if (_winner is not null)
+                {
+                    <div class="rps-winner-overlay">
+                        <div class="rps-winner-card">
+                            <div class="rps-winner-glyph">@Glyph(_winner)</div>
+                            <div class="rps-winner-label">@Loc[$"rps.type.{_winner}"]</div>
+                            <div class="rps-winner-msg">@Loc["rps.winner.takes"]</div>
+                            <div class="rps-winner-actions">
+                                <button class="tool-btn" @onclick="PlayAgain">
+                                    <i class="bi bi-arrow-clockwise"></i> @Loc["rps.winner.again"]
+                                </button>
+                                <button class="rps-winner-secondary" @onclick="BackToSetup">
+                                    @Loc["rps.winner.setup"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="rps-controls">
+                <button type="button" class="rps-control-btn" @onclick="BackToSetup" aria-label="@Loc["rps.back"]">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+
+                <button type="button" class="rps-control-btn" @onclick="TogglePause" aria-label="@(_paused ? Loc["rps.resume"] : Loc["rps.pause"])">
+                    <i class="bi @(_paused ? "bi-play-fill" : "bi-pause-fill")"></i>
+                </button>
+
+                <div class="rps-speed-menu">
+                    <button type="button"
+                            class="rps-control-btn rps-speed-trigger @(_speedMenuOpen ? "open" : "")"
+                            @onclick="ToggleSpeedMenu"
+                            aria-haspopup="listbox"
+                            aria-expanded="@(_speedMenuOpen ? "true" : "false")"
+                            aria-label="@Loc["rps.speed"]">
+                        <span>@_speed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)×</span>
+                        <i class="bi bi-chevron-up rps-speed-chevron"></i>
+                    </button>
+                    @if (_speedMenuOpen)
+                    {
+                        <div class="rps-speed-backdrop" @onclick="CloseSpeedMenu"></div>
+                        <ul class="rps-speed-popover" role="listbox">
+                            @foreach (var s in _speedPresets.Reverse())
+                            {
+                                var sp = s;
+                                var active = Math.Abs(_speed - sp) < 0.001;
+                                <li role="option" aria-selected="@(active ? "true" : "false")">
+                                    <button type="button"
+                                            class="rps-speed-option @(active ? "active" : "")"
+                                            @onclick="() => SelectSpeed(sp)">
+                                        @(active ? "✓" : "") @sp.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)×
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+                <div class="rps-tally" aria-live="polite">
+                    @foreach (var t in _types)
+                    {
+                        var type = t;
+                        <span class="rps-tally-item">
+                            <span class="rps-tally-glyph">@Glyph(type)</span>
+                            <strong class="rps-tally-value" @key="@($"{type}-{_liveCounts[type]}")">@_liveCounts[type]</strong>
+                        </span>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+</div>
+
+@code {
+    private enum View { Setup, Sim }
+    private View _view = View.Setup;
+
+    private readonly string[] _types = { "rock", "paper", "scissors" };
+    private readonly string[] _behaviors = { "seek", "random" };
+    private readonly double[] _speedPresets = { 0.5, 1.0, 1.5, 2.0, 3.0, 5.0 };
+    private readonly string[] _skins = { "default" };
+    private readonly string[] _arenas = { "classic", "dark", "theme" };
+
+    private Dictionary<string, int> _counts = new()
+    {
+        ["rock"] = 10,
+        ["paper"] = 10,
+        ["scissors"] = 10
+    };
+
+    // updated from JS per conversion via OnCountsChanged
+    private Dictionary<string, int> _liveCounts = new()
+    {
+        ["rock"] = 0,
+        ["paper"] = 0,
+        ["scissors"] = 0
+    };
+
+    private string _behavior = "seek";
+    private string _skin = "default";
+    private string _arena = "classic";
+    private double _speed = 1.0;
+
+    private string? _winner;
+    private bool _paused;
+    private bool _speedMenuOpen;
+
+    // JS holds this to call OnWinner / OnCountsChanged back into this instance
+    private DotNetObjectReference<Rps>? _selfRef;
+
+    private int TotalCount => _counts.Values.Sum();
+
+    private string ArenaStyle => _arena switch
+    {
+        "classic" => "--rps-arena-bg: #f1f0e8; --rps-arena-border: #e0c460;",
+        "dark"    => "--rps-arena-bg: #0e0c14; --rps-arena-border: var(--accent);",
+        "theme"   => "--rps-arena-bg: var(--surface-solid); --rps-arena-border: var(--accent);",
+        _         => ""
+    };
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    private static string Glyph(string type) => type switch
+    {
+        "rock"     => "🪨",
+        "paper"    => "📄",
+        "scissors" => "✂️",
+        _          => "?"
+    };
+
+    private void Bump(string type, int delta)
+    {
+        var next = _counts[type] + delta;
+        if (next < 0) next = 0;
+        if (next > 30) next = 30;
+        _counts[type] = next;
+    }
+
+    private async Task StartSim()
+    {
+        if (TotalCount < 2) return;
+        _view = View.Sim;
+        _winner = null;
+        _paused = false;
+        _liveCounts = new Dictionary<string, int>(_counts);
+        StateHasChanged();
+
+        // canvas mounts only after the view switch renders
+        await Task.Yield();
+
+        _selfRef?.Dispose();
+        _selfRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("RpsArena.init", "rps-canvas", _selfRef);
+        await JS.InvokeVoidAsync("RpsArena.start", new
+        {
+            counts = _counts,
+            behavior = _behavior,
+            speed = _speed,
+            arenaBg = _arena == "classic" ? "#f1f0e8" : null
+        });
+        Stats.Increment("rps");
+    }
+
+    private async Task OnSpeedChanged()
+    {
+        try { await JS.InvokeVoidAsync("RpsArena.setSpeed", _speed); }
+        catch { }
+    }
+
+    private async Task SelectSpeed(double s)
+    {
+        _speed = s;
+        _speedMenuOpen = false;
+        await OnSpeedChanged();
+    }
+
+    private void ToggleSpeedMenu() => _speedMenuOpen = !_speedMenuOpen;
+    private void CloseSpeedMenu() => _speedMenuOpen = false;
+
+    private async Task TogglePause()
+    {
+        _paused = !_paused;
+        try
+        {
+            if (_paused) await JS.InvokeVoidAsync("RpsArena.pause");
+            else         await JS.InvokeVoidAsync("RpsArena.resume");
+        }
+        catch { }
+    }
+
+    private async Task PlayAgain()
+    {
+        _winner = null;
+        _paused = false;
+        _liveCounts = new Dictionary<string, int>(_counts);
+        StateHasChanged();
+        await JS.InvokeVoidAsync("RpsArena.start", new
+        {
+            counts = _counts,
+            behavior = _behavior,
+            speed = _speed,
+            arenaBg = _arena == "classic" ? "#f1f0e8" : null
+        });
+    }
+
+    private async Task BackToSetup()
+    {
+        try { await JS.InvokeVoidAsync("RpsArena.stop"); }
+        catch { }
+        _view = View.Setup;
+        _winner = null;
+        _paused = false;
+    }
+
+    [JSInvokable]
+    public Task OnWinner(string type)
+    {
+        _winner = type;
+        Stats.Increment("rps-" + type);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task OnCountsChanged(int rock, int paper, int scissors)
+    {
+        _liveCounts["rock"] = rock;
+        _liveCounts["paper"] = paper;
+        _liveCounts["scissors"] = scissors;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        try { await JS.InvokeVoidAsync("RpsArena.dispose"); }
+        catch { /* JS gone */ }
+        _selfRef?.Dispose();
+    }
+}
