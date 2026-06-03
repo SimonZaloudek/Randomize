@@ -255,6 +255,9 @@ ROADMAP.md
 # Claude Code local files (collaborator tooling, not part of the project)
 .claude/
 CLAUDE.md
+
+# Wrangler local dev state (KV blobs, caches, build temp - regenerated locally)
+.wrangler/
 *.appx
 *.appxbundle
 *.appxupload
