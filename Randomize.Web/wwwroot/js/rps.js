@@ -9,6 +9,7 @@
     const GLYPHS = { rock: "🪨", paper: "📄", scissors: "✂️" };
 
     const RADIUS = 18;
+    const MAX_PER_TYPE = 300;   // safety ceiling (UI caps at 30); keeps the O(n²) sim responsive
     const BASE_SPEED = 60;
     const SEEK_STRENGTH = 0.7;
     const FLEE_STRENGTH = 0.9;
@@ -53,7 +54,9 @@
             entities = [];
             effects = [];
             for (const type of TYPES) {
-                const n = Math.max(0, Math.floor(counts[type] || 0));
+                // clamp here too, not just in the UI - the collision pass is O(n²),
+                // so an unbounded count (e.g. from the console) would freeze the tab
+                const n = Math.min(MAX_PER_TYPE, Math.max(0, Math.floor(counts[type] || 0)));
                 for (let i = 0; i < n; i++) entities.push(spawn(type));
             }
 
