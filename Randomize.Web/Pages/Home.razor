@@ -120,6 +120,13 @@
             <div class="home-feature-desc">@Loc["home.feature.rps.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
+
+        <NavLink href="/songs" class="home-feature-card">
+            <div class="home-feature-icon home-feature-icon-spotify"><img src="brand/spotify-icon.svg" alt="Spotify" /></div>
+            <div class="home-feature-title">@Loc["home.feature.songs.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.songs.desc"]</div>
+            <i class="bi bi-arrow-right home-feature-arrow"></i>
+        </NavLink>
     </div>
 
     <div class="home-tagline">
@@ -176,6 +183,26 @@
                 <i class="bi bi-cone-striped home-stat-icon"></i>
                 <div class="home-stat-value">@Format(_stats?.DaysWithoutAccident)</div>
                 <div class="home-stat-label">@Loc["home.livestats.daysNoAccident"]</div>
+            </div>
+            <div class="home-stat-pill home-livestat-pill">
+                <i class="bi bi-controller home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.Games)</div>
+                <div class="home-stat-label">@Loc["home.livestats.games"]</div>
+            </div>
+            <div class="home-stat-pill home-livestat-pill">
+                <i class="bi bi-film home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.Movies)</div>
+                <div class="home-stat-label">@Loc["home.livestats.movies"]</div>
+            </div>
+            <div class="home-stat-pill home-livestat-pill">
+                <i class="bi bi-music-note-beamed home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.Songs)</div>
+                <div class="home-stat-label">@Loc["home.livestats.songs"]</div>
+            </div>
+            <div class="home-stat-pill home-livestat-pill">
+                <i class="bi bi-trophy home-stat-icon"></i>
+                <div class="home-stat-value">@Format(_stats?.RockWins)</div>
+                <div class="home-stat-label">@Loc["home.livestats.rockWins"]</div>
             </div>
         </div>
     </section>

@@ -1,5 +1,6 @@
 // /api/stats - GET returns the counters, POST { tool } increments one.
 // Backed by the STATS KV namespace. Increments aren't atomic; that's fine here.
+import { rateLimited, tooMany } from "./_ratelimit.js";
 
 const TOOLS = [
   "string",       // text randomizers
@@ -9,6 +10,7 @@ const TOOLS = [
   "shift",
   "movie",        // movie / TV randomizer
   "game",         // video game randomizer
+  "song",         // song randomizer
   "rps",          // rock paper scissors arena
   "rps-rock",
   "rps-paper",
@@ -38,6 +40,10 @@ export async function onRequestGet({ env }) {
     wheelSpins,
     headsLanded,
     tailsLanded,
+    games: counts.game,
+    movies: counts.movie,
+    songs: counts.song,
+    rockWins: counts["rps-rock"],
     daysWithoutAccident: daysSinceReset(),
     counts
   });
@@ -45,6 +51,8 @@ export async function onRequestGet({ env }) {
 
 export async function onRequestPost({ request, env }) {
   if (!env.STATS) return json({ error: "Server not configured" }, 500);
+  // ~1/sec/IP is plenty for real interaction (even rapid coin flips); blocks loops
+  if (await rateLimited(env, request, "stats", 60)) return tooMany();
 
   let body;
   try { body = await request.json(); }

@@ -1,4 +1,7 @@
 // GET /api/movies/random - random TMDB pick by type, genres, min rating
+import { incrementStat } from "../_stats.js";
+import { rateLimited, tooMany } from "../_ratelimit.js";
+
 const TMDB = "https://api.themoviedb.org/3";
 const OMDB = "https://www.omdbapi.com";
 const IMG = "https://image.tmdb.org/t/p";
@@ -18,6 +21,7 @@ export async function onRequestGet({ request, env }) {
   if (!env.TMDB_API_KEY || !env.STATS) {
     return json({ error: "Server not configured" }, 500);
   }
+  if (await rateLimited(env, request, "movies")) return tooMany();
 
   const url = new URL(request.url);
   const type = url.searchParams.get("type") === "tv" ? "tv" : "movie";
@@ -91,6 +95,7 @@ export async function onRequestGet({ request, env }) {
     if (om) mergeOmdb(out, om);
   }
 
+  await incrementStat(env, "movie");   // count server-side, not from the client
   return json(out);
 }
 
