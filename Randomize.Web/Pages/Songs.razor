@@ -143,6 +143,7 @@
             <div class="songs-hero">
                 @if (!string.IsNullOrEmpty(r.Album?.Image))
                 {
+                    <div class="songs-hero-bg" style="background-image:url('@r.Album.Image')" aria-hidden="true"></div>
                     <img src="@r.Album.Image" alt="@r.Album.Name" class="songs-cover" loading="lazy" />
                 }
                 else
@@ -151,7 +152,10 @@
                 }
 
                 <div class="songs-hero-info">
-                    <div class="songs-kind">@Loc["songs.kind.track"]</div>
+                    <div class="songs-kind">
+                        <span class="songs-eq" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+                        @Loc["songs.kind.track"]
+                    </div>
                     <h1 class="songs-title">@r.Title</h1>
 
                     <div class="songs-artists">
@@ -214,11 +218,11 @@
                 </div>
             </div>
 
-            <!-- Spotify embed player (30s preview clip) -->
+            <!-- Spotify embed player (30s preview, or full track if logged into Premium) -->
             <section class="songs-section songs-player-section">
                 <h3 class="songs-section-title">@Loc["songs.section.preview"]</h3>
                 <iframe class="songs-player"
-                        src="@($"https://open.spotify.com/embed/track/{r.Id}?utm_source=randomize")"
+                        src="@($"https://open.spotify.com/embed/track/{_previewId}?utm_source=randomize")"
                         title="Spotify player"
                         loading="lazy"
                         frameborder="0"
@@ -226,6 +230,44 @@
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
                 </iframe>
             </section>
+
+            <!-- More from this album: clicking a track loads it into the player above -->
+            @if (r.AlbumTracks is { Count: > 1 } albumTracks)
+            {
+                <section class="songs-section">
+                    <h3 class="songs-section-title">@Loc["songs.section.albumTracks"]</h3>
+                    <ol class="songs-tracklist">
+                        @foreach (var tr in albumTracks)
+                        {
+                            var active = tr.Id == _previewId;
+                            <li>
+                                <button type="button"
+                                        class="songs-track-row @(active ? "active" : "")"
+                                        @onclick="() => PlayTrack(tr.Id)">
+                                    <span class="songs-track-num">
+                                        @if (active)
+                                        {
+                                            <span class="songs-eq songs-eq-sm" aria-hidden="true"><span></span><span></span><span></span></span>
+                                        }
+                                        else
+                                        {
+                                            @tr.Number
+                                        }
+                                    </span>
+                                    <span class="songs-track-name">
+                                        @tr.Name
+                                        @if (tr.Explicit)
+                                        {
+                                            <span class="songs-explicit-badge songs-explicit-sm">E</span>
+                                        }
+                                    </span>
+                                    <span class="songs-track-dur">@FormatDuration(tr.DurationMs)</span>
+                                </button>
+                            </li>
+                        }
+                    </ol>
+                </section>
+            }
 
             <!-- Quick details -->
             <section class="songs-section">
@@ -374,6 +416,7 @@
     private bool _busy;
     private string? _error;
     private SongResult? _result;
+    private string? _previewId;          // track currently loaded in the embed player
     private List<Genre>? _genres;
     private string? _openMenu;
 
@@ -398,6 +441,9 @@
 
     private void ToggleMenu(string name) => _openMenu = _openMenu == name ? null : name;
     private void CloseMenu() => _openMenu = null;
+
+    // Swap the embed player to a track from the album list (re-renders the iframe src)
+    private void PlayTrack(string id) => _previewId = id;
 
     private async Task Randomize()
     {
@@ -430,6 +476,7 @@
             }
             res.EnsureSuccessStatusCode();
             _result = await res.Content.ReadFromJsonAsync<SongResult>(cts.Token);
+            _previewId = _result?.Id;       // the player starts on the picked track
             Stats.Increment("song");
         }
         catch (OperationCanceledException)
@@ -472,10 +519,13 @@
         int DurationMs, int? TrackNumber, int? DiscNumber,
         int? Popularity, bool Explicit, string? Copyright,
         string? SpotifyUrl, string? Isrc,
+        List<AlbumTrack> AlbumTracks,
         List<string> ArtistGenres, long? ArtistFollowers, int? ArtistPopularity, string? ArtistImage,
         int TotalResults);
 
     public sealed record Artist(string? Id, string Name, string? Url);
 
     public sealed record Album(string? Id, string Name, string? Image, string? Url, int? TotalTracks, string? Type, string? Label);
+
+    public sealed record AlbumTrack(string Id, int? Number, string Name, int DurationMs, bool Explicit);
 }

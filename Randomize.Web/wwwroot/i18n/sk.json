@@ -66,6 +66,10 @@
   "home.livestats.wheelSpins": "Točenia kolesa",
   "home.livestats.headsLanded": "Padnuté hlavy",
   "home.livestats.daysNoAccident": "Dní bez nehody",
+  "home.livestats.games": "Náhodných hier",
+  "home.livestats.movies": "Náhodných filmov",
+  "home.livestats.songs": "Náhodných piesní",
+  "home.livestats.rockWins": "Víťazstvá kameňa",
 
   "string.title": "Náhodný text",
   "string.shuffle.title": "Zamiešať zoznam",
@@ -454,6 +458,7 @@
   "songs.openSpotify": "Otvoriť na Spotify",
   "songs.popularityTip": "Skóre popularity na Spotify (0–100) podľa nedávnych prehratí",
   "songs.section.preview": "Ukážka",
+  "songs.section.albumTracks": "Viac z tohto albumu",
   "songs.section.details": "Podrobnosti",
   "songs.detail.popularity": "Popularita",
   "songs.detail.track": "Skladba",

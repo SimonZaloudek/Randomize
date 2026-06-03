@@ -39,6 +39,10 @@ export async function onRequestGet({ env }) {
     wheelSpins,
     headsLanded,
     tailsLanded,
+    games: counts.game,
+    movies: counts.movie,
+    songs: counts.song,
+    rockWins: counts["rps-rock"],
     daysWithoutAccident: daysSinceReset(),
     counts
   });

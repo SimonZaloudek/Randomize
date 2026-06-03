@@ -66,6 +66,10 @@
   "home.livestats.wheelSpins": "Giros de la rueda",
   "home.livestats.headsLanded": "Caras obtenidas",
   "home.livestats.daysNoAccident": "Días sin accidentes",
+  "home.livestats.games": "Juegos aleatorios",
+  "home.livestats.movies": "Películas aleatorias",
+  "home.livestats.songs": "Canciones aleatorias",
+  "home.livestats.rockWins": "Victorias de piedra",
 
   "string.title": "Texto aleatorio",
   "string.shuffle.title": "Mezclar lista",
@@ -454,6 +458,7 @@
   "songs.openSpotify": "Abrir en Spotify",
   "songs.popularityTip": "Puntuación de popularidad de Spotify (0–100), según reproducciones recientes",
   "songs.section.preview": "Vista previa",
+  "songs.section.albumTracks": "Más de este álbum",
   "songs.section.details": "Detalles",
   "songs.detail.popularity": "Popularidad",
   "songs.detail.track": "Pista",

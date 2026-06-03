@@ -48,4 +48,8 @@ public sealed record StatsSnapshot(
     int WheelSpins,
     int HeadsLanded,
     int TailsLanded,
+    int Games,
+    int Movies,
+    int Songs,
+    int RockWins,
     int DaysWithoutAccident);

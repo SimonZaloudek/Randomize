@@ -1,19 +1,19 @@
-// GET /api/songs/random - random Spotify track. Strategy depends on filters:
+// GET /api/songs/random - random track. Strategy depends on filters:
 //
-//   - artist given  -> resolve the artist to an ID and page through their
-//                      albums + singles, then pick a true-random track. The
-//                      /search "artist:" filter only ever returns a small
-//                      relevance-ranked slice (and quoting a multi-word name
-//                      narrows it further), so it can't represent a full
-//                      discography - we enumerate it instead.
-//   - album given   -> resolve the album and pick a random track from it.
+//   - artist given  -> source the catalog from Deezer's open API (no key, no
+//                      quota gates) and match the chosen track back to Spotify
+//                      for the embed player + branding. Spotify's own data
+//                      endpoints are unusable for this in Development Mode:
+//                      /artists/{id}/albums hits long-cooldown 429s and /search
+//                      only returns a handful of results per artist.
+//   - album given   -> resolve the album on Spotify and pick a random track.
 //   - otherwise     -> /v1/search by genre/year, picking from a RANDOM offset
-//                      page. The old code always picked from page 0 (the top-20
-//                      most relevant), so results were biased, not random.
+//                      page (page 0 alone is biased to the most popular).
 //
 // /v1/recommendations was deprecated for new apps in Nov 2024, hence search.
 
 const SPOTIFY_API = "https://api.spotify.com/v1";
+const DEEZER_API  = "https://api.deezer.com";
 const TOKEN_URL   = "https://accounts.spotify.com/api/token";
 const MARKET      = "US";
 
@@ -24,8 +24,8 @@ const DETAIL_TTL    = 24 * 60 * 60;    // 24h
 // misleading "Invalid limit" 400, so we let Spotify default to 20.
 const PAGE_SIZE     = 20;
 const OFFSET_CAP    = 1000 - PAGE_SIZE;
-const ALBUM_PAGES   = 3;     // 50 albums/page -> cap ~150 albums per artist
 const RETRY_LIMIT   = 4;
+const MATCH_ATTEMPTS = 5;    // Deezer track -> Spotify match retries (Deezer exclusives miss)
 
 export async function onRequestGet({ request, env }) {
     if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.STATS) {
@@ -49,133 +49,242 @@ export async function onRequestGet({ request, env }) {
     const token = tokenRes.token;
 
     let outcome;
-    if (opts.artist)      outcome = await randomFromArtist(token, opts);
-    else if (opts.album)  outcome = await randomFromAlbum(token, opts);
+    if (opts.artist)      outcome = await randomFromArtist(env, token, opts);
+    else if (opts.album)  outcome = await randomFromAlbum(env, token, opts);
     else                  outcome = await randomFromSearch(token, opts);
 
     if (outcome.error)    return json({ error: outcome.error, detail: outcome.detail }, outcome.status || 502);
     if (outcome.notFound) return json({ error: outcome.notFound }, 404);
 
-    // Resolve the pick to a FULL track object (album art, ISRC, track number).
-    // Search and album-track lists can be "simplified" objects that omit them.
-    const full = await spotifyGet(`${SPOTIFY_API}/tracks/${outcome.pick.id}`, token);
-    const pick = full?.id ? full : outcome.pick;
+    const pick = outcome.pick;
     const primaryArtistId = pick.artists?.[0]?.id;
-    const albumId = pick.album?.id;
+    const albumId = outcome.album?.id || pick.album?.id;
 
-    // Artist detail (genres/followers - may be withheld in Dev Mode) + full album
-    // (for copyright). NB: /audio-features is deprecated and 403s for new apps, so
-    // we don't call it. If the artist path already resolved the artist, reuse it.
+    // Reuse anything the strategy already fetched (artist object, full album with
+    // its tracklist) so a roll costs as few Spotify calls as possible - both are
+    // cached 24h, so repeat rolls usually hit zero. No canonical /tracks/{id} call
+    // (the album detail already carries art + tracklist) and no /audio-features
+    // (deprecated, 403s for new apps).
     const [artistDetail, albumDetail] = await Promise.all([
         outcome.artist
             ? Promise.resolve(outcome.artist)
-            : (primaryArtistId
-                ? cached(env, `spotify:artist:v1:${primaryArtistId}`, DETAIL_TTL,
-                    () => spotifyGet(`${SPOTIFY_API}/artists/${primaryArtistId}`, token),
-                    d => d?.id != null)
-                : Promise.resolve(null)),
-        albumId
-            ? cached(env, `spotify:album:v1:${albumId}`, DETAIL_TTL,
-                () => spotifyGet(`${SPOTIFY_API}/albums/${albumId}`, token),
-                d => d?.id != null)
-            : Promise.resolve(null),
+            : (primaryArtistId ? getArtistDetail(env, token, primaryArtistId) : Promise.resolve(null)),
+        outcome.album
+            ? Promise.resolve(outcome.album)
+            : (albumId ? getAlbumDetail(env, token, albumId) : Promise.resolve(null)),
     ]);
 
     return json(shape(pick, artistDetail, albumDetail, outcome.total));
 }
 
-// ---- strategy: artist discography -----------------------------------------
+// ---- strategy: artist (Deezer catalog + Spotify match) --------------------
 
-async function randomFromArtist(token, opts) {
-    const found = await resolveArtist(token, opts.artist);
+async function randomFromArtist(env, token, opts) {
+    const da = await resolveDeezerArtist(env, opts.artist);
+    const dArtist = da.artist;
+
+    if (dArtist) {
+        const { albums } = await getDeezerAlbums(env, dArtist.id);
+        let pool = albums;
+        if (opts.album) {
+            const needle = opts.album.toLowerCase();
+            pool = pool.filter(a => (a.title || "").toLowerCase().includes(needle));
+        }
+        pool = pool.filter(a => yearInRange(albumYear(a), opts.fromYear, opts.toYear));
+
+        if (pool.length) {
+            const total = pool.reduce((sum, a) => sum + (a.nb_tracks || 0), 0);
+            // Deezer gives us the artist's fan count + photo for free - synthesise an
+            // artist-detail object so the result card can show them (Spotify withholds
+            // followers/genres in Dev Mode anyway).
+            const artist = {
+                genres: [],
+                followers: { total: dArtist.nb_fan ?? null },
+                images: dArtist.picture ? [{ url: dArtist.picture }] : [],
+                popularity: null,
+            };
+            // pick a random Deezer track, then locate it on Spotify for the embed.
+            // Retry on misses (Deezer-exclusive tracks won't exist on Spotify).
+            for (let attempt = 0; attempt < MATCH_ATTEMPTS; attempt++) {
+                const album = pool[Math.floor(Math.random() * pool.length)];
+                const tracks = await getDeezerAlbumTracks(env, album.id);
+                const candidates = tracks.filter(t => !opts.noExplicit || !t.explicit);
+                if (!candidates.length) continue;
+                const dt = candidates[Math.floor(Math.random() * candidates.length)];
+                const st = await matchSpotify(token, dt.title, dArtist.name);
+                if (st?.id) return { pick: st, artist, total };
+            }
+        }
+    }
+
+    // Fallback: Deezer couldn't resolve the artist or nothing matched on Spotify.
+    // Use Spotify's own (Dev-Mode-limited) track search so we still return something.
+    const found = await resolveArtist(env, token, opts.artist);
     if (found.error) return found;
     if (!found.artist) return { notFound: "No artist matched that name" };
-    const artist = found.artist;
-
-    const albumsRes = await getArtistAlbums(token, artist.id);
-    if (albumsRes.error) return albumsRes;
-
-    let albums = albumsRes.albums;
-    if (opts.album) {
-        const needle = opts.album.toLowerCase();
-        albums = albums.filter(a => (a.name || "").toLowerCase().includes(needle));
-    }
-    albums = albums.filter(a => yearInRange(albumYear(a), opts.fromYear, opts.toYear));
-    if (!albums.length) return { notFound: "No releases match those filters for that artist" };
-
-    const total = albums.reduce((sum, a) => sum + (a.total_tracks || 0), 0);
-
-    const pick = await pickTrackFromAlbums(token, albums, artist.id, opts);
-    if (!pick) return { notFound: "No tracks meet the popularity / explicit filters" };
-
-    return { pick, artist, total };
+    return searchArtistTracks(token, found.artist, opts);
 }
 
-async function resolveArtist(token, name) {
+// Find a Deezer track on Spotify by title + artist. Returns the full Spotify
+// track object (search items are full tracks) or null.
+async function matchSpotify(token, title, artistName) {
+    const q = `track:${quote(title)} artist:${quote(artistName)}`;
+    const r = await apiGet(token, searchUrl(q, 0));
+    if (r.error) return null;
+    const items = r.data?.tracks?.items || [];
+    const lower = artistName.toLowerCase();
+    return items.find(t => (t.artists || []).some(a => (a.name || "").toLowerCase() === lower))
+        || items[0]
+        || null;
+}
+
+// ---- Deezer (open API: no key, no OAuth, no quota gates) -------------------
+// Used purely as a catalog index for the artist path - all displayed data still
+// comes from the matched Spotify track. Lookups are cached 24h in KV.
+
+async function resolveDeezerArtist(env, name) {
+    const key = `deezer:artist:v1:${name.toLowerCase()}`;
+    const hit = await env.STATS.get(key, { type: "json" });
+    if (hit) return { artist: hit };
+
+    const data = await deezerJson(`${DEEZER_API}/search/artist?q=${encodeURIComponent(name)}&limit=5`);
+    const items = data?.data || [];
+    if (!items.length) return { artist: null };
+    const lower = name.toLowerCase();
+    const a = items.find(x => (x.name || "").toLowerCase() === lower) || items[0];
+    const artist = {
+        id: a.id,
+        name: a.name,
+        nb_fan: a.nb_fan ?? null,
+        picture: a.picture_xl || a.picture_big || a.picture_medium || null,
+    };
+    await env.STATS.put(key, JSON.stringify(artist), { expirationTtl: DETAIL_TTL });
+    return { artist };
+}
+
+async function getDeezerAlbums(env, artistId) {
+    const key = `deezer:albums:v1:${artistId}`;
+    const hit = await env.STATS.get(key, { type: "json" });
+    if (hit) return { albums: hit };
+
+    const data = await deezerJson(`${DEEZER_API}/artist/${artistId}/albums?limit=100`);
+    const albums = (data?.data || []).map(a => ({
+        id: a.id,
+        title: a.title,
+        release_date: a.release_date,
+        nb_tracks: a.nb_tracks,
+    }));
+    await env.STATS.put(key, JSON.stringify(albums), { expirationTtl: DETAIL_TTL });
+    return { albums };
+}
+
+async function getDeezerAlbumTracks(env, albumId) {
+    const key = `deezer:albumtracks:v1:${albumId}`;
+    const hit = await env.STATS.get(key, { type: "json" });
+    if (hit) return hit;
+
+    const data = await deezerJson(`${DEEZER_API}/album/${albumId}`);
+    const tracks = (data?.tracks?.data || []).map(t => ({
+        title: t.title,
+        explicit: !!t.explicit_lyrics,
+    }));
+    await env.STATS.put(key, JSON.stringify(tracks), { expirationTtl: DETAIL_TTL });
+    return tracks;
+}
+
+// Deezer returns {error:{...}} with HTTP 200 on failure, so check for it.
+async function deezerJson(url) {
+    try {
+        const r = await fetch(url, { headers: { "Accept": "application/json" } });
+        if (!r.ok) return null;
+        const j = await r.json();
+        return j && j.error ? null : j;
+    } catch {
+        return null;
+    }
+}
+
+// Spotify artist search - only used by the fallback path now. Cached by name.
+async function resolveArtist(env, token, name) {
+    const key = `spotify:artistlookup:v1:${name.toLowerCase()}`;
+    const cachedArtist = await env.STATS.get(key, { type: "json" });
+    if (cachedArtist) return { artist: cachedArtist };
+
     const u = `${SPOTIFY_API}/search?q=${encodeURIComponent(name)}&type=artist&limit=5`;
     const r = await apiGet(token, u);
     if (r.error) return { error: "Spotify artist search failed", detail: r.error, status: 502 };
     const items = r.data?.artists?.items || [];
     if (!items.length) return { artist: null };
-    // prefer an exact (case-insensitive) name match, else the top relevance hit
     const lower = name.toLowerCase();
-    const exact = items.find(a => (a.name || "").toLowerCase() === lower);
-    return { artist: exact || items[0] };
+    const artist = items.find(a => (a.name || "").toLowerCase() === lower) || items[0];
+    await env.STATS.put(key, JSON.stringify(artist), { expirationTtl: DETAIL_TTL });
+    return { artist };
 }
 
-async function getArtistAlbums(token, artistId) {
-    const albums = [];
-    const seen = new Set();
-    // Send NO explicit `limit`: this app's /artists/{id}/albums (like /search)
-    // rejects it as "Invalid limit" regardless of value. Spotify defaults to 20
-    // and we page through the rest via the `next` URL it returns.
-    const params = new URLSearchParams({
-        include_groups: "album,single,compilation",
-        market: MARKET,
-    });
-    let url = `${SPOTIFY_API}/artists/${artistId}/albums?${params}`;
+// Fallback track search (the /search endpoint stays available when Deezer can't
+// help). Smaller pool in Dev Mode, but it still returns something.
+async function searchArtistTracks(token, artist, opts) {
+    const query = `artist:${quote(artist.name)}`;
+    const probe = await apiGet(token, searchUrl(query, 0));
+    if (probe.error) return { error: "Spotify search failed", detail: probe.error, status: 502 };
 
-    for (let page = 0; page < ALBUM_PAGES && url; page++) {
-        const r = await apiGet(token, url);
-        if (r.error) {
-            if (page === 0) return { error: "Spotify album lookup failed", detail: r.error, status: 502 };
-            break;   // partial list is fine
-        }
-        for (const a of r.data?.items || []) {
-            // Spotify returns the same album across markets/editions - dedupe by name
-            const key = (a.name || "").toLowerCase().trim();
-            if (key && !seen.has(key)) { seen.add(key); albums.push(a); }
-        }
-        url = r.data?.next || null;
+    const total = Math.min(probe.data?.tracks?.total || 0, OFFSET_CAP);
+    if (total === 0) return { notFound: "No tracks found for that artist" };
+
+    for (let attempt = 0; attempt < RETRY_LIMIT; attempt++) {
+        const offset = total <= PAGE_SIZE ? 0 : Math.floor(Math.random() * (total - PAGE_SIZE + 1));
+        const page = offset === 0 ? probe : await apiGet(token, searchUrl(query, offset));
+        if (page.error) break;
+        let items = (page.data?.tracks?.items || []).filter(t =>
+            t?.id && (t.artists || []).some(a => a.id === artist.id));
+        items = postFilter(items, opts);
+        if (items.length) return { pick: items[Math.floor(Math.random() * items.length)], artist, total };
     }
-    return { albums };
+    return { notFound: "No tracks meet the explicit filter for that artist" };
 }
 
-// Pick a random album, pull its tracks, pick a random one by this artist.
-// Retries other albums/tracks when filters wipe out a candidate.
-async function pickTrackFromAlbums(token, albums, artistId, opts) {
+// Pick a random album, then a random track on it. Uses the CACHED album detail
+// (which already carries the tracklist + art), so a reroll that lands on an
+// album we've seen costs zero Spotify calls. Returns the chosen track plus the
+// album detail so the caller doesn't have to fetch it again.
+// artistId is optional: when set, only tracks credited to that artist qualify
+// (skips features on compilations); null accepts every track on the album.
+async function pickTrackFromAlbums(env, token, albums, artistId, opts) {
     const pool = albums.slice();
     for (let attempt = 0; attempt < RETRY_LIMIT && pool.length; attempt++) {
         const idx = Math.floor(Math.random() * pool.length);
         const album = pool.splice(idx, 1)[0];   // don't retry the same album
 
-        const r = await apiGet(token, `${SPOTIFY_API}/albums/${album.id}/tracks?market=${MARKET}&limit=50`);
-        if (r.error) continue;
+        const detail = await getAlbumDetail(env, token, album.id);
+        if (!detail?.id) continue;
 
-        let items = (r.data?.items || []).filter(t =>
-            t?.id && (t.artists || []).some(a => a.id === artistId));   // skip features-only on compilations
+        let items = (detail.tracks?.items || []).filter(t =>
+            t?.id && (!artistId || (t.artists || []).some(a => a.id === artistId)));
         if (opts.noExplicit) items = items.filter(t => !t.explicit);
         if (!items.length) continue;
 
-        // simplified object - the caller's canonical full-track fetch enriches it
-        return items[Math.floor(Math.random() * items.length)];
+        return { track: items[Math.floor(Math.random() * items.length)], album: detail };
     }
     return null;
 }
 
+// Full album object (tracklist, art, copyright, label), cached 24h.
+function getAlbumDetail(env, token, albumId) {
+    return cached(env, `spotify:album:v1:${albumId}`, DETAIL_TTL,
+        () => spotifyGet(`${SPOTIFY_API}/albums/${albumId}`, token),
+        d => d?.id != null);
+}
+
+// Full artist object, cached 24h (genres/followers may be withheld in Dev Mode).
+function getArtistDetail(env, token, artistId) {
+    return cached(env, `spotify:artist:v1:${artistId}`, DETAIL_TTL,
+        () => spotifyGet(`${SPOTIFY_API}/artists/${artistId}`, token),
+        d => d?.id != null);
+}
+
 // ---- strategy: single album ------------------------------------------------
 
-async function randomFromAlbum(token, opts) {
+async function randomFromAlbum(env, token, opts) {
     const u = `${SPOTIFY_API}/search?q=${encodeURIComponent(opts.album)}&type=album&limit=5&market=${MARKET}`;
     const r = await apiGet(token, u);
     if (r.error) return { error: "Spotify album search failed", detail: r.error, status: 502 };
@@ -185,14 +294,11 @@ async function randomFromAlbum(token, opts) {
     const lower = opts.album.toLowerCase();
     const album = items.find(a => (a.name || "").toLowerCase() === lower) || items[0];
 
-    const pick = await pickTrackFromAlbums(token, [album], album.artists?.[0]?.id, {
-        ...opts,
-        // an album-only search shouldn't be constrained by the artist-membership
-        // check beyond the album's own primary artist; keep popularity/explicit
-    });
-    if (!pick) return { notFound: "No tracks on that album meet the filters" };
+    // null artistId: accept any track on the album (not just one artist's)
+    const picked = await pickTrackFromAlbums(env, token, [album], null, opts);
+    if (!picked) return { notFound: "No tracks on that album meet the filters" };
 
-    return { pick, total: album.total_tracks || null };
+    return { pick: picked.track, album: picked.album, total: picked.album.total_tracks ?? album.total_tracks ?? null };
 }
 
 // ---- strategy: genre / year search ----------------------------------------
@@ -262,7 +368,9 @@ function postFilter(tracks, { noExplicit }) {
 // ---- shaping ---------------------------------------------------------------
 
 function shape(t, artistDetail, albumDetail, totalResults) {
-    const album = t.album || {};
+    // album info comes from the full album detail when we have it (the picked
+    // track can be a simplified object with no embedded album), else the track's.
+    const album = albumDetail || t.album || {};
     const cover = album.images?.find(i => i.width >= 300)?.url
         || album.images?.[0]?.url
         || null;
@@ -296,6 +404,14 @@ function shape(t, artistDetail, albumDetail, totalResults) {
         copyright,
         spotifyUrl: t.external_urls?.spotify || null,
         isrc: t.external_ids?.isrc || null,
+        // the album's tracklist comes free inside the album detail we already fetch
+        albumTracks: (albumDetail?.tracks?.items || []).map(x => ({
+            id: x.id,
+            number: x.track_number ?? null,
+            name: x.name,
+            durationMs: x.duration_ms ?? 0,
+            explicit: !!x.explicit
+        })),
         artistGenres: artistDetail?.genres || [],
         artistFollowers: artistDetail?.followers?.total ?? null,
         artistPopularity: artistDetail?.popularity ?? null,
@@ -361,18 +477,19 @@ async function apiGet(token, url) {
     }
 }
 
-// fetch that honours Spotify rate limiting: on HTTP 429 it waits for the
-// Retry-After header (capped so we stay within the request budget), otherwise
-// backs off exponentially. Returns the final Response for the caller to handle.
-async function fetchRetry(url, init, tries = 3) {
-    let backoff = 500;
+// fetch that honours Spotify rate limiting. On HTTP 429 it waits for the
+// Retry-After header and retries ONCE - but only if the cooldown is short. A long
+// cooldown means the window is saturated, so we fail fast instead of piling on
+// more requests (which would only push the reset further out). Returns the final
+// Response for the caller to handle.
+async function fetchRetry(url, init, tries = 2) {
     for (let attempt = 0; ; attempt++) {
         const r = await fetch(url, init);
         if (r.status !== 429 || attempt >= tries - 1) return r;
         const retryAfter = parseInt(r.headers.get("Retry-After") || "", 10);
-        const waitMs = Number.isFinite(retryAfter) ? Math.min(retryAfter * 1000, 5000) : backoff;
+        const waitMs = Number.isFinite(retryAfter) ? retryAfter * 1000 : 800 * (attempt + 1);
+        if (waitMs > 3000) return r;   // too long to wait inside the request - fail fast
         await sleep(waitMs);
-        backoff *= 2;
     }
 }
 
