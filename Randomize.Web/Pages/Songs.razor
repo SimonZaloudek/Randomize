@@ -1,0 +1,481 @@
+@page "/songs"
+@using Randomize.Web.Services
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject StatsClient Stats
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["songs.pageTitle"]</PageTitle>
+
+<div class="songs-page">
+
+    <header class="songs-filter">
+        <div class="songs-filter-head">
+            <h2>@Loc["songs.title"]</h2>
+            <p>@Loc["songs.subtitle"]</p>
+            <a class="songs-attribution" href="https://open.spotify.com" target="_blank" rel="noopener">
+                <span>@Loc["songs.poweredBy"]</span>
+                <img src="brand/spotify-icon.svg" alt="Spotify" />
+                <span class="songs-attribution-word">Spotify</span>
+            </a>
+        </div>
+
+        @if (_genres is { Count: > 0 } genres)
+        {
+            <div class="songs-multi">
+                <button type="button"
+                        class="songs-multi-trigger @(_openMenu == "genres" ? "open" : "")"
+                        aria-haspopup="listbox"
+                        aria-expanded="@(_openMenu == "genres" ? "true" : "false")"
+                        @onclick='() => ToggleMenu("genres")'
+                        disabled="@_busy">
+                    <span class="songs-multi-label">@Loc["songs.genres"]</span>
+                    @if (_selectedGenres.Count > 0)
+                    {
+                        <span class="songs-multi-count">@_selectedGenres.Count</span>
+                    }
+                    <i class="bi bi-chevron-down songs-multi-chevron"></i>
+                </button>
+                @if (_openMenu == "genres")
+                {
+                    <div class="songs-multi-backdrop" @onclick="CloseMenu"></div>
+                    <div class="songs-multi-panel" role="listbox" aria-multiselectable="true">
+                        <div class="songs-multi-list">
+                            @foreach (var g in genres)
+                            {
+                                var id = g.Id;
+                                var sel = _selectedGenres.Contains(id);
+                                <button type="button"
+                                        class="songs-multi-option @(sel ? "active" : "")"
+                                        role="option"
+                                        aria-selected="@(sel ? "true" : "false")"
+                                        @onclick="() => ToggleGenre(id)">
+                                    <i class="bi @(sel ? "bi-check-square-fill" : "bi-square")"></i>
+                                    <span>@g.Name</span>
+                                </button>
+                            }
+                        </div>
+                        @if (_selectedGenres.Count > 0)
+                        {
+                            <div class="songs-multi-foot">
+                                <button type="button" class="songs-multi-clear" @onclick="() => _selectedGenres.Clear()">
+                                    @Loc["songs.clear"]
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="songs-text-row">
+            <label class="songs-text-input">
+                <span class="songs-text-label">@Loc["songs.artist"]</span>
+                <input type="text" maxlength="80"
+                       placeholder="@Loc["songs.artistPlaceholder"]"
+                       @bind="_artist" disabled="@_busy" />
+            </label>
+            <label class="songs-text-input">
+                <span class="songs-text-label">@Loc["songs.album"]</span>
+                <input type="text" maxlength="80"
+                       placeholder="@Loc["songs.albumPlaceholder"]"
+                       @bind="_album" disabled="@_busy" />
+            </label>
+        </div>
+
+        <div class="songs-controls-row">
+            <div class="songs-year-range">
+                <label class="songs-slider-label">@Loc["songs.releaseYear"]</label>
+                <div class="songs-year-inputs">
+                    <input type="number" class="songs-year-input"
+                           min="1900" max="2030"
+                           placeholder="@Loc["songs.releaseFrom"]"
+                           @bind="_fromYear" disabled="@_busy" />
+                    <span class="songs-year-sep">–</span>
+                    <input type="number" class="songs-year-input"
+                           min="1900" max="2030"
+                           placeholder="@Loc["songs.releaseTo"]"
+                           @bind="_toYear" disabled="@_busy" />
+                </div>
+            </div>
+
+            <div class="songs-toggle-wrap">
+                <label class="songs-toggle">
+                    <input type="checkbox" @bind="_noExplicit" disabled="@_busy" />
+                    <span>@Loc["songs.noExplicit"]</span>
+                </label>
+            </div>
+        </div>
+
+        <button class="tool-btn songs-randomize" @onclick="Randomize" disabled="@_busy">
+            @if (_busy)
+            {
+                <span><i class="bi bi-arrow-clockwise songs-spin"></i> @Loc["songs.picking"]</span>
+            }
+            else
+            {
+                <span><i class="bi bi-music-note-beamed"></i> @Loc["songs.randomize"]</span>
+            }
+        </button>
+
+        @if (_result is { TotalResults: > 0 } pool && _error is null)
+        {
+            <div class="songs-pool">
+                <strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["songs.poolAfter"]
+            </div>
+        }
+
+        @if (_error is not null)
+        {
+            <div class="songs-error" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>@_error</span>
+            </div>
+        }
+    </header>
+
+    @if (_result is { } r)
+    {
+        <article class="songs-result" @key="r.Id">
+
+            <!-- Hero: album art + title + artists -->
+            <div class="songs-hero">
+                @if (!string.IsNullOrEmpty(r.Album?.Image))
+                {
+                    <img src="@r.Album.Image" alt="@r.Album.Name" class="songs-cover" loading="lazy" />
+                }
+                else
+                {
+                    <div class="songs-cover songs-cover-empty"><i class="bi bi-music-note"></i></div>
+                }
+
+                <div class="songs-hero-info">
+                    <div class="songs-kind">@Loc["songs.kind.track"]</div>
+                    <h1 class="songs-title">@r.Title</h1>
+
+                    <div class="songs-artists">
+                        @foreach (var (a, i) in r.Artists.Select((x, idx) => (x, idx)))
+                        {
+                            if (i > 0)
+                            {
+                                <span class="songs-artists-sep">,</span>
+                            }
+                            if (!string.IsNullOrEmpty(a.Url))
+                            {
+                                <a href="@a.Url" target="_blank" rel="noopener" class="songs-artist-link">@a.Name</a>
+                            }
+                            else
+                            {
+                                <span class="songs-artist-link">@a.Name</span>
+                            }
+                        }
+                    </div>
+
+                    <div class="songs-meta">
+                        @if (!string.IsNullOrEmpty(r.Year))
+                        {
+                            <span>@r.Year</span>
+                        }
+                        <span>@FormatDuration(r.DurationMs)</span>
+                        @if (r.Popularity is int pop)
+                        {
+                            <span class="songs-pop-badge" title="@Loc["songs.popularityTip"]">
+                                <i class="bi bi-fire"></i> @pop
+                            </span>
+                        }
+                        @if (r.Explicit)
+                        {
+                            <span class="songs-explicit-badge">E</span>
+                        }
+                    </div>
+
+                    @if (r.ArtistGenres is { Count: > 0 } gtags)
+                    {
+                        <div class="songs-genre-pills">
+                            @foreach (var g in gtags.Take(6))
+                            {
+                                <span class="songs-genre-pill">@g</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="songs-cta-row">
+                        <button class="songs-cta songs-cta-primary" @onclick="Randomize" disabled="@_busy">
+                            <i class="bi bi-shuffle"></i> @Loc["songs.reroll"]
+                        </button>
+                        @if (!string.IsNullOrEmpty(r.SpotifyUrl))
+                        {
+                            <a href="@r.SpotifyUrl" target="_blank" rel="noopener" class="songs-cta songs-cta-spotify">
+                                <i class="bi bi-spotify"></i> @Loc["songs.openSpotify"]
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spotify embed player (30s preview clip) -->
+            <section class="songs-section songs-player-section">
+                <h3 class="songs-section-title">@Loc["songs.section.preview"]</h3>
+                <iframe class="songs-player"
+                        src="@($"https://open.spotify.com/embed/track/{r.Id}?utm_source=randomize")"
+                        title="Spotify player"
+                        loading="lazy"
+                        frameborder="0"
+                        allowtransparency="true"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+                </iframe>
+            </section>
+
+            <!-- Quick details -->
+            <section class="songs-section">
+                <h3 class="songs-section-title">@Loc["songs.section.details"]</h3>
+                <div class="songs-feature-tiles">
+                    @if (r.Popularity is int popTile)
+                    {
+                        <div class="songs-feature-tile">
+                            <i class="bi bi-fire"></i>
+                            <div class="songs-feature-tile-label">@Loc["songs.detail.popularity"]</div>
+                            <div class="songs-feature-tile-value">@popTile<small> / 100</small></div>
+                        </div>
+                    }
+                    @if (r.TrackNumber is int tn && tn > 0)
+                    {
+                        <div class="songs-feature-tile">
+                            <i class="bi bi-list-ol"></i>
+                            <div class="songs-feature-tile-label">@Loc["songs.detail.track"]</div>
+                            <div class="songs-feature-tile-value">
+                                @tn@(r.Album?.TotalTracks is int tt && tt > 0 ? $" / {tt}" : "")
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Album?.Label))
+                    {
+                        <div class="songs-feature-tile">
+                            <i class="bi bi-building"></i>
+                            <div class="songs-feature-tile-label">@Loc["songs.detail.label"]</div>
+                            <div class="songs-feature-tile-value songs-detail-text">@r.Album.Label</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(r.Isrc))
+                    {
+                        <div class="songs-feature-tile">
+                            <i class="bi bi-upc-scan"></i>
+                            <div class="songs-feature-tile-label">@Loc["songs.detail.isrc"]</div>
+                            <div class="songs-feature-tile-value songs-detail-mono">@r.Isrc</div>
+                        </div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(r.Copyright))
+                {
+                    <p class="songs-copyright">@r.Copyright</p>
+                }
+            </section>
+
+            <!-- Album info -->
+            @if (r.Album is { } alb && !string.IsNullOrEmpty(alb.Name))
+            {
+                <section class="songs-section songs-album-section">
+                    <h3 class="songs-section-title">@Loc["songs.section.album"]</h3>
+                    <div class="songs-album-card">
+                        @if (!string.IsNullOrEmpty(alb.Image))
+                        {
+                            <img src="@alb.Image" alt="@alb.Name" class="songs-album-cover" loading="lazy" />
+                        }
+                        <div class="songs-album-info">
+                            <div class="songs-album-name">@alb.Name</div>
+                            <div class="songs-album-meta">
+                                @if (!string.IsNullOrEmpty(r.ReleaseDate))
+                                {
+                                    <span>@r.ReleaseDate</span>
+                                }
+                                @if (alb.TotalTracks is int tracks && tracks > 0)
+                                {
+                                    <span>@tracks @Loc["songs.tracks"]</span>
+                                }
+                                @if (!string.IsNullOrEmpty(alb.Type))
+                                {
+                                    <span class="songs-album-type">@alb.Type</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(alb.Url))
+                            {
+                                <a href="@alb.Url" target="_blank" rel="noopener" class="songs-album-link">
+                                    <i class="bi bi-spotify"></i> @Loc["songs.openAlbum"]
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+
+            <!-- Primary artist info -->
+            @if (r.Artists is { Count: > 0 } artistList && !string.IsNullOrEmpty(r.ArtistImage))
+            {
+                <section class="songs-section">
+                    <h3 class="songs-section-title">@Loc["songs.section.artist"]</h3>
+                    <div class="songs-artist-card">
+                        <img src="@r.ArtistImage" alt="@artistList[0].Name" class="songs-artist-img" loading="lazy" />
+                        <div class="songs-artist-info">
+                            <div class="songs-artist-name">@artistList[0].Name</div>
+                            <div class="songs-artist-stats">
+                                @if (r.ArtistFollowers is long followers && followers > 0)
+                                {
+                                    <span class="songs-artist-stat">
+                                        <i class="bi bi-people-fill"></i>
+                                        @FormatFollowers(followers) @Loc["songs.followers"]
+                                    </span>
+                                }
+                                @if (r.ArtistPopularity is int ap && ap > 0)
+                                {
+                                    <span class="songs-artist-stat" title="@Loc["songs.popularityTip"]">
+                                        <i class="bi bi-fire"></i>
+                                        @ap / 100 @Loc["songs.detail.popularity"]
+                                    </span>
+                                }
+                            </div>
+                            @if (r.ArtistGenres is { Count: > 0 } ag)
+                            {
+                                <div class="songs-genre-pills">
+                                    @foreach (var g in ag.Take(8))
+                                    {
+                                        <span class="songs-genre-pill">@g</span>
+                                    }
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(artistList[0].Url))
+                            {
+                                <a href="@artistList[0].Url" target="_blank" rel="noopener" class="songs-album-link">
+                                    <i class="bi bi-spotify"></i> @Loc["songs.openArtist"]
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+        </article>
+    }
+    else if (!_busy)
+    {
+        <div class="songs-empty">
+            <i class="bi bi-music-note-beamed"></i>
+            <p>@Loc["songs.empty"]</p>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly HashSet<string> _selectedGenres = new();
+    private int? _fromYear;
+    private int? _toYear;
+    private bool _noExplicit;
+    private string _artist = "";
+    private string _album = "";
+    private bool _busy;
+    private string? _error;
+    private SongResult? _result;
+    private List<Genre>? _genres;
+    private string? _openMenu;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        try
+        {
+            var res = await Http.GetFromJsonAsync<GenresResponse>("api/songs/genres");
+            _genres = res?.Genres;
+        }
+        catch { }
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void ToggleGenre(string id)
+    {
+        if (!_selectedGenres.Add(id)) _selectedGenres.Remove(id);
+    }
+
+    private void ToggleMenu(string name) => _openMenu = _openMenu == name ? null : name;
+    private void CloseMenu() => _openMenu = null;
+
+    private async Task Randomize()
+    {
+        _busy = true;
+        _error = null;
+        StateHasChanged();
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+        try
+        {
+            int? from = _fromYear, to = _toYear;
+            if (from is int f && to is int t && f > t) (from, to) = (to, from);
+
+            var q = new List<string>();
+            if (_selectedGenres.Count > 0)
+                q.Add("genres=" + string.Join(",", _selectedGenres));
+            if (from is int fy) q.Add("from_year=" + fy);
+            if (to is int ty) q.Add("to_year=" + ty);
+            if (_noExplicit) q.Add("no_explicit=1");
+            if (!string.IsNullOrWhiteSpace(_artist)) q.Add("artist=" + Uri.EscapeDataString(_artist.Trim()));
+            if (!string.IsNullOrWhiteSpace(_album)) q.Add("album=" + Uri.EscapeDataString(_album.Trim()));
+
+            var url = "api/songs/random?" + string.Join("&", q);
+            var res = await Http.GetAsync(url, cts.Token);
+            if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _error = Loc["songs.error.noMatches"];
+                return;
+            }
+            res.EnsureSuccessStatusCode();
+            _result = await res.Content.ReadFromJsonAsync<SongResult>(cts.Token);
+            Stats.Increment("song");
+        }
+        catch (OperationCanceledException)
+        {
+            _error = Loc["songs.error.timeout"];
+        }
+        catch
+        {
+            _error = Loc["songs.error.generic"];
+        }
+        finally
+        {
+            _busy = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string FormatDuration(int ms)
+    {
+        var totalSec = ms / 1000;
+        var m = totalSec / 60;
+        var s = totalSec % 60;
+        return $"{m}:{s:00}";
+    }
+
+    private static string FormatFollowers(long n)
+    {
+        if (n >= 1_000_000) return $"{n / 1_000_000.0:0.#}M";
+        if (n >= 1_000)     return $"{n / 1_000.0:0.#}K";
+        return n.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    public sealed record GenresResponse(List<Genre> Genres);
+    public sealed record Genre(string Id, string Name);
+
+    public sealed record SongResult(
+        string Id, string Title,
+        List<Artist> Artists, Album? Album,
+        string? Year, string? ReleaseDate,
+        int DurationMs, int? TrackNumber, int? DiscNumber,
+        int? Popularity, bool Explicit, string? Copyright,
+        string? SpotifyUrl, string? Isrc,
+        List<string> ArtistGenres, long? ArtistFollowers, int? ArtistPopularity, string? ArtistImage,
+        int TotalResults);
+
+    public sealed record Artist(string? Id, string Name, string? Url);
+
+    public sealed record Album(string? Id, string Name, string? Image, string? Url, int? TotalTracks, string? Type, string? Label);
+}

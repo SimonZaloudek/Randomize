@@ -9,6 +9,7 @@ const TOOLS = [
   "shift",
   "movie",        // movie / TV randomizer
   "game",         // video game randomizer
+  "song",         // song randomizer
   "rps",          // rock paper scissors arena
   "rps-rock",
   "rps-paper",
