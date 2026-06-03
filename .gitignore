@@ -251,6 +251,10 @@ Package.StoreAssociation.xml
 _pkginfo.txt
 .dev.vars
 ROADMAP.md
+
+# Claude Code local files (collaborator tooling, not part of the project)
+.claude/
+CLAUDE.md
 *.appx
 *.appxbundle
 *.appxupload

@@ -119,7 +119,7 @@
             }
         </button>
 
-        @if (_result is { TotalResults: > 0 } pool && _error is null)
+        @if (_hadFilters && _result is { TotalResults: > 0 } pool && _error is null)
         {
             <div class="songs-pool">
                 <strong>@pool.TotalResults.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>@Loc["songs.poolAfter"]
@@ -416,6 +416,7 @@
     private bool _busy;
     private string? _error;
     private SongResult? _result;
+    private bool _hadFilters;            // was the last roll filtered? (gates the pool count)
     private string? _previewId;          // track currently loaded in the embed player
     private List<Genre>? _genres;
     private string? _openMenu;
@@ -466,6 +467,14 @@
             if (_noExplicit) q.Add("no_explicit=1");
             if (!string.IsNullOrWhiteSpace(_artist)) q.Add("artist=" + Uri.EscapeDataString(_artist.Trim()));
             if (!string.IsNullOrWhiteSpace(_album)) q.Add("album=" + Uri.EscapeDataString(_album.Trim()));
+
+            // the pool count is only meaningful when something is actually filtered;
+            // a no-filter "surprise me" uses a random discovery query each time
+            _hadFilters = _selectedGenres.Count > 0 || from is not null || to is not null
+                || !string.IsNullOrWhiteSpace(_artist) || !string.IsNullOrWhiteSpace(_album);
+
+            // nonce guarantees a unique URL per roll so no cached GET is reused
+            q.Add("_=" + Guid.NewGuid().ToString("N"));
 
             var url = "api/songs/random?" + string.Join("&", q);
             var res = await Http.GetAsync(url, cts.Token);
