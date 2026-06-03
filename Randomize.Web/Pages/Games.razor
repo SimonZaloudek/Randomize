@@ -2,7 +2,6 @@
 @using Randomize.Web.Services
 @using System.Net.Http.Json
 @inject HttpClient Http
-@inject StatsClient Stats
 @inject LocalizationService Loc
 @implements IDisposable
 
@@ -646,7 +645,7 @@
             res.EnsureSuccessStatusCode();
             _result = await res.Content.ReadFromJsonAsync<GameResult>(cts.Token);
             _galleryActive = _result?.Screenshots?.FirstOrDefault();
-            Stats.Increment("game");
+            // "game" is counted server-side in the function so it can't be spoofed
         }
         catch (OperationCanceledException)
         {

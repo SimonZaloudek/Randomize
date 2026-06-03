@@ -1,4 +1,7 @@
 // GET /api/games/random - random IGDB pick by genres, platforms, year range, min rating/votes
+import { incrementStat } from "../_stats.js";
+import { rateLimited, tooMany } from "../_ratelimit.js";
+
 const IGDB       = "https://api.igdb.com/v4";
 const TOKEN_URL  = "https://id.twitch.tv/oauth2/token";
 const IMG        = "https://images.igdb.com/igdb/image/upload";
@@ -19,6 +22,7 @@ export async function onRequestGet({ request, env }) {
   if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET || !env.STATS) {
     return json({ error: "Server not configured" }, 500);
   }
+  if (await rateLimited(env, request, "games")) return tooMany();
 
   const url = new URL(request.url);
   const genres    = parseIds(url.searchParams.get("genres"));
@@ -120,6 +124,7 @@ export async function onRequestGet({ request, env }) {
     similarCount: similar?.length || 0
   };
 
+  await incrementStat(env, "game");   // count server-side, not from the client
   return json(out);
 }
 

@@ -1,3 +1,6 @@
+import { incrementStat } from "../_stats.js";
+import { rateLimited, tooMany } from "../_ratelimit.js";
+
 // GET /api/songs/random - picks a random track. Three paths:
 //   - artist: pull the catalog from Deezer (Spotify's Dev-Mode token throttles
 //     /artists/{id}/albums hard), then find the chosen track on Spotify for the
@@ -24,6 +27,7 @@ export async function onRequestGet({ request, env }) {
     if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.STATS) {
         return json({ error: "Server not configured" }, 500);
     }
+    if (await rateLimited(env, request, "songs")) return tooMany();
 
     const url = new URL(request.url);
     const opts = {
@@ -65,6 +69,7 @@ export async function onRequestGet({ request, env }) {
             : (albumId ? getAlbumDetail(env, token, albumId) : Promise.resolve(null)),
     ]);
 
+    await incrementStat(env, "song");   // count server-side, not from the client
     return json(shape(pick, artistDetail, albumDetail, outcome.total));
 }
 

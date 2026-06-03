@@ -2,7 +2,6 @@
 @using Randomize.Web.Services
 @using System.Net.Http.Json
 @inject HttpClient Http
-@inject StatsClient Stats
 @inject LocalizationService Loc
 @implements IDisposable
 
@@ -486,7 +485,7 @@
             res.EnsureSuccessStatusCode();
             _result = await res.Content.ReadFromJsonAsync<SongResult>(cts.Token);
             _previewId = _result?.Id;       // the player starts on the picked track
-            Stats.Increment("song");
+            // "song" is counted server-side in the function so it can't be spoofed
         }
         catch (OperationCanceledException)
         {
