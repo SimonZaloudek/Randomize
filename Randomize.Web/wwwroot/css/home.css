@@ -352,6 +352,7 @@
 .home-stat-label {
     color: #888;
     font-size: 0.8rem;
+    text-align: center;
 }
 
 /* tablets: keep 5 in a row, tighter */
@@ -535,11 +536,6 @@ html[data-theme="default"] .home-feature-card {
     100% { transform: scale(3.2); opacity: 0; }
 }
 
-/* hairline dividers between pills */
-.home-livestats-card .home-livestats-grid > .home-livestat-pill + .home-livestat-pill {
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-}
-
 @media (max-width: 720px) {
     .home-livestats-card {
         padding: 18px 16px 20px;
@@ -558,11 +554,6 @@ html[data-theme="default"] .home-feature-card {
 
     .home-livestats-card .home-stat-value {
         font-size: 1.3rem;
-    }
-
-    /* no dividers on the 2x2 grid */
-    .home-livestats-card .home-livestats-grid > .home-livestat-pill + .home-livestat-pill {
-        border-left: none;
     }
 }
 
