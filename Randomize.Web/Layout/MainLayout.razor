@@ -2,6 +2,9 @@
 @inject LocalizationService Loc
 @implements IDisposable
 
+<!-- song-colour glow that rings the app card; lit only while a song plays -->
+<div class="app-song-glow" aria-hidden="true"><div class="app-song-glow-wave"></div></div>
+
 <div class="app-container">
     <!-- Sidebar -->
     <div class="sidebar @(isSidebarOpen ? "open" : "closed")">

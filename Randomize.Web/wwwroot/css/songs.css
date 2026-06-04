@@ -1,11 +1,87 @@
 /* songs.css - Spotify-flavored song randomizer */
 
 .songs-page {
+    position: relative;
     width: 100%;
     max-width: 1180px;
     margin: 0 auto;
     padding-bottom: 60px;
     box-sizing: border-box;
+}
+
+/* Album-colour glow. --song-glow (r,g,b) comes from the album art (songs-glow.js),
+   .song-playing tracks the embed's play state, .glow-off is the user's toggle.
+   An outer element handles the fade (opacity transition), an inner one the wave
+   (opacity keyframes). Both opacity-only, GPU-promoted and paused when idle. */
+
+/* one envelope behind the filter + result so they read as one connected unit */
+.songs-glow {
+    position: absolute;
+    inset: 0 0 60px 0;            /* skip the page's bottom padding */
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;   /* fade out */
+}
+
+.songs-glow-wave {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    box-shadow: 0 0 50px 8px rgb(var(--song-glow, 0, 0, 0));
+    background: rgba(var(--song-glow, 0, 0, 0), 0.55);   /* bridges the gap between the cards */
+    animation: songs-wave 4s ease-in-out infinite;
+    animation-play-state: paused;
+    will-change: opacity;
+}
+
+@keyframes songs-wave {
+    0%, 100% { opacity: 0.25; }
+    28%      { opacity: 0.48; }
+    52%      { opacity: 0.32; }
+    76%      { opacity: 0.40; }
+}
+
+/* glow ringing the app card. The wave matches the card's box (centred 96vw x 90vh)
+   so its shadow spills only into the surrounding margin. */
+.app-song-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.app-song-glow-wave {
+    position: absolute;
+    left: 2vw;
+    top: 5vh;
+    width: 96vw;
+    height: 90vh;
+    border-radius: 20px;
+    box-shadow: 0 0 40px 2px rgb(var(--song-glow, 0, 0, 0));
+    animation: songs-wave 4s ease-in-out infinite;
+    animation-play-state: paused;
+    will-change: opacity;
+    transition: transform 0.4s ease;   /* follow the card's hover lift */
+}
+
+/* the app card lifts on hover; lift the ring with it (matches base.css timing) */
+html:has(.app-container:hover) .app-song-glow-wave { transform: translateY(-3px); }
+
+html.song-playing:not(.glow-off) .songs-glow { opacity: 0.60; transition: opacity 1.1s ease; }
+html.song-playing:not(.glow-off) .app-song-glow { opacity: 0.80; transition: opacity 1.1s ease; }
+html.song-playing:not(.glow-off) .songs-glow-wave,
+html.song-playing:not(.glow-off) .app-song-glow-wave { animation-play-state: running; }
+
+.songs-filter,
+.songs-result,
+.songs-empty { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+    .songs-glow-wave,
+    .app-song-glow-wave { animation: none; opacity: 0.9; }
 }
 
 /* === Filter card === */
@@ -14,7 +90,7 @@
     border: 1px solid var(--surface-border);
     border-radius: 16px;
     padding: 26px 28px;
-    margin-bottom: 28px;
+    margin-bottom: 10px;
     box-shadow: var(--surface-shadow);
     display: flex;
     flex-direction: column;
@@ -392,15 +468,10 @@
     z-index: 0;
     background-size: cover;
     background-position: center;
-    filter: blur(48px) saturate(1.5) brightness(0.55);
-    will-change: transform;
-    /* scale ≥1.3 always keeps the blurred edges off-screen while it drifts */
-    animation: songs-drift 26s ease-in-out infinite alternate;
-}
-
-@keyframes songs-drift {
-    from { transform: scale(1.3) translate(-1.5%, -1%); }
-    to   { transform: scale(1.4) translate(1.5%, 1%); }
+    /* static (no drift animation) + smaller blur - a continuously-animating blur
+       was a real perf cost. scale 1.1 just hides the soft blurred edges. */
+    transform: scale(1.1);
+    filter: blur(34px) saturate(1.5) brightness(0.55);
 }
 
     .songs-hero-bg::after {
@@ -651,6 +722,8 @@
     border-radius: 12px;
     background: transparent;
 }
+
+.songs-player-mount { min-height: 152px; }
 
 /* === Album tracklist === */
 .songs-tracklist {
