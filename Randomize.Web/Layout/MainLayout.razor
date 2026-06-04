@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@using Randomize.Web.Pages
 @inject LocalizationService Loc
 @implements IDisposable
 
@@ -42,7 +43,7 @@
             <NavLink href="/rps" class="nav-item">
                 <i class="bi bi-scissors"></i> @Loc["nav.rps"]
             </NavLink>
-            <NavLink href="/songs" class="nav-item">
+            <NavLink href="/songs" class="nav-item nav-item-songs">
                 <img src="brand/spotify-icon.svg" alt="" class="nav-spotify-icon" /> @Loc["nav.songs"]
             </NavLink>
 
@@ -80,6 +81,11 @@
         }
 
         @Body
+
+        <!-- Songs lives here (not as a routed page) so it stays alive across
+             navigation: the inline player keeps playing and the result is kept.
+             It shows on /songs and slides off-screen (player -> corner) elsewhere. -->
+        <Songs />
     </div>
 </div>
 

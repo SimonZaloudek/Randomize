@@ -485,5 +485,6 @@
   "songs.openArtist": "Otvoriť interpreta",
   "songs.major": "dur",
   "songs.minor": "mol",
-  "songs.empty": "Vyber filtre a klikni na náhodný výber."
+  "songs.empty": "Vyber filtre a klikni na náhodný výber.",
+  "songs.scrollToResult": "Preskočiť na výsledok"
 }

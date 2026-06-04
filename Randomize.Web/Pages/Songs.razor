@@ -1,17 +1,15 @@
-@page "/songs"
+@* Not a routed page: rendered once in MainLayout so it stays alive across
+   navigation (the inline player keeps playing and the result is preserved).
+   The /songs route is a thin stub (SongsRoute.razor); this shows when active. *@
 @using Randomize.Web.Services
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject LocalizationService Loc
 @inject IJSRuntime JS
+@inject NavigationManager Nav
 @implements IDisposable
 
-<PageTitle>@Loc["songs.pageTitle"]</PageTitle>
-
-<div class="songs-page">
-
-    <!-- one glow envelope behind the filter + result so they read as connected -->
-    <div class="songs-glow" aria-hidden="true"><div class="songs-glow-wave"></div></div>
+<div class="songs-page songs-host @(IsActive ? "songs-host-active" : "songs-host-away")">
 
     <header class="songs-filter">
         <div class="songs-filter-head">
@@ -144,7 +142,22 @@
 
     @if (_result is { } r)
     {
-        <article class="songs-result" @key="r.Id">
+        @* breathing room + a nudge down to the freshly-picked track *@
+        <div class="songs-scroll-cue-wrap">
+            <button type="button" class="songs-scroll-cue" @onclick="ScrollToResult"
+                    aria-label="@Loc["songs.scrollToResult"]">
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+
+        @* glow rims only the result card (not the filter); the host's lack of
+           overflow lets the box-shadow spill around the card *@
+        <div class="songs-glow-host">
+        <div class="songs-glow" aria-hidden="true"><div class="songs-glow-wave"></div></div>
+
+        @* no @key: keep the card (and the player mount inside it) in place across
+           rerolls so the embed isn't destroyed - we just swap the track *@
+        <article class="songs-result" id="songs-result-anchor">
 
             <!-- Hero: album art + title + artists -->
             <div class="songs-hero">
@@ -225,26 +238,14 @@
                 </div>
             </div>
 
-            <!-- Spotify embed (full track for Premium, else 30s). Mounted via the
-                 iFrame API by songs-glow.js so we can read play/pause; falls back
-                 to a plain embed if that script/API is unavailable. -->
+            <!-- Inline player. songs-glow.js mounts the Spotify iFrame-API embed here.
+                 When the user leaves /songs this section floats to the corner (CSS),
+                 same element so it never reloads. -->
             <section class="songs-section songs-player-section">
-                <h3 class="songs-section-title">@Loc["songs.section.preview"]</h3>
-                @if (_embedFailed)
-                {
-                    <iframe class="songs-player"
-                            src="@($"https://open.spotify.com/embed/track/{_previewId}?utm_source=randomize")"
-                            title="Spotify player" loading="lazy" frameborder="0" allowtransparency="true"
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-                    </iframe>
-                }
-                else
-                {
-                    <div id="songs-player-mount" class="songs-player-mount"></div>
-                }
+                <div id="songs-player-mount" class="songs-player-mount"></div>
             </section>
 
-            <!-- More from this album: clicking a track loads it into the player above -->
+            <!-- More from this album: clicking a track swaps it in the player -->
             @if (r.AlbumTracks is { Count: > 1 } albumTracks)
             {
                 <section class="songs-section">
@@ -256,7 +257,7 @@
                             <li>
                                 <button type="button"
                                         class="songs-track-row @(active ? "active" : "")"
-                                        @onclick="() => PlayTrack(tr.Id)">
+                                        @onclick="() => PlayTrack(tr.Id, tr.Name)">
                                     <span class="songs-track-num">
                                         @if (active)
                                         {
@@ -409,6 +410,7 @@
                 </section>
             }
         </article>
+        </div>
     }
     else if (!_busy)
     {
@@ -438,6 +440,7 @@
     protected override async Task OnInitializedAsync()
     {
         Loc.LanguageChanged += OnLanguageChanged;
+        Nav.LocationChanged += OnLocationChanged;
         try
         {
             var res = await Http.GetFromJsonAsync<GenresResponse>("api/songs/genres");
@@ -448,38 +451,49 @@
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
+    // active only on the /songs route; otherwise the page slides off-screen and the
+    // player floats to the corner (handled in CSS via .songs-host-away)
+    private bool IsActive =>
+        Nav.ToBaseRelativePath(Nav.Uri).TrimEnd('/').StartsWith("songs", StringComparison.OrdinalIgnoreCase);
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
     public void Dispose()
     {
         Loc.LanguageChanged -= OnLanguageChanged;
-        _ = JS.InvokeVoidAsync("SongGlow.dispose");
+        Nav.LocationChanged -= OnLocationChanged;
     }
 
-    // Mount the embed (so we can read play/pause for the glow) on a new song,
-    // or just swap the track when a tracklist row is clicked.
-    private bool _embedFailed;           // SongGlow unavailable -> plain embed fallback
-    private string? _glowId;
-    private string? _playId;
+    // Mount/swap the inline player when the chosen track changes. The mount is
+    // persistent (this component never unmounts), so after the first mount we just
+    // swap the track in place - it never reloads, so playback survives navigation.
+    private bool _glowReady;
+    private bool _mounted;
+    private string? _appliedId;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!_glowReady)
         {
+            _glowReady = true;
             try { _glowOn = await JS.InvokeAsync<bool>("SongGlow.isEnabled"); StateHasChanged(); }
             catch { }
         }
-        if (_embedFailed || _result is not { } r) return;
-        if (_glowId != r.Id)
+
+        if (_previewId is null || _previewId == _appliedId) return;
+        _appliedId = _previewId;
+        try
         {
-            _glowId = r.Id;
-            _playId = r.Id;
-            try { await JS.InvokeVoidAsync("SongGlow.load", "songs-player-mount", r.Id, r.Album?.Image); }
-            catch { _embedFailed = true; StateHasChanged(); }
+            if (!_mounted)
+            {
+                await JS.InvokeVoidAsync("SongGlow.load", "songs-player-mount", _previewId, _result?.Album?.Image);
+                _mounted = true;
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("SongGlow.play", _previewId, _result?.Album?.Image);
+            }
         }
-        else if (_playId != _previewId)
-        {
-            _playId = _previewId;
-            try { await JS.InvokeVoidAsync("SongGlow.play", _previewId); }
-            catch { _embedFailed = true; StateHasChanged(); }
-        }
+        catch { }
     }
 
     private async Task ToggleGlow(ChangeEventArgs e)
@@ -497,8 +511,14 @@
     private void ToggleMenu(string name) => _openMenu = _openMenu == name ? null : name;
     private void CloseMenu() => _openMenu = null;
 
-    // Swap the embed player to a track from the album list (re-renders the iframe src)
-    private void PlayTrack(string id) => _previewId = id;
+    // play a track from the album list (OnAfterRender swaps it into the player)
+    private void PlayTrack(string id, string? name) => _previewId = id;
+
+    private async Task ScrollToResult()
+    {
+        try { await JS.InvokeVoidAsync("SongGlow.scrollToResult"); }
+        catch { }
+    }
 
     private async Task Randomize()
     {
@@ -539,7 +559,7 @@
             }
             res.EnsureSuccessStatusCode();
             _result = await res.Content.ReadFromJsonAsync<SongResult>(cts.Token);
-            _previewId = _result?.Id;       // the player starts on the picked track
+            _previewId = _result?.Id;   // OnAfterRender mounts/swaps the inline player
             // "song" is counted server-side in the function so it can't be spoofed
         }
         catch (OperationCanceledException)
