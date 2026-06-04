@@ -485,5 +485,6 @@
   "songs.openArtist": "Open artist",
   "songs.major": "major",
   "songs.minor": "minor",
-  "songs.empty": "Pick some filters and hit Randomize."
+  "songs.empty": "Pick some filters and hit Randomize.",
+  "songs.scrollToResult": "Jump to result"
 }

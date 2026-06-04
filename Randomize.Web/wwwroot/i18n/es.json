@@ -485,5 +485,6 @@
   "songs.openArtist": "Abrir artista",
   "songs.major": "mayor",
   "songs.minor": "menor",
-  "songs.empty": "Elige algunos filtros y pulsa Aleatorizar."
+  "songs.empty": "Elige algunos filtros y pulsa Aleatorizar.",
+  "songs.scrollToResult": "Ir al resultado"
 }

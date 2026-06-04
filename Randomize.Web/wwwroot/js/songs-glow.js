@@ -10,6 +10,7 @@
     let apiReady = null;
     let mountEl = null;
     let loadToken = 0;
+    let swapAt = 0;   // when the track was last swapped; ignore stale play-state events right after
 
     // restore the "glow disabled" preference on load
     try { if (localStorage.getItem("songGlowOff") === "1") ROOT.classList.add("glow-off"); } catch { }
@@ -57,11 +58,13 @@
         img.src = url;
     }
 
-    // (re)mount the embed for a new song. The result card is re-keyed per song so
-    // the mount is a fresh node - newest load wins via the token.
+    // mount the embed once (first song). Later songs swap in place via play() - the
+    // mount node is stable, so this only runs again after a dispose. Newest load
+    // wins via the token in case two fire close together.
     async function load(mountId, trackId, imageUrl) {
         mountEl = document.getElementById(mountId);
         applyColor(imageUrl);
+        swapAt = Date.now();
         setPlaying(false);
         const myToken = ++loadToken;
         try { controller && controller.destroy && controller.destroy(); } catch { }
@@ -76,6 +79,9 @@
                     if (myToken !== loadToken) { try { ctrl.destroy && ctrl.destroy(); } catch { } return; }
                     controller = ctrl;
                     ctrl.addListener("playback_update", (e) => {
+                        // drop the stale event a track-swap leaves behind, so the glow
+                        // reflects the NEW track's settled state, not the old one's
+                        if (Date.now() - swapAt < 700) return;
                         setPlaying(((e && e.data) || {}).isPaused === false);
                     });
                 });
@@ -85,10 +91,20 @@
         }
     }
 
-    // tracklist click: swap the playing track, keep everything else
-    function play(trackId) {
+    // swap to a new track in the existing controller (no re-mount, no flash) and
+    // recolour. Used for rerolls / tracklist clicks once the player is up.
+    function play(trackId, imageUrl) {
+        applyColor(imageUrl);
+        swapAt = Date.now();
+        setPlaying(false);   // reset the glow; playback_update turns it back on if it plays
         if (controller) controller.loadUri("spotify:track:" + trackId);
         else fallbackIframe(trackId);
+    }
+
+    // smooth-scroll the result card into view (the down-chevron under the filter)
+    function scrollToResult() {
+        const el = document.getElementById("songs-result-anchor");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function dispose() {
@@ -122,5 +138,5 @@
             'allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
     }
 
-    window.SongGlow = { load, play, dispose, setEnabled, isEnabled };
+    window.SongGlow = { load, play, dispose, setEnabled, isEnabled, scrollToResult };
 })();
