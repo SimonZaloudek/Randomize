@@ -1,0 +1,243 @@
+/* about.css - the About page. Loaded after settings.css, before mobile.css. */
+
+.about-layout {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding-bottom: 60px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+/* shared card shell (intro + connect) */
+.about-card {
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    box-shadow: var(--surface-shadow);
+    box-sizing: border-box;
+}
+
+.about-section-title {
+    margin: 2px 0 0;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.about-section-sub {
+    margin: 0;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* ===== Intro ===== */
+.about-intro {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.about-intro-logo img {
+    width: 92px;
+    height: 92px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+.about-intro-text h3 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.about-intro-text p {
+    margin: 0 0 10px;
+    color: #c4c4c8;
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+    .about-intro-text p:last-child { margin-bottom: 0; }
+
+/* ===== Randomizers (collapsible accordion, native <details>) ===== */
+.about-tools { display: flex; flex-direction: column; gap: 4px; }
+
+.about-acc-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.about-acc {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+}
+
+    .about-acc[open] { border-color: var(--surface-border-hover); }
+
+/* the clickable row */
+.about-acc-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+    /* hide the browser's default disclosure triangle */
+    .about-acc-head::-webkit-details-marker { display: none; }
+    .about-acc-head::marker { content: ""; }
+
+    .about-acc-head:hover { background: rgba(255, 255, 255, 0.02); }
+
+.about-acc-icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: var(--icon-grad, rgba(255, 255, 255, 0.06));
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+
+    .about-acc-icon img { width: 18px; height: 18px; }
+
+.about-acc-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.about-acc-tag {
+    flex: 1;
+    min-width: 0;
+    color: #888;
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.about-acc-chevron {
+    flex-shrink: 0;
+    color: #888;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.about-acc[open] .about-acc-chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+}
+
+/* expanded content - indented to line up under the title */
+.about-acc-body {
+    padding: 2px 18px 18px 62px;
+    animation: about-acc-reveal 0.2s ease;
+}
+
+@keyframes about-acc-reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+
+    .about-acc-body p {
+        margin: 0 0 10px;
+        color: #c0c0c4;
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+.about-subtools,
+.about-tut {
+    margin: 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #c0c0c4;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.about-subtools { padding-left: 18px; }
+.about-tut { padding-left: 20px; }
+
+    .about-subtools strong,
+    .about-tut strong { color: #fff; }
+
+.about-acc-body code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #e0d8ff;
+}
+
+.about-acc-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+    .about-acc-open i { transition: transform 0.15s ease; }
+    .about-acc-open:hover i { transform: translateX(3px); }
+
+/* ===== Connect ===== */
+.about-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.about-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+    .about-link:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+.about-link-github { background: #24292f; border-color: rgba(255, 255, 255, 0.14); }
+.about-link-linkedin { background: #0a66c2; }
+.about-link-x { background: #000; border-color: rgba(255, 255, 255, 0.22); }
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    .about-card { padding: 20px 18px; }
+
+    .about-intro {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    /* drop the indent so the steps get full width on phones */
+    .about-acc-body { padding-left: 18px; }
+}

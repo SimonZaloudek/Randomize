@@ -1,0 +1,248 @@
+@page "/about"
+@using Randomize.Web.Services
+@inject LocalizationService Loc
+
+@* Content is English-only for now (per decision: English first, translate later).
+   When we do the i18n pass, move the strings below into Loc["about.*"] keys. *@
+
+<PageTitle>About - Randomize</PageTitle>
+
+<h2 class="page-title">About</h2>
+
+<div class="about-layout">
+
+    <!-- ===== Intro =====
+         DRAFT - Simon, edit this to make it yours. -->
+    <section class="about-card about-intro">
+        <div class="about-intro-logo">
+            <img src="brand/RANDLOGO1.png" alt="Randomize" />
+        </div>
+        <div class="about-intro-text">
+            <h3>What Randomize is to me</h3>
+            <p>
+                Hey, I'm Simon. Randomize is my answer to a small, oddly universal
+                problem: making a choice when you really cannot make it yourself. A fair
+                pick for the chores, a random number, teams nobody can argue with, or just
+                "surprise me with a movie tonight."
+            </p>
+            <p>
+                I wanted all of it in one fast, clean place. No sign-ups, no ads, no
+                tracking. Just open a tool and let chance decide, maybe give this opportunity to others as well.
+                It's also my playground for learning, every randomizer here is something I wanted to build properly,
+                from the spinning wheel to a Spotify-powered song picker.
+            </p>
+            <p>
+                Thanks for stopping by, and I will be grateful for any feedback :)
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== The randomizers (collapsible) ===== -->
+    <section class="about-tools">
+        <h3 class="about-section-title">The randomizers</h3>
+        <p class="about-section-sub">Tap any tool to see what it does and how to use it.</p>
+
+        <div class="about-acc-list">
+
+            <!-- Text -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-type"></i></span>
+                    <span class="about-acc-title">Text</span>
+                    <span class="about-acc-tag">Six quick text tools</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Six small text helpers on one page:</p>
+                    <ul class="about-subtools">
+                        <li><strong>Random pick</strong> - paste a list (one per line) and pull one entry.</li>
+                        <li><strong>Weighted pick</strong> - prefix each line with a weight (e.g. <code>5: Pizza</code>) so favourites come up more often.</li>
+                        <li><strong>Password</strong> - set the length and which character types to include (A-Z, a-z, 0-9, symbols).</li>
+                        <li><strong>Token</strong> - a random string in a charset you choose (alphanumeric, hex, base64, or custom).</li>
+                        <li><strong>Coin flip</strong> - heads or tails, with a flip animation.</li>
+                        <li><strong>Emoji</strong> - one random emoji, handy for a quick reaction.</li>
+                    </ul>
+                    <a href="/string" class="about-acc-open">Open Text <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Number -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-123"></i></span>
+                    <span class="about-acc-title">Number</span>
+                    <span class="about-acc-tag">Six quick number tools</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Six small number helpers on one page:</p>
+                    <ul class="about-subtools">
+                        <li><strong>Random number</strong> - one number between a min and max you set.</li>
+                        <li><strong>Dice</strong> - roll 1-5 six-sided dice; shows each die and the total.</li>
+                        <li><strong>Lottery</strong> - draw N unique numbers out of a pool (e.g. 6 of 49), sorted.</li>
+                        <li><strong>Multiple numbers</strong> - a batch at once, with an optional "no repeats".</li>
+                        <li><strong>Random date</strong> - a date between two you pick.</li>
+                        <li><strong>PIN</strong> - a random 3-12 digit code.</li>
+                    </ul>
+                    <a href="/number" class="about-acc-open">Open Number <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Wheel -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-arrow-repeat"></i></span>
+                    <span class="about-acc-title">Wheel</span>
+                    <span class="about-acc-tag">Spin to pick one</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>A spinning wheel of fortune - great when you want the suspense of a draw.</p>
+                    <ol class="about-tut">
+                        <li>Type your options, one per line; each becomes a coloured slice.</li>
+                        <li>Press <strong>Spin</strong> - the wheel accelerates, then coasts to a stop.</li>
+                        <li>The slice under the pointer is your winner. Spin again to re-roll, or edit the options and spin once more.</li>
+                    </ol>
+                    <a href="/wheel" class="about-acc-open">Open Wheel <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Group Shuffler -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-people-fill"></i></span>
+                    <span class="about-acc-title">Group Shuffler</span>
+                    <span class="about-acc-tag">Fair random teams</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Splits a list of people into balanced, random groups.</p>
+                    <ol class="about-tut">
+                        <li>Paste the names, one per line.</li>
+                        <li>Choose how to split: a fixed <strong>number of groups</strong>, or a fixed <strong>group size</strong>.</li>
+                        <li>Set the value and hit <strong>Shuffle</strong> - everyone is dealt into even groups.</li>
+                        <li>Want to tweak the result? Drag a name from one group card to another, or shuffle again.</li>
+                    </ol>
+                    <a href="/groupshuffler" class="about-acc-open">Open Group Shuffler <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Shift Planner -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-clock"></i></span>
+                    <span class="about-acc-title">Shift Planner</span>
+                    <span class="about-acc-tag">Ease your work, and randomize those shift plans</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Generates a randomized shift schedule across a day-long timeline while respecting each person's hours.</p>
+                    <ol class="about-tut">
+                        <li>Add each person and the maximum hours they can work.</li>
+                        <li>Mark anyone whose shift starts or ends in the early hours of the next day (a moon icon flags those).</li>
+                        <li>Press <strong>generate</strong> - it fills the busiest gaps first and picks randomly among equally good options, so each plan differs.</li>
+                        <li>Re-generate for a fresh layout, or export the plan to a text file to keep.</li>
+                    </ol>
+                    <a href="/shiftplanner" class="about-acc-open">Open Shift Planner <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Movies & TV -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-film"></i></span>
+                    <span class="about-acc-title">Movies &amp; TV</span>
+                    <span class="about-acc-tag">What to watch</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Discovers a random film or TV show (data from TMDB) for when you can't decide.</p>
+                    <ol class="about-tut">
+                        <li>Optionally narrow it down: genre, release years, minimum rating, and movie vs TV.</li>
+                        <li>Press <strong>Randomize</strong>.</li>
+                        <li>You get a title you probably won't even watch, since your girlfriend already decided in the meantime.</li>
+                    </ol>
+                    <a href="/movies" class="about-acc-open">Open Movies <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Games -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-controller"></i></span>
+                    <span class="about-acc-title">Games</span>
+                    <span class="about-acc-tag">What to play</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Finds a random video game (data from IGDB) to play next.</p>
+                    <ol class="about-tut">
+                        <li>Optionally filter by platform, genre or release year.</li>
+                        <li>Press <strong>Randomize</strong>.</li>
+                        <li>Browse the pick's art, rating, details and force your friend to buy that one co-op game you'll never play again after the first day.</li>
+                    </ol>
+                    <a href="/games" class="about-acc-open">Open Games <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- RPS Arena -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><i class="bi bi-scissors"></i></span>
+                    <span class="about-acc-title">RPS Arena</span>
+                    <span class="about-acc-tag">Battle simulation</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>A rock-paper-scissors battle royale - watch them fight to the last type standing.</p>
+                    <ol class="about-tut">
+                        <li>Set how many rock, paper and scissors start in the arena.</li>
+                        <li>Choose their behaviour (chase prey and flee predators, or just roam) and the speed.</li>
+                        <li>Press <strong>Start</strong>. On contact the loser converts to the winner's type, the last type left wins.</li>
+                        <li>Pause, change speed, or restart at any point.</li>
+                    </ol>
+                    <a href="/rps" class="about-acc-open">Open RPS Arena <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+            <!-- Songs -->
+            <details class="about-acc">
+                <summary class="about-acc-head">
+                    <span class="about-acc-icon"><img src="brand/spotify-icon.svg" alt="" /></span>
+                    <span class="about-acc-title">Songs</span>
+                    <span class="about-acc-tag">A random track</span>
+                    <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="about-acc-body">
+                    <p>Surfaces a random song, powered by Spotify, and plays it right on the page.</p>
+                    <ol class="about-tut">
+                        <li>Optionally filter by genre, artist, album or release years.</li>
+                        <li>Press <strong>Randomize</strong>.</li>
+                        <li>The pick loads in a built-in player with its cover and details - press play, reroll, or choose another track from the same album.</li>
+                        <li>It keeps playing while you wander off to other tools. (my favourite)</li>
+                    </ol>
+                    <a href="/songs" class="about-acc-open">Open Songs <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </details>
+
+        </div>
+    </section>
+
+    <!-- ===== Connect ===== -->
+    <section class="about-card about-connect">
+        <h3 class="about-section-title">Connect</h3>
+        <p class="about-section-sub">Find the project and me around the web.</p>
+        <div class="about-links">
+            <a class="about-link about-link-github" href="https://github.com/SimonZaloudek" target="_blank" rel="noopener">
+                <i class="bi bi-github"></i> GitHub
+            </a>
+            <a class="about-link about-link-linkedin" href="https://www.linkedin.com/in/simon-zaloudek-3343622a9" target="_blank" rel="noopener">
+                <i class="bi bi-linkedin"></i> LinkedIn
+            </a>
+            <a class="about-link about-link-x" href="https://x.com/userandomize" target="_blank" rel="noopener">
+                <i class="bi bi-twitter-x"></i> X
+            </a>
+        </div>
+    </section>
+
+</div>
