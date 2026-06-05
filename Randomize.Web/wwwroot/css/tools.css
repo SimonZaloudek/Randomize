@@ -12,8 +12,8 @@
 }
 
 .shuffler-panel {
-    /* 100% of the content area (which already has side margins) capped at 560px -
-       NOT 95vw, which ignored those margins and bled to the screen edges on phones */
+    /* fill the content area (already margined) capped at 560px; 95vw used to ignore
+       those margins and bleed to the screen edges on phones */
     width: 100%;
     max-width: 560px;
     gap: 14px;

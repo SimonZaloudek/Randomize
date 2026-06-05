@@ -294,16 +294,15 @@
         }
     }
 
-    // With textAlign "center" the anchor is the middle of the char box, but an emoji's
-    // visible pixels can be off-centre in that box (the scissors blades especially).
-    // Measure how far the ink centre is from the anchor so draw() can cancel it out.
+    // textAlign "center" centres the char box, but an emoji's ink can sit off-centre
+    // in that box (scissors especially). Measure the imbalance so draw() can undo it.
     function measureGlyphOffsets() {
         const offsets = {};
         for (const type of TYPES) {
             const m = ctx.measureText(GLYPHS[type]);
-            const left = m.actualBoundingBoxLeft ?? 0;     // ink extent left of the anchor
-            const right = m.actualBoundingBoxRight ?? 0;    // ink extent right of the anchor
-            offsets[type] = (right - left) / 2;             // >0 means ink leans right
+            const left = m.actualBoundingBoxLeft ?? 0;
+            const right = m.actualBoundingBoxRight ?? 0;
+            offsets[type] = (right - left) / 2;   // >0 = ink leans right
         }
         return offsets;
     }

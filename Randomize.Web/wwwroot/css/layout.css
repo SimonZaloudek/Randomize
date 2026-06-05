@@ -313,3 +313,93 @@
 }
 
 
+/* === FIRST-VISIT WELCOME TOAST === */
+.welcome-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    z-index: 60;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: min(440px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 14px 14px 16px 16px;
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55);
+    /* slide up + fade in (composite-only); the -50% keeps it centred */
+    animation: welcome-rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes welcome-rise {
+    from { opacity: 0; transform: translate(-50%, 18px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.welcome-toast-icon img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+.welcome-toast-body { flex: 1; min-width: 0; }
+
+.welcome-toast-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin-bottom: 2px;
+}
+
+.welcome-toast-text {
+    color: #aaa;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.welcome-toast-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+    .welcome-toast-cta:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .welcome-toast-cta i { transition: transform 0.15s ease; }
+    .welcome-toast-cta:hover i { transform: translateX(3px); }
+
+.welcome-toast-close {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #888;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+    .welcome-toast-close:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-toast { animation: none; transform: translateX(-50%); }
+}
+
+

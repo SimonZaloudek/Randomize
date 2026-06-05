@@ -12,6 +12,9 @@
   "nav.settings": "Nastavenia",
   "nav.contact": "Kontakt",
   "nav.about": "O aplikácii",
+  "welcome.title": "Vitaj v Randomize",
+  "welcome.text": "Nevieš sa rozhodnúť? Nechaj to na náhodu. Si tu nový? Pozri, čo ktorý nástroj robí.",
+  "welcome.cta": "O stránke",
 
   "settings.pageTitle": "Nastavenia - Randomize",
   "settings.title": "Nastavenia",

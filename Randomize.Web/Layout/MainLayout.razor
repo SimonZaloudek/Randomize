@@ -60,7 +60,7 @@
         <!-- Version + About -->
         <div class="sidebar-footer">
             <span class="sidebar-version">Beta v0.70</span>
-            <a href="https://github.com/SimonZaloudek/Randomize" target="_blank" rel="noopener" class="sidebar-about">@Loc["nav.about"]</a>
+            <NavLink href="/about" class="sidebar-about" @onclick="CloseSidebar">@Loc["nav.about"]</NavLink>
         </div>
     </div>
 
@@ -84,10 +84,14 @@
 
         <!-- Songs lives here (not as a routed page) so it stays alive across
              navigation: the inline player keeps playing and the result is kept.
-             It shows on /songs and slides off-screen (player -> corner) elsewhere. -->
+             It shows on /songs and slides off-screen (player drops to the corner) elsewhere. -->
         <Songs />
     </div>
 </div>
+
+<!-- First-visit welcome toast (shows once, then remembered in localStorage).
+     Outside .app-container so its fixed position ignores the card hover lift. -->
+<WelcomeToast />
 
 @code {
     // theme is applied by index.html on initial load + Settings page on change
