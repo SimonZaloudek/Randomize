@@ -28,6 +28,7 @@
     let rafId = 0;
     let winnerNotified = false;
     let resizeObserver = null;
+    let glyphOffsets = null;   // per-glyph fix so the visible emoji centres on e.x, not its char box
 
     window.RpsArena = {
         init(canvasId, dotnetReference) {
@@ -286,9 +287,25 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.font = `${RADIUS * 1.8}px serif`;
+        if (!glyphOffsets) glyphOffsets = measureGlyphOffsets();
         for (const e of entities) {
-            ctx.fillText(GLYPHS[e.type] || "?", e.x, e.y);
+            // shift by the glyph's ink imbalance so the visible symbol sits on e.x
+            ctx.fillText(GLYPHS[e.type] || "?", e.x - (glyphOffsets[e.type] || 0), e.y);
         }
+    }
+
+    // With textAlign "center" the anchor is the middle of the char box, but an emoji's
+    // visible pixels can be off-centre in that box (the scissors blades especially).
+    // Measure how far the ink centre is from the anchor so draw() can cancel it out.
+    function measureGlyphOffsets() {
+        const offsets = {};
+        for (const type of TYPES) {
+            const m = ctx.measureText(GLYPHS[type]);
+            const left = m.actualBoundingBoxLeft ?? 0;     // ink extent left of the anchor
+            const right = m.actualBoundingBoxRight ?? 0;    // ink extent right of the anchor
+            offsets[type] = (right - left) / 2;             // >0 means ink leans right
+        }
+        return offsets;
     }
 
     function checkWinner() {

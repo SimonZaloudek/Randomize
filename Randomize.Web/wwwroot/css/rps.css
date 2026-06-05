@@ -42,10 +42,12 @@
 
 .rps-count-row {
     display: grid;
-    grid-template-columns: 64px 1fr auto;
+    /* minmax(0, 1fr) lets the name column shrink instead of forcing the row wider */
+    grid-template-columns: 64px minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
     padding: 12px 16px;
+    box-sizing: border-box;   /* padding + border stay inside the width (no right overflow) */
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--surface-border);
     border-radius: 12px;
@@ -61,6 +63,11 @@
     font-size: 1rem;
     font-weight: 500;
     text-align: left;
+    /* never let a long name force the row wider; ellipsize on very narrow phones */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .rps-count-control {
@@ -192,7 +199,6 @@
 .rps-arena-frame {
     position: relative;
     width: 100%;
-    box-sizing: border-box;   /* include the 3px border in the width so it can't overflow */
     aspect-ratio: 16 / 9;
     background: var(--rps-arena-bg, #0e0c14);
     border: 3px solid var(--rps-arena-border, var(--accent));
@@ -430,16 +436,21 @@
 /* responsive */
 @media (max-width: 720px) {
     .rps-setup {
-        padding: 22px 18px;
+        padding: 22px 14px;
     }
 
     .rps-count-row {
-        grid-template-columns: 48px 1fr auto;
-        gap: 12px;
-        padding: 10px 12px;
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 10px 10px;
     }
 
     .rps-count-icon { font-size: 1.6rem; }
+
+    /* slimmer stepper so the whole row fits a narrow screen */
+    .rps-count-control { gap: 6px; }
+    .rps-arrow { width: 32px; height: 32px; }
+    .rps-count-value { min-width: 28px; }
 
     .rps-arena-frame {
         /* taller portrait ratio so the arena stays usable on narrow screens */

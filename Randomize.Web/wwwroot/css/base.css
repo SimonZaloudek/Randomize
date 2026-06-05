@@ -707,38 +707,98 @@ html[data-theme="light"] .movies-awards-sep {
         content: "An error has occurred."
     }
 
-.loading-progress {
+/* === App boot loader (themed; Blazor swaps it out once it mounts) ===
+   --accent / --app-font come from the active theme since base.css + the
+   data-theme script run before Blazor downloads. */
+.app-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    /* a soft accent pool glowing out of the dark page centre */
+    background:
+        radial-gradient(closest-side at 50% 45%,
+            color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%),
+        #0a0a0a;
+}
+
+.app-loading-ring {
     position: relative;
+    width: 9rem;
+    height: 9rem;
+    display: grid;
+    place-items: center;
+}
+
+.loading-progress {
+    position: absolute;
+    inset: 0;
     display: block;
-    width: 8rem;
-    height: 8rem;
-    margin: 20vh auto 1rem auto;
+    width: 100%;
+    height: 100%;
 }
 
     .loading-progress circle {
         fill: none;
-        stroke: #e0e0e0;
-        stroke-width: 0.6rem;
+        /* faint full ring = the track */
+        stroke: color-mix(in srgb, var(--accent) 16%, transparent);
+        stroke-width: 0.4rem;
         transform-origin: 50% 50%;
-        transform: rotate(-90deg);
+        transform: rotate(-90deg);   /* start the fill at 12 o'clock */
     }
 
         .loading-progress circle:last-child {
-            stroke: #1b6ec2;
+            /* accent arc that grows with the real download % (Blazor's formula) */
+            stroke: var(--accent);
+            stroke-linecap: round;
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
-            transition: stroke-dasharray 0.05s ease-in-out;
+            transition: stroke-dasharray 0.1s ease-in-out;
+            filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent));
         }
 
+.app-loading-logo {
+    width: 4.6rem;
+    height: 4.6rem;
+    object-fit: contain;
+    /* breathe + glow so the screen feels alive even while the % ticks up */
+    animation: app-loading-pulse 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+@keyframes app-loading-pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.92; }
+    50%      { transform: scale(1.06); opacity: 1; }
+}
+
+.app-loading-word {
+    font-family: var(--app-font);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f0f0f2;
+    text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
 .loading-progress-text {
-    position: absolute;
-    text-align: center;
-    font-weight: bold;
-    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+    font-family: var(--app-font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--accent) 75%, #cccccc);
+    font-variant-numeric: tabular-nums;
 }
 
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
+
+@media (prefers-reduced-motion: reduce) {
+    .app-loading-logo { animation: none; }
+}
 
 code {
     color: #c02d76;

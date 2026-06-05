@@ -46,11 +46,20 @@
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <!-- Boot loader. Blazor replaces #app's contents once it mounts, so this
+             vanishes on its own. The two-circle SVG is Blazor's real download
+             progress; --accent comes from the theme (base.css runs first). -->
+        <div class="app-loading" role="status" aria-label="Loading Randomize">
+            <div class="app-loading-ring">
+                <svg class="loading-progress" aria-hidden="true">
+                    <circle r="40%" cx="50%" cy="50%" />
+                    <circle r="40%" cx="50%" cy="50%" />
+                </svg>
+                <img class="app-loading-logo" src="brand/RANDLOGO1.png" alt="" />
+            </div>
+            <div class="app-loading-word">Randomize</div>
+            <div class="loading-progress-text"></div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
