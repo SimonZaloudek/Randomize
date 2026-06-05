@@ -12,7 +12,10 @@
 }
 
 .shuffler-panel {
-    width: min(560px, 95vw);
+    /* 100% of the content area (which already has side margins) capped at 560px -
+       NOT 95vw, which ignored those margins and bled to the screen edges on phones */
+    width: 100%;
+    max-width: 560px;
     gap: 14px;
 }
 
@@ -259,6 +262,7 @@
     border: 1px solid var(--surface-border);
     border-radius: 12px;
     padding: 20px;
+    box-sizing: border-box;   /* keep padding inside the width so it never overflows its parent */
     box-shadow: var(--surface-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     display: flex;

@@ -192,6 +192,7 @@
 .rps-arena-frame {
     position: relative;
     width: 100%;
+    box-sizing: border-box;   /* include the 3px border in the width so it can't overflow */
     aspect-ratio: 16 / 9;
     background: var(--rps-arena-bg, #0e0c14);
     border: 3px solid var(--rps-arena-border, var(--accent));

@@ -11,7 +11,20 @@
     flex-direction: column;
     box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
     transition: transform 0.3s ease, opacity 0.3s ease;
+    /* when the menu is taller than the sidebar (many items on small screens),
+       scroll it so the bottom links (Settings, Contact) stay reachable */
+    overflow-y: auto;
+    overscroll-behavior: contain;        /* don't scroll the page behind the drawer */
+    scrollbar-width: thin;               /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
+
+    /* thin, unobtrusive scrollbar to match the dark sidebar (WebKit/Blink) */
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
 
     .sidebar.closed {
         transform: translateX(-100%);
