@@ -1,0 +1,72 @@
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* First-visit welcome, shown once then remembered in localStorage ("welcomeSeen").
+   Lives outside .app-container in MainLayout so the card's hover transform doesn't
+   shift its fixed position. *@
+
+@if (_show)
+{
+    <div class="welcome-toast" role="dialog" aria-label="@Loc["welcome.title"]">
+        <div class="welcome-toast-icon">
+            <img src="brand/RANDLOGO1.png" alt="" />
+        </div>
+        <div class="welcome-toast-body">
+            <div class="welcome-toast-title">@Loc["welcome.title"]</div>
+            <div class="welcome-toast-text">@Loc["welcome.text"]</div>
+            <button class="welcome-toast-cta" @onclick="OpenAbout">
+                @Loc["welcome.cta"] <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+        <button class="welcome-toast-close" @onclick="Dismiss" aria-label="Dismiss">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+}
+
+@code {
+    private bool _show;
+    private bool _checked;
+
+    protected override void OnInitialized() => Loc.LanguageChanged += OnLanguageChanged;
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _checked) return;
+        _checked = true;
+        try
+        {
+            var seen = await JS.InvokeAsync<string?>("localStorage.getItem", "welcomeSeen");
+            if (seen != "1")
+            {
+                _show = true;
+                StateHasChanged();
+            }
+        }
+        catch { }
+    }
+
+    private async Task MarkSeen()
+    {
+        try { await JS.InvokeVoidAsync("localStorage.setItem", "welcomeSeen", "1"); }
+        catch { }
+    }
+
+    private async Task Dismiss()
+    {
+        _show = false;
+        await MarkSeen();
+    }
+
+    private async Task OpenAbout()
+    {
+        _show = false;
+        await MarkSeen();
+        Nav.NavigateTo("/about");
+    }
+}

@@ -12,6 +12,9 @@
   "nav.settings": "Settings",
   "nav.contact": "Contact",
   "nav.about": "About",
+  "welcome.title": "Welcome to Randomize",
+  "welcome.text": "Can't decide? Let chance pick. New here? See what each tool does.",
+  "welcome.cta": "About this site",
 
   "settings.pageTitle": "Settings - Randomize",
   "settings.title": "Settings",

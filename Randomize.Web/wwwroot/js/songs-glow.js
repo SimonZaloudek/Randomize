@@ -58,9 +58,8 @@
         img.src = url;
     }
 
-    // mount the embed once (first song). Later songs swap in place via play() - the
-    // mount node is stable, so this only runs again after a dispose. Newest load
-    // wins via the token in case two fire close together.
+    // (re)mount the embed. Later track changes swap in place via play(), so this
+    // only runs on the first song or after a dispose. Token guards against overlap.
     async function load(mountId, trackId, imageUrl) {
         mountEl = document.getElementById(mountId);
         applyColor(imageUrl);
@@ -79,8 +78,7 @@
                     if (myToken !== loadToken) { try { ctrl.destroy && ctrl.destroy(); } catch { } return; }
                     controller = ctrl;
                     ctrl.addListener("playback_update", (e) => {
-                        // drop the stale event a track-swap leaves behind, so the glow
-                        // reflects the NEW track's settled state, not the old one's
+                        // ignore the previous track's stale event right after a swap
                         if (Date.now() - swapAt < 700) return;
                         setPlaying(((e && e.data) || {}).isPaused === false);
                     });

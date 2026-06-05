@@ -84,10 +84,14 @@
 
         <!-- Songs lives here (not as a routed page) so it stays alive across
              navigation: the inline player keeps playing and the result is kept.
-             It shows on /songs and slides off-screen (player -> corner) elsewhere. -->
+             It shows on /songs and slides off-screen (player drops to the corner) elsewhere. -->
         <Songs />
     </div>
 </div>
+
+<!-- First-visit welcome toast (shows once, then remembered in localStorage).
+     Outside .app-container so its fixed position ignores the card hover lift. -->
+<WelcomeToast />
 
 @code {
     // theme is applied by index.html on initial load + Settings page on change
