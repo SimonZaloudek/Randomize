@@ -74,32 +74,94 @@ export async function onRequestPost({ request, env }) {
 
   const label = TYPE_LABELS[type];
   const subjectLine = `[Randomize • ${label}] ${subject || "(no subject)"}`;
-  const text =
+
+  // escape user input before dropping it into the HTML body
+  const esc = (s) => String(s ?? "").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+
+  // shared shell: circular logo header (same mark as the site nav) + Support footer
+  const LOGO = "https://userandomize.net/brand/RANDLOGO1.png";
+  const shell = (headerTag, body) => `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f4f4f5;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px;overflow:hidden;">
+        <tr><td style="background:#0a0a0a;padding:16px 24px;">
+          <img src="${LOGO}" width="34" height="34" alt="" style="border-radius:50%;vertical-align:middle;" />
+          <span style="color:#ffffff;font-size:18px;font-weight:bold;vertical-align:middle;margin-left:10px;">Randomize</span>${headerTag}
+        </td></tr>
+        <tr><td style="padding:24px;">${body}</td></tr>
+        <tr><td style="padding:16px 24px;border-top:1px solid #e4e4e7;text-align:center;">
+          <p style="margin:0;color:#52525b;font-size:13px;font-weight:700;">Randomize Support</p>
+          <p style="margin:3px 0 0;font-size:12px;"><a href="https://userandomize.net" style="color:#6d28d9;text-decoration:none;">userandomize.net</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  const lbl = (t) => `<p style="margin:0 0 4px;color:#71717a;font-size:12px;text-transform:uppercase;letter-spacing:.04em;">${t}</p>`;
+
+  // 1. notification to the owner (must succeed)
+  const ownerHtml = shell(
+    ` <span style="color:#9b7bff;font-size:13px;vertical-align:middle;">&middot; new ${esc(label)}</span>`,
+    `${lbl("From")}
+     <p style="margin:0 0 16px;color:#18181b;font-size:15px;">${esc(name || "Anonymous")} &lt;<a href="mailto:${esc(email)}" style="color:#6d28d9;text-decoration:none;">${esc(email)}</a>&gt;</p>
+     ${subject ? `${lbl("Subject")}<p style="margin:0 0 16px;color:#18181b;font-size:15px;">${esc(subject)}</p>` : ""}
+     ${lbl("Message")}
+     <p style="margin:0;color:#27272a;font-size:15px;line-height:1.55;white-space:pre-wrap;">${esc(message)}</p>`
+  );
+  const ownerText =
     `Type: ${label}\n` +
-    `From: ${name || "(anonymous)"} <${email}>\n` +
-    `IP:   ${ip}\n` +
-    `\n` +
+    `From: ${name || "(anonymous)"} <${email}>\n\n` +
     `${message}\n`;
 
-  const r = await fetch("https://api.resend.com/emails", {
+  // 2. friendly confirmation to the sender, with a copy of their message
+  const customerHtml = shell(
+    "",
+    `<p style="margin:0 0 12px;color:#18181b;font-size:17px;font-weight:700;">Thanks for reaching out!</p>
+     <p style="margin:0 0 16px;color:#3f3f46;font-size:15px;line-height:1.55;">I've received your message and will review it as soon as possible. Here's a copy for your records:</p>
+     <div style="background:#f4f4f5;border-radius:8px;padding:14px 16px;">
+       ${subject ? `<p style="margin:0 0 8px;color:#52525b;font-size:13px;"><strong>Subject:</strong> ${esc(subject)}</p>` : ""}
+       <p style="margin:0;color:#27272a;font-size:14px;line-height:1.55;white-space:pre-wrap;">${esc(message)}</p>
+     </div>`
+  );
+  const customerText =
+    `Thanks for reaching out!\n\n` +
+    `I've received your message and will review it as soon as possible. Here's a copy for your records:\n\n` +
+    `${subject ? "Subject: " + subject + "\n" : ""}${message}\n\n` +
+    `- Randomize Support, userandomize.net\n`;
+
+  const send = (payload) => fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: "Randomize <noreply@userandomize.net>",
-      to: [to],
-      reply_to: email,
-      subject: subjectLine,
-      text
-    })
+    headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
   });
 
+  const r = await send({
+    from: "Randomize <noreply@userandomize.net>",
+    to: [to],
+    reply_to: email,         // owner's reply goes back to the sender
+    subject: subjectLine,
+    text: ownerText,
+    html: ownerHtml
+  });
   if (!r.ok) {
     const detail = await r.text();
     return json({ error: "Email send failed", detail }, 502);
   }
+
+  // best-effort: never fail the request if the confirmation copy doesn't send
+  try {
+    await send({
+      from: "Randomize <noreply@userandomize.net>",
+      to: [email],
+      reply_to: to,          // a sender reply reaches the owner inbox
+      subject: "Thanks for contacting Randomize",
+      text: customerText,
+      html: customerHtml
+    });
+  } catch { }
+
   return json({ ok: true }, 200);
 }
 

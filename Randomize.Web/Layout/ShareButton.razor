@@ -1,0 +1,75 @@
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Reusable share control. On click it tries the native share sheet (covers every
+   app, incl. Instagram, on mobile); where that's unsupported it opens a dialog with
+   per-network links + copy. Compact renders an icon-only trigger (sidebar). *@
+
+<span class="share @(Compact ? "share-compact" : "")">
+    <button type="button" class="share-trigger" @onclick="Open" aria-label="@Loc["share.label"]">
+        <i class="bi bi-share-fill"></i>@if (!Compact)
+        {
+            <span>@Loc["share.label"]</span>
+        }
+    </button>
+</span>
+
+@if (_open)
+{
+    <div class="share-backdrop" @onclick="Close">
+        <div class="share-dialog" role="dialog" aria-label="@Loc["share.title"]" @onclick:stopPropagation="true">
+            <p class="share-dialog-title">@Loc["share.title"]</p>
+            <div class="share-grid">
+                <a class="share-opt share-x" href="@XUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-twitter-x"></i> X</a>
+                <a class="share-opt share-fb" href="@FbUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-facebook"></i> Facebook</a>
+                <a class="share-opt share-wa" href="@WaUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                <a class="share-opt share-tg" href="@TgUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-telegram"></i> Telegram</a>
+                <a class="share-opt share-rd" href="@RdUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-reddit"></i> Reddit</a>
+                <a class="share-opt share-li" href="@LiUrl" target="_blank" rel="noopener" @onclick="Close"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                <a class="share-opt share-em" href="@EmUrl" @onclick="Close"><i class="bi bi-envelope-fill"></i> Email</a>
+                <button type="button" class="share-opt share-copy" @onclick="Copy">
+                    <i class="bi @(_copied ? "bi-check-lg" : "bi-link-45deg")"></i> @(_copied ? Loc["share.copied"] : Loc["share.copy"])
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Compact { get; set; }
+
+    private const string Url = "https://userandomize.net";
+    private bool _open;
+    private bool _copied;
+
+    protected override void OnInitialized() => Loc.LanguageChanged += OnLang;
+    private void OnLang() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Loc.LanguageChanged -= OnLang;
+
+    private string Text => Loc["share.text"];
+    private static string E(string s) => Uri.EscapeDataString(s);
+
+    private string XUrl => $"https://twitter.com/intent/tweet?text={E(Text)}&url={E(Url)}";
+    private string FbUrl => $"https://www.facebook.com/sharer/sharer.php?u={E(Url)}";
+    private string WaUrl => $"https://wa.me/?text={E(Text + " " + Url)}";
+    private string TgUrl => $"https://t.me/share/url?url={E(Url)}&text={E(Text)}";
+    private string RdUrl => $"https://www.reddit.com/submit?url={E(Url)}&title={E(Text)}";
+    private string LiUrl => $"https://www.linkedin.com/sharing/share-offsite/?url={E(Url)}";
+    private string EmUrl => $"mailto:?subject={E("Randomize")}&body={E(Text + "\n\n" + Url)}";
+
+    private async Task Open()
+    {
+        var handled = await JS.InvokeAsync<bool>("RandomizeShare.tryNative", "Randomize", Text, Url);
+        if (!handled) { _copied = false; _open = true; }
+    }
+
+    private void Close() => _open = false;
+
+    private async Task Copy()
+    {
+        await JS.InvokeAsync<bool>("RandomizeShare.copy", Url);
+        _copied = true;
+    }
+}
