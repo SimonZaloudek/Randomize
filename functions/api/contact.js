@@ -140,7 +140,7 @@ export async function onRequestPost({ request, env }) {
   const r = await send({
     from: "Randomize <noreply@userandomize.net>",
     to: [to],
-    reply_to: email,         // owner hits reply -> goes to the sender
+    reply_to: email,         // owner's reply goes back to the sender
     subject: subjectLine,
     text: ownerText,
     html: ownerHtml
@@ -155,7 +155,7 @@ export async function onRequestPost({ request, env }) {
     await send({
       from: "Randomize <noreply@userandomize.net>",
       to: [email],
-      reply_to: to,          // sender hits reply -> reaches the owner inbox
+      reply_to: to,          // a sender reply reaches the owner inbox
       subject: "Thanks for contacting Randomize",
       text: customerText,
       html: customerHtml

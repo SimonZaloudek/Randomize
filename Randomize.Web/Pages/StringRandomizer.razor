@@ -278,7 +278,11 @@
         _coinResult = null;
 
         bool heads = Random.Shared.Next(2) == 0;
-        _coinRotation += heads ? 1800 : 1980;
+        // 5 full spins, then align to the target face (0 = heads, 180 = tails) from the
+        // coin's current angle, so the shown face always matches the result.
+        int target = heads ? 0 : 180;
+        int delta = (target - (_coinRotation % 360) + 360) % 360;
+        _coinRotation += 1800 + delta;
         StateHasChanged();
 
         await Task.Delay(1100);
