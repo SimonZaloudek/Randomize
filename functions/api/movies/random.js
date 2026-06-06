@@ -31,8 +31,10 @@ export async function onRequestGet({ request, env }) {
   const fromYear = clampYear(url.searchParams.get("from_year"));
   const toYear = clampYear(url.searchParams.get("to_year"));
   const userMinVotes = clampVotes(url.searchParams.get("min_votes"));
+  const originLang = clampCode(url.searchParams.get("lang"), /^[a-z]{2}$/);
+  const originCountry = clampCode(url.searchParams.get("country"), /^[A-Z]{2}$/);
 
-  // CF sets cf.country on prod; falls back to US locally
+  // CF sets cf.country on prod; falls back to US locally (for watch providers)
   const country = (request.cf && request.cf.country) || "US";
 
   // user value overrides the safety scaler when explicitly set
@@ -46,6 +48,8 @@ export async function onRequestGet({ request, env }) {
   });
   if (genres.length) params.set("with_genres", genres.join(","));
   if (minRating > 0) params.set("vote_average.gte", String(minRating));
+  if (originLang) params.set("with_original_language", originLang);
+  if (originCountry) params.set("with_origin_country", originCountry);
 
   // TMDB uses primary_release_date for movies, first_air_date for TV
   const dateField = type === "tv" ? "first_air_date" : "primary_release_date";
@@ -53,9 +57,9 @@ export async function onRequestGet({ request, env }) {
   if (toYear != null) params.set(`${dateField}.lte`, `${toYear}-12-31`);
 
   // bump v* if the discover query params change meaning
-  const filterKey = `${type}:${genres.join(",")}:${minRating}:${minVotes}:${fromYear ?? ""}-${toYear ?? ""}`;
+  const filterKey = `${type}:${genres.join(",")}:${minRating}:${minVotes}:${fromYear ?? ""}-${toYear ?? ""}:${originLang ?? ""}:${originCountry ?? ""}`;
 
-  const first = await cached(env, `tmdb:discover:v3:${filterKey}:1`, DISCOVER_TTL,
+  const first = await cached(env, `tmdb:discover:v4:${filterKey}:1`, DISCOVER_TTL,
     () => tmdb(`${TMDB}/discover/${type}?${params}&page=1`, env.TMDB_API_KEY),
     d => Array.isArray(d?.results));
 
@@ -67,7 +71,7 @@ export async function onRequestGet({ request, env }) {
   const page = 1 + Math.floor(Math.random() * totalPages);
 
   const pageData = page === 1 ? first : await cached(env,
-    `tmdb:discover:v3:${filterKey}:${page}`, DISCOVER_TTL,
+    `tmdb:discover:v4:${filterKey}:${page}`, DISCOVER_TTL,
     () => tmdb(`${TMDB}/discover/${type}?${params}&page=${page}`, env.TMDB_API_KEY),
     d => Array.isArray(d?.results));
 
@@ -180,6 +184,13 @@ function clampVotes(s) {
   if (!Number.isFinite(n) || n < 0) return null;
   if (n > 100000) return 100000;
   return n;
+}
+
+// validate a short code against a pattern (lang iso-639-1 / country iso-3166-1); null = unset
+function clampCode(s, re) {
+  if (!s) return null;
+  s = s.trim();
+  return re.test(s) ? s : null;
 }
 
 function shape(d, type, country) {

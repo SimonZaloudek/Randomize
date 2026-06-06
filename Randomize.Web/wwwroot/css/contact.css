@@ -18,6 +18,14 @@
     line-height: 1.5;
 }
 
+.contact-privacy {
+    margin: 1rem 0 0;
+    color: #777;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
 .contact-form {
     display: flex;
     flex-direction: column;

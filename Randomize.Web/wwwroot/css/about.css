@@ -200,6 +200,25 @@
     .about-acc-open i { transition: transform 0.15s ease; }
     .about-acc-open:hover i { transform: translateX(3px); }
 
+/* settings hint between the tools and Connect */
+.about-note {
+    margin: 0;
+    color: #999;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+    .about-note i { color: var(--accent); margin-right: 6px; vertical-align: -1px; }
+
+    .about-note a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .about-note a:hover { text-decoration: underline; }
+
 /* ===== Connect ===== */
 .about-links {
     display: flex;
@@ -227,6 +246,9 @@
 .about-link-github { background: #24292f; border-color: rgba(255, 255, 255, 0.14); }
 .about-link-linkedin { background: #0a66c2; }
 .about-link-x { background: #000; border-color: rgba(255, 255, 255, 0.22); }
+.about-link-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+
+.about-connect .share { margin-top: 14px; }
 
 /* ===== Responsive ===== */
 @media (max-width: 600px) {

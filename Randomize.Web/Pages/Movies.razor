@@ -34,29 +34,125 @@
             </button>
         </div>
 
-        @if (CurrentGenres is { Count: > 0 })
-        {
-            <div class="movies-genre-chips" role="group" aria-label="@Loc["movies.genresAria"]">
-                @foreach (var g in CurrentGenres)
-                {
-                    var id = g.Id;
-                    var sel = _selectedGenres.Contains(id);
+        <div class="movies-multi-row">
+
+            <!-- Genres (multi-select) -->
+            @if (CurrentGenres is { Count: > 0 } genres)
+            {
+                <div class="movies-multi">
                     <button type="button"
-                            class="movies-genre-chip @(sel ? "active" : "")"
-                            @onclick="() => ToggleGenre(id)"
+                            class="movies-multi-trigger @(_openMenu == "genres" ? "open" : "")"
+                            aria-haspopup="listbox"
+                            aria-expanded="@(_openMenu == "genres" ? "true" : "false")"
+                            @onclick='() => ToggleMenu("genres")'
                             disabled="@_busy">
-                        @g.Name
+                        <span class="movies-multi-label">@Loc["movies.genres"]</span>
+                        @if (_selectedGenres.Count > 0)
+                        {
+                            <span class="movies-multi-count">@_selectedGenres.Count</span>
+                        }
+                        <i class="bi bi-chevron-down movies-multi-chevron"></i>
                     </button>
-                }
-                @if (_selectedGenres.Count > 0)
+                    @if (_openMenu == "genres")
+                    {
+                        <div class="movies-multi-backdrop" @onclick="CloseMenu"></div>
+                        <div class="movies-multi-panel" role="listbox" aria-multiselectable="true">
+                            <div class="movies-multi-list">
+                                @foreach (var g in genres)
+                                {
+                                    var id = g.Id;
+                                    var sel = _selectedGenres.Contains(id);
+                                    <button type="button"
+                                            class="movies-multi-option @(sel ? "active" : "")"
+                                            role="option"
+                                            aria-selected="@(sel ? "true" : "false")"
+                                            @onclick="() => ToggleGenre(id)">
+                                        <i class="bi @(sel ? "bi-check-square-fill" : "bi-square")"></i>
+                                        <span>@g.Name</span>
+                                    </button>
+                                }
+                            </div>
+                            @if (_selectedGenres.Count > 0)
+                            {
+                                <div class="movies-multi-foot">
+                                    <button type="button" class="movies-multi-clear" @onclick="ClearGenres">
+                                        @Loc["movies.genre.clear"]
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Language (single-select) -->
+            <div class="movies-multi">
+                <button type="button"
+                        class="movies-multi-trigger @(_openMenu == "lang" ? "open" : "")"
+                        aria-haspopup="listbox"
+                        aria-expanded="@(_openMenu == "lang" ? "true" : "false")"
+                        @onclick='() => ToggleMenu("lang")'
+                        disabled="@_busy">
+                    <span class="movies-multi-label">@Loc["movies.language"]</span>
+                    <span class="movies-multi-value">@(_language is null ? Loc["movies.any"] : LangName(_language))</span>
+                    <i class="bi bi-chevron-down movies-multi-chevron"></i>
+                </button>
+                @if (_openMenu == "lang")
                 {
-                    <button type="button" class="movies-genre-clear"
-                            @onclick="ClearGenres" disabled="@_busy">
-                        @Loc["movies.genre.clear"]
-                    </button>
+                    <div class="movies-multi-backdrop" @onclick="CloseMenu"></div>
+                    <div class="movies-multi-panel" role="listbox">
+                        <div class="movies-multi-list">
+                            <button type="button" class="movies-multi-option @(_language is null ? "active" : "")"
+                                    role="option" @onclick="() => SetLanguage(null)">
+                                <span>@Loc["movies.any"]</span>
+                            </button>
+                            @foreach (var l in Languages)
+                            {
+                                var code = l.Code;
+                                <button type="button" class="movies-multi-option @(_language == code ? "active" : "")"
+                                        role="option" @onclick="() => SetLanguage(code)">
+                                    <span>@l.Name</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
                 }
             </div>
-        }
+
+            <!-- Country (single-select) -->
+            <div class="movies-multi">
+                <button type="button"
+                        class="movies-multi-trigger @(_openMenu == "country" ? "open" : "")"
+                        aria-haspopup="listbox"
+                        aria-expanded="@(_openMenu == "country" ? "true" : "false")"
+                        @onclick='() => ToggleMenu("country")'
+                        disabled="@_busy">
+                    <span class="movies-multi-label">@Loc["movies.country"]</span>
+                    <span class="movies-multi-value">@(_country is null ? Loc["movies.any"] : CountryName(_country))</span>
+                    <i class="bi bi-chevron-down movies-multi-chevron"></i>
+                </button>
+                @if (_openMenu == "country")
+                {
+                    <div class="movies-multi-backdrop" @onclick="CloseMenu"></div>
+                    <div class="movies-multi-panel" role="listbox">
+                        <div class="movies-multi-list">
+                            <button type="button" class="movies-multi-option @(_country is null ? "active" : "")"
+                                    role="option" @onclick="() => SetCountry(null)">
+                                <span>@Loc["movies.any"]</span>
+                            </button>
+                            @foreach (var c in Countries)
+                            {
+                                var code = c.Code;
+                                <button type="button" class="movies-multi-option @(_country == code ? "active" : "")"
+                                        role="option" @onclick="() => SetCountry(code)">
+                                    <span>@c.Name</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
 
         <div class="movies-year-range">
             <label class="movies-year-range-label">@Loc["movies.releaseYear"]</label>
@@ -465,6 +561,9 @@
 @code {
     private string _type = "movie";
     private readonly HashSet<int> _selectedGenres = new();
+    private string? _openMenu;        // which dropdown is open ("genres" / "lang" / "country")
+    private string? _language;        // TMDB original-language filter (iso-639-1), null = any
+    private string? _country;         // TMDB origin-country filter (iso-3166-1), null = any
     private double _minRating = 0.0;
     private int _minVotes = 0;
     private int? _fromYear;
@@ -502,6 +601,37 @@
 
     private void ClearGenres() => _selectedGenres.Clear();
 
+    private void ToggleMenu(string name) => _openMenu = _openMenu == name ? null : name;
+    private void CloseMenu() => _openMenu = null;
+    private void SetLanguage(string? code) { _language = code; _openMenu = null; }
+    private void SetCountry(string? code) { _country = code; _openMenu = null; }
+
+    private static string? LangName(string code) => Languages.FirstOrDefault(l => l.Code == code)?.Name;
+    private static string? CountryName(string code) => Countries.FirstOrDefault(c => c.Code == code)?.Name;
+
+    // curated common options (TMDB takes one code each); names stay English
+    public sealed record Opt(string Code, string Name);
+
+    private static readonly List<Opt> Languages = new()
+    {
+        new("en", "English"), new("es", "Spanish"), new("fr", "French"), new("de", "German"),
+        new("it", "Italian"), new("pt", "Portuguese"), new("ja", "Japanese"), new("ko", "Korean"),
+        new("zh", "Chinese"), new("hi", "Hindi"), new("ru", "Russian"), new("ar", "Arabic"),
+        new("tr", "Turkish"), new("nl", "Dutch"), new("sv", "Swedish"), new("da", "Danish"),
+        new("no", "Norwegian"), new("fi", "Finnish"), new("pl", "Polish"), new("cs", "Czech"),
+        new("th", "Thai"), new("id", "Indonesian"), new("sk", "Slovak"), new("uk", "Ukrainian"),
+    };
+
+    private static readonly List<Opt> Countries = new()
+    {
+        new("US", "United States"), new("GB", "United Kingdom"), new("FR", "France"), new("DE", "Germany"),
+        new("IT", "Italy"), new("ES", "Spain"), new("JP", "Japan"), new("KR", "South Korea"),
+        new("CN", "China"), new("IN", "India"), new("CA", "Canada"), new("AU", "Australia"),
+        new("BR", "Brazil"), new("MX", "Mexico"), new("RU", "Russia"), new("SE", "Sweden"),
+        new("DK", "Denmark"), new("NO", "Norway"), new("NL", "Netherlands"), new("PL", "Poland"),
+        new("TR", "Turkey"), new("TH", "Thailand"), new("HK", "Hong Kong"), new("CZ", "Czechia"),
+    };
+
     private async Task Randomize()
     {
         _busy = true;
@@ -526,6 +656,8 @@
                 q += "&min_votes=" + _minVotes;
             if (from is int fy) q += "&from_year=" + fy;
             if (to is int ty) q += "&to_year=" + ty;
+            if (_language is not null) q += "&lang=" + _language;
+            if (_country is not null) q += "&country=" + _country;
 
             var res = await Http.GetAsync("api/movies/random?" + q, cts.Token);
             if (res.StatusCode == System.Net.HttpStatusCode.NotFound)

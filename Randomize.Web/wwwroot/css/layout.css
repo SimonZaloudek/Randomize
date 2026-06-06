@@ -87,16 +87,14 @@
 /* === Mobile === */
 @media (max-width: 767px) {
 
-    /* fixed drawer; dvh tracks iOS Safari's changing viewport */
+    /* drawer is bound to the app card (absolute inside .app-container), not the
+       viewport - so it can't jump to the top of the screen and stays in the card */
     .sidebar {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
-        height: 100vh;
-        height: 100dvh;
+        height: 100%;
         z-index: 20;
-        /* clear the iPhone notch */
-        padding-top: max(24px, env(safe-area-inset-top));
     }
     .content {
         width: 100%;
@@ -117,7 +115,7 @@
 
     .sidebar-backdrop {
         display: block;
-        position: fixed;
+        position: absolute;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
         opacity: 0;
@@ -400,6 +398,125 @@
 
 @media (prefers-reduced-motion: reduce) {
     .welcome-toast { animation: none; transform: translateX(-50%); }
+}
+
+
+/* === SHARE === */
+.sidebar-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share { display: inline-flex; }
+
+.share-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+    .share-trigger:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+/* compact (sidebar) - small icon button */
+.share-compact .share-trigger {
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #bbb;
+    font-size: 0.85rem;
+}
+
+    .share-compact .share-trigger:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent);
+        color: #fff;
+        transform: none;
+    }
+
+/* centred dialog - the desktop fallback when the native share sheet isn't available */
+.share-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.share-dialog {
+    width: 100%;
+    max-width: 340px;
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    animation: share-pop 0.18s ease-out;
+}
+
+@keyframes share-pop {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.share-dialog-title {
+    margin: 0 0 14px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.share-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.share-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+    color: #ddd;
+    font-family: inherit;
+    font-size: 0.85rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+}
+
+    .share-opt:hover { background: rgba(255, 255, 255, 0.09); color: #fff; }
+    .share-opt i { font-size: 1rem; }
+
+.share-x i { color: #fff; }
+.share-fb i { color: #1877f2; }
+.share-wa i { color: #25d366; }
+.share-tg i { color: #29a9eb; }
+.share-rd i { color: #ff4500; }
+.share-li i { color: #0a66c2; }
+.share-em i { color: var(--accent); }
+
+.share-copy {
+    grid-column: span 2;
+    justify-content: center;
 }
 
 

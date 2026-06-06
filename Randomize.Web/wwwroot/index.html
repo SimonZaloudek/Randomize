@@ -11,7 +11,24 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Randomize" />
-    <title>Randomize</title>
+    <title>Randomize - Free Online Randomizers, Pickers & Generators</title>
+    <meta name="description" content="Free online randomizers and pickers: spin a wheel, draw random numbers, shuffle groups, flip a coin, plus random movies, games and songs. No sign-up, no ads." />
+    <meta name="author" content="Simon Zaloudek" />
+
+    <!-- Open Graph (link previews on social / chat apps) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Randomize" />
+    <meta property="og:title" content="Randomize - Free Online Randomizers & Pickers" />
+    <meta property="og:description" content="Spin a wheel, pick random numbers, shuffle groups, flip a coin, and discover random movies, games and songs. Free, no sign-up." />
+    <meta property="og:url" content="https://userandomize.net/" />
+    <meta property="og:image" content="https://userandomize.net/brand/RANDLOGO1.png" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Randomize - Free Online Randomizers & Pickers" />
+    <meta name="twitter:description" content="Spin a wheel, pick random numbers, shuffle groups, and discover random movies, games and songs. Free, no sign-up." />
+    <meta name="twitter:image" content="https://userandomize.net/brand/RANDLOGO1.png" />
+
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <!-- order matters: base first (theme vars), mobile last (touch overrides) -->
@@ -28,7 +45,9 @@
     <link rel="stylesheet" href="css/settings.css" />
     <link rel="stylesheet" href="css/about.css" />
     <link rel="stylesheet" href="css/mobile.css" />
-    <link rel="icon" type="image/png" style="width:56px;height:56px;" href="brand/RANDLOGO1.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="brand/RANDLOGO1.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="brand/RANDLOGO2.png" />
+    <link rel="shortcut icon" href="brand/RANDLOGO1.png" />
     <link href="Randomize.Web.styles.css" rel="stylesheet" />
     <link href="manifest.webmanifest" rel="manifest" />
     <script>
@@ -43,6 +62,7 @@
     <script src="js/save.js"></script>
     <script src="js/turnstile.js"></script>
     <script src="js/songs-glow.js"></script>
+    <script src="js/share.js"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 

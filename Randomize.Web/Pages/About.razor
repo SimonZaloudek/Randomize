@@ -1,5 +1,6 @@
 @page "/about"
 @using Randomize.Web.Services
+@using Randomize.Web.Layout
 @inject LocalizationService Loc
 
 @* English-only for now; translate later. When we i18n, move these strings
@@ -228,6 +229,11 @@
         </div>
     </section>
 
+    <p class="about-note">
+        <i class="bi bi-gear-fill"></i>
+        Want a different look? Open <a href="/settings">Settings</a> to switch themes, language, motion and more - make Randomize yours.
+    </p>
+
     <!-- ===== Connect ===== -->
     <section class="about-card about-connect">
         <h3 class="about-section-title">Connect</h3>
@@ -242,7 +248,12 @@
             <a class="about-link about-link-x" href="https://x.com/userandomize" target="_blank" rel="noopener">
                 <i class="bi bi-twitter-x"></i> X
             </a>
+            <a class="about-link about-link-instagram" href="https://www.instagram.com/userandomize/" target="_blank" rel="noopener">
+                <i class="bi bi-instagram"></i> Instagram
+            </a>
         </div>
+
+        <ShareButton />
     </section>
 
 </div>
