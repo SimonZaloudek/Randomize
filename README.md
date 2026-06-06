@@ -4,7 +4,7 @@
   games and more. Privacy-friendly by design: no accounts, no tracking, everything runs
   in your browser.
 
-  Live demo: userandomize.net
+  Live on: userandomize.net
 
 <img width="1912" height="938" alt="image" src="https://github.com/user-attachments/assets/48ec972b-2f64-4f35-9998-700f383ede73" />
 
