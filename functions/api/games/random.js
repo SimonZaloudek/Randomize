@@ -179,7 +179,7 @@ async function fetchSteamReviews(appId) {
         headers: {
           Accept: "application/json",
           // CF Worker IPs get flagged without a browser-ish UA
-          "User-Agent": "Mozilla/5.0 (compatible; Randomize/1.0; +https://randomize.pages.dev)"
+          "User-Agent": "Mozilla/5.0 (compatible; Randomize/1.0; +https://userandomize.net)"
         }
       }).catch(() => null),
       fetch(playersUrl).catch(() => null)

@@ -88,7 +88,7 @@ export async function onRequestPost({ request, env }) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: "Randomize <onboarding@resend.dev>",
+      from: "Randomize <noreply@userandomize.net>",
       to: [to],
       reply_to: email,
       subject: subjectLine,
