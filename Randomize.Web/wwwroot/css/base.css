@@ -113,9 +113,11 @@ html[data-theme="forest"] {
     --app-shell-bg: linear-gradient(160deg, #061008, #000000);
 }
 
-/* kill the iOS gray tap-highlight */
+/* kill the iOS gray tap-highlight; manipulation drops double-tap-to-zoom (still
+   allows pinch + scroll). Must be per-element - Safari only checks the tapped node. */
 * {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 body {

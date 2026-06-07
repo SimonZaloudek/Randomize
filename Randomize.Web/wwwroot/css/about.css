@@ -49,10 +49,11 @@
 }
 
 .about-intro-text h3 {
-    margin: 0 0 8px;
+    margin: 0 0 10px;
     color: #fff;
     font-size: 1.3rem;
     font-weight: 700;
+    text-align: left;
 }
 
 .about-intro-text p {
@@ -60,6 +61,7 @@
     color: #c4c4c8;
     font-size: 0.95rem;
     line-height: 1.55;
+    text-align: left;
 }
 
     .about-intro-text p:last-child { margin-bottom: 0; }
@@ -202,11 +204,11 @@
 
 /* settings hint between the tools and Connect */
 .about-note {
-    margin: 0;
-    color: #999;
+    margin-left: 10px !important;
+    color: #999;    
     font-size: 0.9rem;
     line-height: 1.5;
-    text-align: center;
+    text-align: left;
 }
 
     .about-note i { color: var(--accent); margin-right: 6px; vertical-align: -1px; }

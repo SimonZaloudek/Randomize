@@ -262,7 +262,14 @@
 
                         @if (!string.IsNullOrEmpty(r.Summary))
                         {
-                            <p class="games-summary">@r.Summary</p>
+                            <p class="games-summary @(_summaryExpanded ? "" : "clamped")">@r.Summary</p>
+                            @if (r.Summary.Length > 240)
+                            {
+                                <button type="button" class="games-summary-toggle"
+                                        @onclick="() => _summaryExpanded = !_summaryExpanded">
+                                    @(_summaryExpanded ? Loc["games.readLess"] : Loc["games.readMore"])
+                                </button>
+                            }
                         }
 
                         <div class="games-cta-row">
@@ -562,6 +569,7 @@
     private string? _error;
     private GameResult? _result;
     private string? _galleryActive;
+    private bool _summaryExpanded;   // long-description "read more" toggle
     private FiltersResponse? _filters;
     private string? _openMenu;  // "genres" | "platforms" | null
     private bool _trailerPlaying;
@@ -612,6 +620,7 @@
         _busy = true;
         _error = null;
         _trailerPlaying = false;
+        _summaryExpanded = false;   // new game starts clamped
         StateHasChanged();
 
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));

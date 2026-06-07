@@ -35,26 +35,30 @@
 
             <label class="contact-field">
                 <span class="contact-field-label">@Loc["contact.email"]</span>
-                <InputText class="tool-input" type="email" placeholder="@Loc["contact.emailPlaceholder"]"
+                <InputText class="tool-input" type="email" name="email" autocomplete="email"
+                           placeholder="@Loc["contact.emailPlaceholder"]"
                            @bind-Value="_form.Email" disabled="@_busy" />
                 <ValidationMessage For="@(() => _form.Email)" />
             </label>
 
             <label class="contact-field">
                 <span class="contact-field-label">@Loc["contact.name"] <span class="contact-field-hint">@Loc["contact.nameHint"]</span></span>
-                <InputText class="tool-input" placeholder="@Loc["contact.namePlaceholder"]"
+                <InputText class="tool-input" name="name" autocomplete="name"
+                           placeholder="@Loc["contact.namePlaceholder"]"
                            @bind-Value="_form.Name" disabled="@_busy" />
             </label>
 
             <label class="contact-field">
                 <span class="contact-field-label">@Loc["contact.subject"]</span>
-                <InputText class="tool-input" placeholder="@Loc["contact.subjectPlaceholder"]"
+                <InputText class="tool-input" name="subject" autocomplete="off"
+                           placeholder="@Loc["contact.subjectPlaceholder"]"
                            @bind-Value="_form.Subject" disabled="@_busy" />
             </label>
 
             <label class="contact-field">
                 <span class="contact-field-label">@Loc["contact.message"]</span>
                 <InputTextArea class="tool-input tool-textarea contact-message" rows="6"
+                               name="message" autocomplete="off"
                                placeholder="@Loc["contact.messagePlaceholder"]"
                                @bind-Value="_form.Message" disabled="@_busy" />
                 <ValidationMessage For="@(() => _form.Message)" />

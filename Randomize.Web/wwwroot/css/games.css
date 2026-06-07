@@ -531,8 +531,30 @@
     font-size: 0.94rem;
     line-height: 1.55;
     max-width: 720px;
-    margin: 0 0 14px;
+    margin: 0 0 4px;
 }
+
+    /* clip long descriptions to 4 lines until expanded (keeps them off half the screen) */
+    .games-summary.clamped {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+.games-summary-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0 0 14px;
+    color: var(--accent-text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .games-summary-toggle:hover { text-decoration: underline; }
 
 /* hero CTAs - primary reroll + secondary IGDB */
 .games-cta-row {

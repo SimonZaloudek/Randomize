@@ -103,13 +103,19 @@ html.song-playing:not(.glow-off) .app-song-glow-wave {
 
 /* inline player (in the result) on /songs */
 .songs-player-section { padding: 18px 30px; contain: layout paint; }
-.songs-player-mount { min-height: 152px; }
+.songs-player-mount {
+    min-height: 152px;
+    border-radius: 12px;
+    overflow: hidden;
+    /* dark fill so any area the embed doesn't cover reads dark, not white (iOS
+       leaves white around the player when it sits inside a zoomed element) */
+    background: #181818;
+}
 
-    /* own compositor layer so the glow's opacity animation can't force an iframe repaint */
     .songs-player-mount iframe {
         display: block;
         width: 100%;
-        transform: translateZ(0);
+        background: transparent;
     }
 
 /* off /songs: just the player floats to a compact corner card */
