@@ -1,0 +1,13 @@
+{
+  "name": "randomize-gif-recorder",
+  "private": true,
+  "type": "module",
+  "description": "One-off tool: renders the real coin/dice CSS into still result images for the Discord bot.",
+  "scripts": {
+    "record": "node record.mjs",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
