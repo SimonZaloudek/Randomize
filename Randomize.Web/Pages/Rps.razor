@@ -185,6 +185,13 @@
     private enum View { Setup, Sim }
     private View _view = View.Setup;
 
+    // deep-link presets (e.g. the Discord bot's "watch the arena" link)
+    [Parameter, SupplyParameterFromQuery] public int? Rock { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? Paper { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? Scissors { get; set; }
+    [Parameter, SupplyParameterFromQuery] public bool Go { get; set; }
+    private bool _autoStart;
+
     private readonly string[] _types = { "rock", "paper", "scissors" };
     private readonly string[] _behaviors = { "random", "seek" };
     private readonly double[] _speedPresets = { 0.5, 1.0, 1.5, 2.0, 3.0, 5.0 };
@@ -231,6 +238,23 @@
     protected override void OnInitialized()
     {
         Loc.LanguageChanged += OnLanguageChanged;
+
+        if (Rock is int r)     _counts["rock"] = Math.Clamp(r, 0, 30);
+        if (Paper is int p)    _counts["paper"] = Math.Clamp(p, 0, 30);
+        if (Scissors is int s) _counts["scissors"] = Math.Clamp(s, 0, 30);
+        _autoStart = Go
+            && (Rock is not null || Paper is not null || Scissors is not null)
+            && TotalCount >= 2;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // auto-run the arena when arriving from a "watch the arena" link
+        if (firstRender && _autoStart)
+        {
+            _autoStart = false;
+            await StartSim();
+        }
     }
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
