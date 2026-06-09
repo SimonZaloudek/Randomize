@@ -8,6 +8,21 @@
     // swap to sprite paths once assets are dropped in wwwroot/img/rps/
     const GLYPHS = { rock: "🪨", paper: "📄", scissors: "✂️" };
 
+    function isImageSrc(v) {
+        return typeof v === "string" &&
+            (v.startsWith("data:") || v.startsWith("http") || v.startsWith("/") || /\.(png|jpe?g|svg|gif|webp)$/i.test(v));
+    }
+    // skin = { type: {img} | {glyph} }; images are preloaded once per round
+    function resolveSkin(src) {
+        const s = src || GLYPHS, out = {};
+        for (const t of TYPES) {
+            const v = s[t] || GLYPHS[t];
+            if (isImageSrc(v)) { const img = new Image(); img.src = v; out[t] = { img }; }
+            else out[t] = { glyph: v };
+        }
+        return out;
+    }
+
     const RADIUS = 18;
     const MAX_PER_TYPE = 300;   // safety ceiling (UI caps at 30); keeps the O(n²) sim responsive
     const BASE_SPEED = 60;
@@ -24,6 +39,7 @@
     let speed = 1;
     let behavior = "seek";
     let arenaBg = null;
+    let skin = null;
     let lastTime = 0;
     let rafId = 0;
     let winnerNotified = false;
@@ -51,6 +67,7 @@
             behavior = config.behavior || "seek";
             speed = config.speed || 1;
             arenaBg = config.arenaBg || null;
+            skin = resolveSkin(config.skin);
 
             entities = [];
             effects = [];
@@ -289,8 +306,15 @@
         ctx.font = `${RADIUS * 1.8}px serif`;
         if (!glyphOffsets) glyphOffsets = measureGlyphOffsets();
         for (const e of entities) {
+            const sk = skin && skin[e.type];
+            if (sk && sk.img) {
+                if (sk.img.complete && sk.img.naturalWidth) {
+                    ctx.drawImage(sk.img, e.x - RADIUS, e.y - RADIUS, RADIUS * 2, RADIUS * 2);
+                }
+                continue;
+            }
             // shift by the glyph's ink imbalance so the visible symbol sits on e.x
-            ctx.fillText(GLYPHS[e.type] || "?", e.x - (glyphOffsets[e.type] || 0), e.y);
+            ctx.fillText((sk && sk.glyph) || GLYPHS[e.type] || "?", e.x - (glyphOffsets[e.type] || 0), e.y);
         }
     }
 

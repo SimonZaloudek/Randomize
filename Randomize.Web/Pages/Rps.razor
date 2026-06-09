@@ -63,14 +63,44 @@
             <div class="rps-section">
                 <div class="rps-section-label">@Loc["rps.skin"]</div>
                 <div class="rps-pick-row">
-                    @foreach (var s in _skins)
+                    @foreach (var p in _skins)
                     {
-                        var key = s;
+                        var key = p.Key;
                         <button type="button"
-                                class="rps-pick @(_skin == key ? "active" : "")"
+                                class="rps-pick rps-skin-pick @(_skin == key ? "active" : "")"
                                 @onclick="() => _skin = key">
-                            @Loc[$"rps.skin.{key}"]
+                            <span>@p.Rock</span><span>@p.Paper</span><span>@p.Scissors</span>
                         </button>
+                    }
+                    <button type="button"
+                            class="rps-pick rps-skin-pick @(_skin == "custom" ? "active" : "")"
+                            @onclick='() => _skin = "custom"'
+                            disabled="@(!CustomReady)">
+                        @if (CustomReady)
+                        {
+                            <img src="@_custom["rock"]" alt="" /><img src="@_custom["paper"]" alt="" /><img src="@_custom["scissors"]" alt="" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-upload"></i>
+                        }
+                    </button>
+                </div>
+                <div class="rps-skin-uploads">
+                    @foreach (var t in _types)
+                    {
+                        var type = t;
+                        <label class="rps-skin-upload" title="@Loc[$"rps.type.{type}"]">
+                            @if (_custom.ContainsKey(type))
+                            {
+                                <img src="@_custom[type]" alt="" />
+                            }
+                            else
+                            {
+                                <span>@Glyph(type)</span>
+                            }
+                            <InputFile OnChange="@(e => OnSkinUpload(e, type))" accept="image/*" />
+                        </label>
                     }
                 </div>
             </div>
@@ -195,7 +225,16 @@
     private readonly string[] _types = { "rock", "paper", "scissors" };
     private readonly string[] _behaviors = { "random", "seek" };
     private readonly double[] _speedPresets = { 0.5, 1.0, 1.5, 2.0, 3.0, 5.0 };
-    private readonly string[] _skins = { "default" };
+    private record SkinPreset(string Key, string Rock, string Paper, string Scissors);
+    private readonly SkinPreset[] _skins =
+    {
+        new("classic", "🪨", "📄", "✂️"),
+        new("hands", "✊", "✋", "✌️"),
+        new("space", "🌑", "🛰️", "☄️"),
+        new("food", "🥔", "🥬", "🔪"),
+    };
+    private readonly Dictionary<string, string> _custom = new();
+    private bool CustomReady => _custom.Count == 3;
     private readonly string[] _arenas = { "classic", "theme", "dark" };
 
     private Dictionary<string, int> _counts = new()
@@ -214,7 +253,7 @@
     };
 
     private string _behavior = "random";
-    private string _skin = "default";
+    private string _skin = "classic";
     private string _arena = "theme";
     private double _speed = 1.0;
 
@@ -249,12 +288,41 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // auto-run the arena when arriving from a "watch the arena" link
-        if (firstRender && _autoStart)
+        if (firstRender)
         {
-            _autoStart = false;
-            await StartSim();
+            await LoadCustomSkins();
+            // auto-run the arena when arriving from a "watch the arena" link
+            if (_autoStart) { _autoStart = false; await StartSim(); }
         }
+    }
+
+    private async Task LoadCustomSkins()
+    {
+        foreach (var t in _types)
+        {
+            var v = await JS.InvokeAsync<string>("localStorage.getItem", $"rps-skin-{t}");
+            if (!string.IsNullOrEmpty(v)) _custom[t] = v;
+        }
+        if (CustomReady) StateHasChanged();
+    }
+
+    private async Task OnSkinUpload(InputFileChangeEventArgs e, string type)
+    {
+        var file = e.File;
+        if (file is null) return;
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(2 * 1024 * 1024).CopyToAsync(ms);
+        _custom[type] = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+        _skin = "custom";
+        await JS.InvokeVoidAsync("localStorage.setItem", $"rps-skin-{type}", _custom[type]);
+    }
+
+    private object SkinObject()
+    {
+        if (_skin == "custom" && CustomReady)
+            return new { rock = _custom["rock"], paper = _custom["paper"], scissors = _custom["scissors"] };
+        var p = Array.Find(_skins, x => x.Key == _skin) ?? _skins[0];
+        return new { rock = p.Rock, paper = p.Paper, scissors = p.Scissors };
     }
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
@@ -295,6 +363,7 @@
             counts = _counts,
             behavior = _behavior,
             speed = _speed,
+            skin = SkinObject(),
             arenaBg = _arena == "classic" ? "#f1f0e8" : null  // dark + theme let the CSS frame show through
         });
         Stats.Increment("rps");
@@ -338,6 +407,7 @@
             counts = _counts,
             behavior = _behavior,
             speed = _speed,
+            skin = SkinObject(),
             arenaBg = _arena == "classic" ? "#f1f0e8" : null  // dark + theme let the CSS frame show through
         });
     }
