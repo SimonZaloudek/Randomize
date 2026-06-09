@@ -1,16 +1,21 @@
+@page "/base"
+@page "/string"
 @page "/number"
 @using Randomize.Core.Services
 @using Randomize.Web.Services
 @inject NumberRandomizerService NumberService
+@inject StringRandomizerService StringService
 @inject StatsClient Stats
 @inject LocalizationService Loc
 @implements IDisposable
 
-<h2 class="page-title">@Loc["number.title"]</h2>
+<PageTitle>@Loc["base.title"]</PageTitle>
+
+<h2 class="page-title">@Loc["base.title"]</h2>
 
 <div class="tool-grid">
 
-    <!-- 1. Random number -->
+    <!-- Random number -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-hash"></i> @Loc["number.rn.title"]</h3>
         <p class="tool-card-hint">@Loc["number.rn.hint"]</p>
@@ -37,7 +42,55 @@
         </div>
     </section>
 
-    <!-- 2. Dice roller -->
+    <!-- Shuffle / random pick -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-shuffle"></i> @Loc["string.shuffle.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.shuffle.hint"]</p>
+        <div class="tool-card-body">
+            <textarea class="tool-input tool-textarea"
+                      @bind="_shuffleInput"
+                      @bind:event="oninput"
+                      placeholder="@Loc["string.shuffle.placeholder"]"></textarea>
+        </div>
+        <button class="tool-btn" @onclick="DoShuffle">@Loc["string.shuffle.btn"]</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_shuffleResult))
+            {
+                @_shuffleResult
+            }
+            else
+            {
+                <span class="tool-result-empty">@Loc["string.shuffle.empty"]</span>
+            }
+        </div>
+    </section>
+
+    <!-- Coin flip -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-coin"></i> @Loc["string.coin.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.coin.hint"]</p>
+        <div class="tool-card-body">
+            <div class="coin-stage">
+                <div class="coin" style="transform: rotateY(@(_coinRotation)deg)">
+                    <div class="coin-face heads">H</div>
+                    <div class="coin-face tails">T</div>
+                </div>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoCoinFlip" disabled="@_coinFlipping">@Loc["string.coin.btn"]</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_coinResult))
+            {
+                <strong>@_coinResult</strong>
+            }
+            else
+            {
+                <span class="tool-result-empty">@(_coinFlipping ? Loc["string.coin.flipping"] : Loc["string.coin.empty"])</span>
+            }
+        </div>
+    </section>
+
+    <!-- Dice roller -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-dice-5"></i> @Loc["number.dice.title"]</h3>
         <p class="tool-card-hint">@Loc["number.dice.hint"]</p>
@@ -84,7 +137,30 @@
         </div>
     </section>
 
-    <!-- 3. Lottery -->
+    <!-- Weighted pick -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-sliders"></i> @Loc["string.weighted.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.weighted.hintBefore"]<code>weight:</code>@Loc["string.weighted.hintAfter"]</p>
+        <div class="tool-card-body">
+            <textarea class="tool-input tool-textarea"
+                      @bind="_weightedInput"
+                      @bind:event="oninput"
+                      placeholder="@_weightedPlaceholder"></textarea>
+        </div>
+        <button class="tool-btn" @onclick="DoWeighted">@Loc["string.weighted.btn"]</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_weightedResult))
+            {
+                @_weightedResult
+            }
+            else
+            {
+                <span class="tool-result-empty">@Loc["string.weighted.empty"]</span>
+            }
+        </div>
+    </section>
+
+    <!-- Lottery -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-ticket-perforated"></i> @Loc["number.lotto.title"]</h3>
         <p class="tool-card-hint">@Loc["number.lotto.hint"]</p>
@@ -129,7 +205,7 @@
         </div>
     </section>
 
-    <!-- 4. Multiple numbers -->
+    <!-- Multiple numbers -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-list-ol"></i> @Loc["number.multi.title"]</h3>
         <p class="tool-card-hint">@Loc["number.multi.hint"]</p>
@@ -169,7 +245,7 @@
         </div>
     </section>
 
-    <!-- 5. Random date -->
+    <!-- Random date -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-calendar-event"></i> @Loc["number.date.title"]</h3>
         <p class="tool-card-hint">@Loc["number.date.hint"]</p>
@@ -198,7 +274,7 @@
         </div>
     </section>
 
-    <!-- 6. PIN generator -->
+    <!-- PIN generator -->
     <section class="tool-card">
         <h3 class="tool-card-title"><i class="bi bi-lock"></i> @Loc["number.pin.title"]</h3>
         <p class="tool-card-hint">@Loc["number.pin.hint"]</p>
@@ -222,57 +298,201 @@
         </div>
     </section>
 
+    <!-- Password generator -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-shield-lock"></i> @Loc["string.pw.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.pw.hint"]</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">@Loc["string.pw.length"]</span>
+                    <input type="number" min="4" max="128" @bind="_pwLength" class="tool-input-small" />
+                </label>
+            </div>
+            <div class="option-row option-row-wrap">
+                <label><input type="checkbox" @bind="_pwUpper" /> A–Z</label>
+                <label><input type="checkbox" @bind="_pwLower" /> a–z</label>
+                <label><input type="checkbox" @bind="_pwDigits" /> 0–9</label>
+                <label><input type="checkbox" @bind="_pwSymbols" /> @Loc["string.pw.symbols"]</label>
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoPassword" disabled="@(!CanGeneratePassword)">@Loc["string.pw.btn"]</button>
+        <div class="tool-result tool-result-mono">
+            @if (!string.IsNullOrEmpty(_pwResult))
+            {
+                @_pwResult
+            }
+            else
+            {
+                <span class="tool-result-empty">@Loc["string.pw.empty"]</span>
+            }
+        </div>
+    </section>
+
+    <!-- Token generator -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-key"></i> @Loc["string.token.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.token.hint"]</p>
+        <div class="tool-card-body">
+            <div class="option-row">
+                <label><span class="opt-key">@Loc["string.token.length"]</span>
+                    <input type="number" min="1" max="256" @bind="_tokenLength" class="tool-input-small" />
+                </label>
+                <label><span class="opt-key">@Loc["string.token.charset"]</span>
+                    <select class="tool-input-small" @bind="_tokenCharsetKey">
+                        <option value="alphanumeric">@Loc["string.token.charset.alphanumeric"]</option>
+                        <option value="hex">@Loc["string.token.charset.hex"]</option>
+                        <option value="base64">@Loc["string.token.charset.base64"]</option>
+                        <option value="custom">@Loc["string.token.charset.custom"]</option>
+                    </select>
+                </label>
+            </div>
+            @if (_tokenCharsetKey == "custom")
+            {
+                <input class="tool-input"
+                       type="text"
+                       @bind="_tokenCustom"
+                       @bind:event="oninput"
+                       placeholder="@Loc["string.token.customPlaceholder"]" />
+            }
+        </div>
+        <button class="tool-btn" @onclick="DoToken" disabled="@(!CanGenerateToken)">@Loc["string.token.btn"]</button>
+        <div class="tool-result tool-result-mono">
+            @if (!string.IsNullOrEmpty(_tokenResult))
+            {
+                @_tokenResult
+            }
+            else
+            {
+                <span class="tool-result-empty">@Loc["string.token.empty"]</span>
+            }
+        </div>
+    </section>
+
+    <!-- Random emoji -->
+    <section class="tool-card">
+        <h3 class="tool-card-title"><i class="bi bi-emoji-smile"></i> @Loc["string.emoji.title"]</h3>
+        <p class="tool-card-hint">@Loc["string.emoji.hint"]</p>
+        <div class="tool-card-body">
+            <div class="emoji-display">
+                @if (!string.IsNullOrEmpty(_emojiResult))
+                {
+                    @_emojiResult
+                }
+                else
+                {
+                    <span class="emoji-placeholder">?</span>
+                }
+            </div>
+        </div>
+        <button class="tool-btn" @onclick="DoEmoji">@Loc["string.emoji.btn"]</button>
+        <div class="tool-result">
+            @if (!string.IsNullOrEmpty(_emojiResult))
+            {
+                <span>@Loc["string.emoji.got"] @_emojiResult</span>
+            }
+            else
+            {
+                <span class="tool-result-empty">@Loc["string.emoji.empty"]</span>
+            }
+        </div>
+    </section>
+
 </div>
 
 @code {
-    // 1. Random number
+    // Random number
     private int _rnMin = 1;
     private int _rnMax = 100;
     private int? _rnResult;
 
-    // 2. Dice - 1-6 six-sided dice
+    // Dice (1-5 six-sided)
     private int _diceCount = 1;
     private int[] _dice = Array.Empty<int>();
     private string? _diceResult;
     private bool _diceRolling;
 
-    // 3x3 pip layout (cell indices 0-8) for die faces 1-6
+    // 3x3 pip layout (cell indices 0-8) for faces 1-6
     private static readonly int[][] _pips =
     {
-        Array.Empty<int>(),          // 0 (unused)
-        new[] { 4 },                 // 1
-        new[] { 0, 8 },              // 2
-        new[] { 0, 4, 8 },           // 3
-        new[] { 0, 2, 6, 8 },        // 4
-        new[] { 0, 2, 4, 6, 8 },     // 5
-        new[] { 0, 2, 3, 5, 6, 8 },  // 6
+        Array.Empty<int>(),
+        new[] { 4 },
+        new[] { 0, 8 },
+        new[] { 0, 4, 8 },
+        new[] { 0, 2, 6, 8 },
+        new[] { 0, 2, 4, 6, 8 },
+        new[] { 0, 2, 3, 5, 6, 8 },
     };
 
     private static bool HasPip(int value, int cell)
         => value >= 1 && value <= 6 && Array.IndexOf(_pips[value], cell) >= 0;
 
-    // 3. Lottery
+    // Lottery
     private int _lottoCount = 6;
     private int _lottoMax = 49;
     private readonly List<int> _lottoNumbers = new();
     private bool _lottoDrawing;
     private bool CanDraw => _lottoCount > 0 && _lottoMax >= 2 && _lottoCount <= _lottoMax;
 
-    // 4. Multiple numbers
+    // Multiple numbers
     private int _mnCount = 5;
     private int _mnMin = 1;
     private int _mnMax = 100;
     private bool _mnUnique;
     private int[] _mnResult = Array.Empty<int>();
 
-    // 5. Random date
+    // Random date
     private DateOnly _dateStart = new(2000, 1, 1);
     private DateOnly _dateEnd = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _dateResult;
 
-    // 6. PIN
+    // PIN
     private int _pinLength = 4;
     private string? _pinResult;
+
+    // Shuffle / random pick
+    private string _shuffleInput = "";
+    private string? _shuffleResult;
+
+    // Weighted pick
+    private string _weightedInput = "";
+    private string _weightedPlaceholder = "5: Pizza\n3: Burger\n1: Salad";
+    private string? _weightedResult;
+
+    // Password
+    private int _pwLength = 16;
+    private bool _pwUpper = true;
+    private bool _pwLower = true;
+    private bool _pwDigits = true;
+    private bool _pwSymbols = true;
+    private string? _pwResult;
+    private bool CanGeneratePassword =>
+        _pwLength > 0 && (_pwUpper || _pwLower || _pwDigits || _pwSymbols);
+
+    // Token
+    private int _tokenLength = 32;
+    private string _tokenCharsetKey = "alphanumeric";
+    private string _tokenCustom = "";
+    private string? _tokenResult;
+    private bool CanGenerateToken =>
+        _tokenLength > 0 &&
+        (_tokenCharsetKey != "custom" || !string.IsNullOrEmpty(_tokenCustom));
+
+    // Coin
+    private int _coinRotation;
+    private string? _coinResult;
+    private bool _coinFlipping;
+
+    // Emoji
+    private string? _emojiResult;
+    private static readonly string[] _emojis = new[]
+    {
+        "🎉","🎊","🎁","🎈","🎂","🎄","🎃","🎀","🎯","🎲","🎮","🎺","🎻","🎷","🥁","🎤","🎬","🎫","🎨","🎭","🎪","🎡","🎢",
+        "🥳","🤩","😎","🥺","🤔","😴","😇","🙃","😜","😂","🤣","😍","🥰","😘","😋","🤗","🤨","😏","🙄","🤯","🥶","🥵","🤠","🤡","😺",
+        "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🦄","🐔","🐧","🦅","🦉","🐺","🐴","🦋","🐝","🐞","🦀","🐠","🐬","🦈","🐳",
+        "🌟","⭐","🌙","☀️","⚡","🔥","❄️","🌈","🌍","🌎","🌏",
+        "🍎","🍊","🍋","🍌","🍉","🍇","🍓","🍑","🍍","🥥","🥑","🍆","🥕","🌽","🌶","🍄","🥦","🍞","🥐","🧀","🍳","🥞","🥩","🍗","🍔","🍟","🍕","🌮","🌯","🍝","🍜","🍣","🍦","🍩","🍪","🍫","🍯","☕","🍵","🍺","🍷","🍸","🍹",
+        "⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋","⛳","🏆","🥇","🥈","🥉"
+    };
 
     protected override void OnInitialized()
     {
@@ -283,6 +503,7 @@
 
     public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
+    // Number tools
     private void DoRandomNumber()
     {
         if (_rnMin > _rnMax) (_rnMin, _rnMax) = (_rnMax, _rnMin);
@@ -359,5 +580,68 @@
         _pinLength = Math.Clamp(_pinLength, 3, 12);
         _pinResult = NumberService.GeneratePin(_pinLength);
         if (!string.IsNullOrEmpty(_pinResult)) Stats.Increment("number");
+    }
+
+    // String / list tools
+    private void DoShuffle()
+    {
+        var items = _shuffleInput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        _shuffleResult = StringService.PickRandom(items);
+        if (!string.IsNullOrEmpty(_shuffleResult)) Stats.Increment("string");
+    }
+
+    private void DoWeighted()
+    {
+        var lines = _weightedInput.Split('\n');
+        _weightedResult = StringService.PickWeighted(lines);
+        if (!string.IsNullOrEmpty(_weightedResult)) Stats.Increment("string");
+    }
+
+    private void DoPassword()
+    {
+        _pwResult = StringService.GeneratePassword(_pwLength, _pwUpper, _pwLower, _pwDigits, _pwSymbols);
+        if (!string.IsNullOrEmpty(_pwResult)) Stats.Increment("string");
+    }
+
+    private void DoToken()
+    {
+        var charset = _tokenCharsetKey switch
+        {
+            "alphanumeric" => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "hex" => "0123456789abcdef",
+            "base64" => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+            "custom" => _tokenCustom,
+            _ => ""
+        };
+        _tokenResult = StringService.GenerateToken(_tokenLength, charset);
+        if (!string.IsNullOrEmpty(_tokenResult)) Stats.Increment("string");
+    }
+
+    private async Task DoCoinFlip()
+    {
+        if (_coinFlipping) return;
+        _coinFlipping = true;
+        _coinResult = null;
+
+        bool heads = Random.Shared.Next(2) == 0;
+        // 5 full spins, then align to the target face (0 = heads, 180 = tails)
+        int target = heads ? 0 : 180;
+        int delta = (target - (_coinRotation % 360) + 360) % 360;
+        _coinRotation += 1800 + delta;
+        StateHasChanged();
+
+        await Task.Delay(1100);
+
+        _coinResult = heads ? Loc["string.coin.heads"] : Loc["string.coin.tails"];
+        _coinFlipping = false;
+
+        Stats.Increment("string");
+        Stats.Increment(heads ? "coin-heads" : "coin-tails");
+    }
+
+    private void DoEmoji()
+    {
+        _emojiResult = _emojis[Random.Shared.Next(_emojis.Length)];
+        Stats.Increment("string");
     }
 }

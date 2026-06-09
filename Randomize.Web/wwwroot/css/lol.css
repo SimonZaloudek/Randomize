@@ -1,0 +1,111 @@
+.lol-page { max-width: 1000px; margin: 0 auto; }
+
+.lol-head { text-align: center; }
+.lol-sub { color: var(--text-muted); margin: -4px 0 16px; }
+
+.lol-controls {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    justify-content: center; align-items: center; margin-bottom: 20px;
+}
+.lol-mode { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.lol-mode-btn {
+    background: transparent; color: var(--text-muted);
+    border: 0; padding: 8px 16px; cursor: pointer; font: inherit;
+}
+.lol-mode-btn.active { background: var(--accent); color: #fff; }
+
+.lol-roll {
+    background: var(--accent); color: #fff; border: 0;
+    padding: 9px 22px; border-radius: 10px; cursor: pointer;
+    font: inherit; font-weight: 600;
+}
+.lol-roll:disabled { opacity: .6; cursor: default; }
+
+.lol-error, .lol-empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
+
+/* champion hero */
+.lol-champ {
+    position: relative; min-height: 240px; border-radius: 16px;
+    overflow: hidden; background-size: cover; background-position: center 22%;
+    display: flex; align-items: flex-end; margin-bottom: 16px;
+    border: 1px solid var(--border);
+}
+.lol-champ::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.85));
+}
+.lol-champ-info { position: relative; z-index: 1; padding: 18px 20px; color: #fff; }
+.lol-role {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-size: .8rem; font-weight: 700; padding: 2px 10px; border-radius: 6px; margin-bottom: 6px;
+}
+.lol-champ-name { margin: 0; font-size: 2rem; }
+.lol-champ-title { color: #d8d2ff; font-style: italic; }
+.lol-tags { margin-top: 8px; display: flex; gap: 6px; }
+.lol-tag { background: rgba(255,255,255,.15); border-radius: 6px; padding: 2px 9px; font-size: .78rem; }
+
+.lol-champ-actions { position: absolute; top: 12px; right: 12px; z-index: 1; display: flex; gap: 6px; }
+
+/* cursedness */
+.lol-cursed {
+    position: absolute; z-index: 1; bottom: 18px; right: 20px;
+    display: flex; align-items: center; gap: 8px; color: #fff;
+}
+.lol-cursed-bar { width: 90px; height: 7px; border-radius: 4px; background: rgba(255,255,255,.2); overflow: hidden; }
+.lol-cursed-bar span { display: block; height: 100%; background: #6ee06e; }
+.lol-cursed-label { font-weight: 700; font-size: .85rem; }
+.lol-cursed-score { font-variant-numeric: tabular-nums; }
+.lol-cursed-mid .lol-cursed-bar span { background: #e8c84a; }
+.lol-cursed-high .lol-cursed-bar span { background: #f08a3c; }
+.lol-cursed-max .lol-cursed-bar span { background: #e0556e; }
+
+/* cards */
+.lol-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.lol-card { background: var(--surface-solid); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+.lol-card-wide { grid-column: 1 / -1; }
+.lol-card-head { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 12px; }
+.lol-card-head > span:first-child { flex: 1; }
+
+.lol-mini {
+    background: var(--surface); color: var(--text-muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    width: 30px; height: 30px; cursor: pointer; line-height: 1;
+}
+.lol-mini:hover { color: var(--text); }
+.lol-mini.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.lol-mini:disabled { opacity: .5; cursor: default; }
+
+.lol-spells { display: flex; gap: 16px; }
+.lol-spell, .lol-item { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; text-align: center; }
+.lol-spell img, .lol-item img { width: 48px; height: 48px; border-radius: 8px; border: 1px solid var(--border); }
+.lol-spell span, .lol-item span { font-size: .7rem; color: var(--text-muted); line-height: 1.1; }
+
+.lol-skills { display: flex; align-items: center; gap: 6px; }
+.lol-skill {
+    width: 38px; height: 38px; display: grid; place-items: center;
+    background: var(--accent); color: #fff; border-radius: 8px; font-weight: 700;
+}
+.lol-skill-r { background: #c9a227; }
+.lol-skill-sep { color: var(--text-muted); }
+
+.lol-runes { display: flex; flex-wrap: wrap; gap: 28px; }
+.lol-rune-tree-name { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 8px; }
+.lol-rune-tree-name img { width: 22px; height: 22px; }
+.lol-rune-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.lol-rune { width: 40px; height: 40px; }
+.lol-keystone { width: 52px; height: 52px; }
+.lol-shard { width: 24px; height: 24px; }
+
+.lol-items { display: flex; flex-wrap: wrap; gap: 14px; }
+
+.lol-footer { text-align: center; margin-top: 18px; }
+.lol-copy {
+    background: var(--surface-solid); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 18px; cursor: pointer; font: inherit;
+}
+
+@media (max-width: 640px) {
+    .lol-cards { grid-template-columns: 1fr; }
+    .lol-cursed { position: static; margin: 10px 20px 16px; }
+}

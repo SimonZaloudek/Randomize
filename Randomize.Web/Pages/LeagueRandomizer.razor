@@ -1,0 +1,364 @@
+@page "/lol"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>League Randomizer</PageTitle>
+
+<div class="lol-page">
+
+    <header class="lol-head">
+        <h2 class="page-title">League Ultimate Bravery</h2>
+        <p class="lol-sub">Roll a full random loadout and commit to it. No deviations, build in order.</p>
+
+        <div class="lol-controls">
+            <div class="lol-mode">
+                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>Summoner's Rift</button>
+                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>ARAM</button>
+            </div>
+            <button class="lol-roll" @onclick="RerollUnlocked" disabled="@_loading">
+                <i class="bi bi-dice-5-fill"></i> @(_l is null ? "Generate" : "Reroll")
+            </button>
+        </div>
+    </header>
+
+    @if (_error is not null)
+    {
+        <div class="lol-error">@_error</div>
+    }
+    else if (_l is not null)
+    {
+        <div class="lol-board">
+
+            @if (_l.Champion is not null)
+            {
+                <section class="lol-champ" style="background-image:url('@_l.Champion.Splash')">
+                    <div class="lol-champ-actions">
+                        @Lock("champion")
+                        @Reroll("champion")
+                    </div>
+                    <div class="lol-champ-info">
+                        @if (_l.Role is not null)
+                        {
+                            <span class="lol-role">@_l.Role</span>
+                        }
+                        <h3 class="lol-champ-name">@_l.Champion.Name</h3>
+                        <span class="lol-champ-title">@_l.Champion.Title</span>
+                        <div class="lol-tags">
+                            @foreach (var t in _l.Champion.Roles)
+                            {
+                                <span class="lol-tag">@t</span>
+                            }
+                        </div>
+                    </div>
+                    @if (_l.Cursedness is not null)
+                    {
+                        <div class="lol-cursed lol-cursed-@CursedClass()">
+                            <span class="lol-cursed-label">@_l.Cursedness.Label</span>
+                            <div class="lol-cursed-bar"><span style="width:@(_l.Cursedness.Score)%"></span></div>
+                            <span class="lol-cursed-score">@_l.Cursedness.Score</span>
+                        </div>
+                    }
+                </section>
+            }
+
+            <div class="lol-cards">
+
+                @if (_l.Spells is not null)
+                {
+                    <section class="lol-card">
+                        <div class="lol-card-head"><span>Summoner Spells</span>@Lock("spells")@Reroll("spells")</div>
+                        <div class="lol-spells">
+                            @foreach (var s in _l.Spells)
+                            {
+                                <div class="lol-spell" title="@s.Name">
+                                    <img src="@s.Icon" alt="@s.Name" />
+                                    <span>@s.Name</span>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                @if (_l.Skills is not null)
+                {
+                    <section class="lol-card">
+                        <div class="lol-card-head"><span>Skill Max Order</span>@Lock("skills")@Reroll("skills")</div>
+                        <div class="lol-skills">
+                            @for (var i = 0; i < _l.Skills.Length; i++)
+                            {
+                                <span class="lol-skill">@_l.Skills[i]</span>
+                                @if (i < _l.Skills.Length - 1)
+                                {
+                                    <i class="bi bi-chevron-right lol-skill-sep"></i>
+                                }
+                            }
+                            <span class="lol-skill lol-skill-r">R</span>
+                        </div>
+                    </section>
+                }
+
+                @if (_l.Runes is not null)
+                {
+                    <section class="lol-card lol-card-wide">
+                        <div class="lol-card-head"><span>Runes</span>@Lock("runes")@Reroll("runes")</div>
+                        <div class="lol-runes">
+                            <div class="lol-rune-tree">
+                                <div class="lol-rune-tree-name"><img src="@_l.Runes.Primary.Icon" alt="" /> @_l.Runes.Primary.Name</div>
+                                <div class="lol-rune-row">
+                                    <img class="lol-rune lol-keystone" src="@_l.Runes.Primary.Keystone!.Icon" title="@_l.Runes.Primary.Keystone.Name" alt="" />
+                                    @foreach (var r in _l.Runes.Primary.Runes)
+                                    {
+                                        <img class="lol-rune" src="@r.Icon" title="@r.Name" alt="" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="lol-rune-tree">
+                                <div class="lol-rune-tree-name"><img src="@_l.Runes.Secondary.Icon" alt="" /> @_l.Runes.Secondary.Name</div>
+                                <div class="lol-rune-row">
+                                    @foreach (var r in _l.Runes.Secondary.Runes)
+                                    {
+                                        <img class="lol-rune" src="@r.Icon" title="@r.Name" alt="" />
+                                    }
+                                </div>
+                                <div class="lol-rune-row lol-shards">
+                                    @foreach (var s in _l.Runes.Shards)
+                                    {
+                                        <img class="lol-shard" src="@s.Icon" title="@s.Name" alt="" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
+
+                @if (_l.Items is not null)
+                {
+                    <section class="lol-card lol-card-wide">
+                        <div class="lol-card-head"><span>Build</span>@Lock("items")@Reroll("items")</div>
+                        <div class="lol-items">
+                            @foreach (var it in _l.Items)
+                            {
+                                <div class="lol-item" title="@it.Name">
+                                    <img src="@it.Icon" alt="@it.Name" />
+                                    <span>@it.Name</span>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+            </div>
+
+            <div class="lol-footer">
+                <button class="lol-copy" @onclick="Share">
+                    <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share challenge")
+                </button>
+                <button class="lol-copy" @onclick="Copy">
+                    <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy build")
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="lol-empty">@(_loading ? "Rolling..." : "Press Generate to start.")</div>
+    }
+</div>
+
+@code {
+    private Loadout? _l;
+    private string _mode = "sr";
+    private bool _loading;
+    private bool _copied;
+    private bool _shared;
+    private string? _error;
+    private readonly HashSet<string> _locked = new();
+
+    // shared-link params
+    [Parameter, SupplyParameterFromQuery(Name = "mode")] public string? ModeParam { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "c")] public string? C { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "ro")] public string? Ro { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "s")] public string? S { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "sk")] public string? Sk { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "i")] public string? I { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "r")] public string? R { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "sh")] public string? Sh { get; set; }
+
+    private string[] AllParts =>
+        _mode == "aram"
+            ? new[] { "champion", "spells", "runes", "skills", "items" }
+            : new[] { "champion", "role", "spells", "runes", "skills", "items" };
+
+    protected override Task OnInitializedAsync()
+    {
+        if (ModeParam is "sr" or "aram") _mode = ModeParam;
+        return string.IsNullOrEmpty(C) ? RerollParts(AllParts) : Hydrate();
+    }
+
+    private Task SetMode(string mode)
+    {
+        if (_mode == mode) return Task.CompletedTask;
+        _mode = mode;
+        _locked.Clear();
+        return RerollParts(AllParts);
+    }
+
+    private Task RerollUnlocked()
+    {
+        var parts = AllParts.Where(p => !_locked.Contains(p)).ToArray();
+        return parts.Length == 0 ? Task.CompletedTask : RerollParts(parts);
+    }
+
+    private Task RerollParts(params string[] parts)
+        => parts.Length == 0 ? Task.CompletedTask : Fetch($"mode={_mode}&roll={string.Join(",", parts)}");
+
+    private Task Hydrate()
+        => Fetch($"mode={_mode}&roll=none" + P("c", C) + P("ro", Ro) + P("s", S) + P("sk", Sk) + P("i", I) + P("r", R) + P("sh", Sh));
+
+    private static string P(string k, string? v) => string.IsNullOrEmpty(v) ? "" : $"&{k}={Uri.EscapeDataString(v)}";
+
+    private async Task Fetch(string query)
+    {
+        if (_loading) return;
+        _loading = true;
+        _copied = false;
+        _shared = false;
+        _error = null;
+        StateHasChanged();
+        try
+        {
+            var res = await Http.GetFromJsonAsync<Loadout>($"api/lol/random?{query}");
+            if (res is null) { _error = "No response, try again."; return; }
+
+            _l ??= new Loadout();
+            if (res.Champion is not null) _l.Champion = res.Champion;
+            if (res.Role is not null) _l.Role = res.Role;
+            if (res.Spells is not null) _l.Spells = res.Spells;
+            if (res.Runes is not null) _l.Runes = res.Runes;
+            if (res.Skills is not null) _l.Skills = res.Skills;
+            if (res.Items is not null) _l.Items = res.Items;
+            if (res.Cursedness is not null) _l.Cursedness = res.Cursedness;
+            if (_mode == "aram") _l.Role = null;
+        }
+        catch
+        {
+            _error = "Could not reach the randomizer. Try again.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Share()
+    {
+        if (_l is null) return;
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", ShareUrl()); _shared = true; }
+        catch { }
+    }
+
+    private string ShareUrl()
+    {
+        var q = new List<string> { $"mode={_mode}" };
+        if (_l!.Champion is not null) q.Add($"c={_l.Champion.Id}");
+        if (_l.Role is not null) q.Add($"ro={_l.Role}");
+        if (_l.Spells is not null) q.Add($"s={string.Join(",", _l.Spells.Select(x => x.Id))}");
+        if (_l.Skills is not null) q.Add($"sk={string.Join("", _l.Skills)}");
+        if (_l.Items is not null) q.Add($"i={string.Join(",", _l.Items.Select(x => x.Id))}");
+        if (_l.Runes is not null)
+        {
+            var ids = new[] { _l.Runes.Primary.Keystone!.Id }
+                .Concat(_l.Runes.Primary.Runes.Select(r => r.Id))
+                .Concat(_l.Runes.Secondary.Runes.Select(r => r.Id));
+            q.Add($"r={string.Join("-", ids)}");
+            q.Add($"sh={string.Join(",", _l.Runes.Shards.Select(x => x.Idx))}");
+        }
+        return "https://userandomize.net/lol?" + string.Join("&", q);
+    }
+
+    private RenderFragment Reroll(string part) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini");
+        builder.AddAttribute(2, "title", "Reroll");
+        builder.AddAttribute(3, "disabled", _loading);
+        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => RerollParts(part)));
+        builder.AddMarkupContent(5, "<i class=\"bi bi-dice-5\"></i>");
+        builder.CloseElement();
+    };
+
+    private RenderFragment Lock(string part) => builder =>
+    {
+        var locked = _locked.Contains(part);
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini" + (locked ? " active" : ""));
+        builder.AddAttribute(2, "title", locked ? "Unlock" : "Lock");
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => ToggleLock(part)));
+        builder.AddMarkupContent(4, locked ? "<i class=\"bi bi-lock-fill\"></i>" : "<i class=\"bi bi-unlock\"></i>");
+        builder.CloseElement();
+    };
+
+    private void ToggleLock(string part)
+    {
+        if (!_locked.Remove(part)) _locked.Add(part);
+    }
+
+    private string CursedClass() => _l?.Cursedness is null ? "ok"
+        : _l.Cursedness.Score > 75 ? "max"
+        : _l.Cursedness.Score > 50 ? "high"
+        : _l.Cursedness.Score > 30 ? "mid" : "ok";
+
+    private async Task Copy()
+    {
+        if (_l is null) return;
+        var lines = new List<string>();
+        if (_l.Champion is not null) lines.Add($"Champion: {_l.Champion.Name}{(_l.Role is null ? "" : $" ({_l.Role})")}");
+        if (_l.Spells is not null) lines.Add($"Spells: {string.Join(" + ", _l.Spells.Select(s => s.Name))}");
+        if (_l.Skills is not null) lines.Add($"Skill max: {string.Join(" > ", _l.Skills)}");
+        if (_l.Runes is not null) lines.Add($"Runes: {_l.Runes.Primary.Name} ({_l.Runes.Primary.Keystone!.Name}) + {_l.Runes.Secondary.Name}");
+        if (_l.Items is not null) lines.Add($"Build: {string.Join(", ", _l.Items.Select(i => i.Name))}");
+        if (_l.Cursedness is not null) lines.Add($"Cursedness: {_l.Cursedness.Score} ({_l.Cursedness.Label})");
+        lines.Add("via userandomize.net/lol");
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    // --- models (match /api/lol/random output) ---
+    private class Loadout
+    {
+        public string? Version { get; set; }
+        public string? Mode { get; set; }
+        public Champion? Champion { get; set; }
+        public string? Role { get; set; }
+        public Spell[]? Spells { get; set; }
+        public string[]? Skills { get; set; }
+        public Runes? Runes { get; set; }
+        public Item[]? Items { get; set; }
+        public Cursed? Cursedness { get; set; }
+    }
+
+    private class Champion
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string[] Roles { get; set; } = Array.Empty<string>();
+        public string Square { get; set; } = "";
+        public string Splash { get; set; } = "";
+        public string Loading { get; set; } = "";
+    }
+
+    private class Spell { public string Id { get; set; } = ""; public string Name { get; set; } = ""; public string Icon { get; set; } = ""; }
+    private class Item { public string Id { get; set; } = ""; public string Name { get; set; } = ""; public string Icon { get; set; } = ""; public int Gold { get; set; } public string[] Tags { get; set; } = Array.Empty<string>(); }
+    private class Rune { public int Id { get; set; } public string Name { get; set; } = ""; public string Icon { get; set; } = ""; }
+    private class RuneTree { public string Name { get; set; } = ""; public string Icon { get; set; } = ""; public Rune? Keystone { get; set; } public Rune[] Runes { get; set; } = Array.Empty<Rune>(); }
+    private class Shard { public string Name { get; set; } = ""; public string Icon { get; set; } = ""; public int Idx { get; set; } }
+    private class Runes { public RuneTree Primary { get; set; } = new(); public RuneTree Secondary { get; set; } = new(); public Shard[] Shards { get; set; } = Array.Empty<Shard>(); }
+    private class Cursed { public int Score { get; set; } public string Label { get; set; } = ""; }
+}
