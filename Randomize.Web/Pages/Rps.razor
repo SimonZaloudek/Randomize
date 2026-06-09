@@ -69,7 +69,7 @@
                         <button type="button"
                                 class="rps-pick rps-skin-pick @(_skin == key ? "active" : "")"
                                 @onclick="() => _skin = key">
-                            <span>@p.Rock</span><span>@p.Paper</span><span>@p.Scissors</span>
+                            @Sym(p.Rock)@Sym(p.Paper)@Sym(p.Scissors)
                         </button>
                     }
                     <button type="button"
@@ -78,7 +78,7 @@
                             disabled="@(!CustomReady)">
                         @if (CustomReady)
                         {
-                            <img src="@_custom["rock"]" alt="" /><img src="@_custom["paper"]" alt="" /><img src="@_custom["scissors"]" alt="" />
+                            @Sym(CustomSym("rock"))@Sym(CustomSym("paper"))@Sym(CustomSym("scissors"))
                         }
                         else
                         {
@@ -230,11 +230,11 @@
     {
         new("classic", "🪨", "📄", "✂️"),
         new("hands", "✊", "✋", "✌️"),
-        new("space", "🌑", "🛰️", "☄️"),
-        new("food", "🥔", "🥬", "🔪"),
+        new("pixel", "img/rps/pixel/rock.png", "img/rps/pixel/paper.png", "img/rps/pixel/scissors.png"),
+        new("mc", "img/rps/mc/rock.png", "img/rps/mc/paper.png", "img/rps/mc/scissors.png"),
     };
     private readonly Dictionary<string, string> _custom = new();
-    private bool CustomReady => _custom.Count == 3;
+    private bool CustomReady => _custom.Count > 0;
     private readonly string[] _arenas = { "classic", "theme", "dark" };
 
     private Dictionary<string, int> _counts = new()
@@ -317,13 +317,35 @@
         await JS.InvokeVoidAsync("localStorage.setItem", $"rps-skin-{type}", _custom[type]);
     }
 
+    // a custom slot falls back to the default glyph when the user didn't upload it
+    private string CustomSym(string type) => _custom.TryGetValue(type, out var v) ? v : Glyph(type);
+
     private object SkinObject()
     {
         if (_skin == "custom" && CustomReady)
-            return new { rock = _custom["rock"], paper = _custom["paper"], scissors = _custom["scissors"] };
+            return new { rock = CustomSym("rock"), paper = CustomSym("paper"), scissors = CustomSym("scissors") };
         var p = Array.Find(_skins, x => x.Key == _skin) ?? _skins[0];
         return new { rock = p.Rock, paper = p.Paper, scissors = p.Scissors };
     }
+
+    private static bool IsImg(string v) => v.StartsWith("data:") || v.Contains('/') || v.Contains('.');
+
+    private RenderFragment Sym(string v) => builder =>
+    {
+        if (IsImg(v))
+        {
+            builder.OpenElement(0, "img");
+            builder.AddAttribute(1, "src", v);
+            builder.AddAttribute(2, "alt", "");
+            builder.CloseElement();
+        }
+        else
+        {
+            builder.OpenElement(0, "span");
+            builder.AddContent(1, v);
+            builder.CloseElement();
+        }
+    };
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 

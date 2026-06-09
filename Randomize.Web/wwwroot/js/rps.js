@@ -17,7 +17,7 @@
         const s = src || GLYPHS, out = {};
         for (const t of TYPES) {
             const v = s[t] || GLYPHS[t];
-            if (isImageSrc(v)) { const img = new Image(); img.src = v; out[t] = { img }; }
+            if (isImageSrc(v)) { const img = new Image(); img.src = v; out[t] = { img, glyph: GLYPHS[t] }; }
             else out[t] = { glyph: v };
         }
         return out;
@@ -307,13 +307,11 @@
         if (!glyphOffsets) glyphOffsets = measureGlyphOffsets();
         for (const e of entities) {
             const sk = skin && skin[e.type];
-            if (sk && sk.img) {
-                if (sk.img.complete && sk.img.naturalWidth) {
-                    ctx.drawImage(sk.img, e.x - RADIUS, e.y - RADIUS, RADIUS * 2, RADIUS * 2);
-                }
+            if (sk && sk.img && sk.img.complete && sk.img.naturalWidth) {
+                ctx.drawImage(sk.img, e.x - RADIUS, e.y - RADIUS, RADIUS * 2, RADIUS * 2);
                 continue;
             }
-            // shift by the glyph's ink imbalance so the visible symbol sits on e.x
+            // image not ready (or emoji skin): fall back to the glyph
             ctx.fillText((sk && sk.glyph) || GLYPHS[e.type] || "?", e.x - (glyphOffsets[e.type] || 0), e.y);
         }
     }
