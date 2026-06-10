@@ -151,22 +151,67 @@
                 </div>
             </details>
 
-            <!-- Games -->
-            <details class="about-acc">
+            <!-- Gamers Hub - a hub entry: wider panel, one block per game tool -->
+            <details class="about-acc about-acc-hub">
                 <summary class="about-acc-head">
                     <span class="about-acc-icon"><i class="bi bi-controller"></i></span>
-                    <span class="about-acc-title">Games</span>
-                    <span class="about-acc-tag">What to play</span>
+                    <span class="about-acc-title">Gamers Hub</span>
+                    <span class="about-acc-tag">Random picks, chaos builds and game tools</span>
                     <i class="bi bi-chevron-down about-acc-chevron" aria-hidden="true"></i>
                 </summary>
-                <div class="about-acc-body">
-                    <p>Finds a random video game (data from IGDB) to play next.</p>
-                    <ol class="about-tut">
-                        <li>Optionally filter by platform, genre or release year.</li>
-                        <li>Press <strong>Randomize</strong>.</li>
-                        <li>Browse the pick's art, rating, details and force your friend to buy that one co-op game you'll never play again after the first day.</li>
-                    </ol>
-                    <a href="/games" class="about-acc-open">Open Games <i class="bi bi-arrow-right"></i></a>
+                <div class="about-acc-body about-hub-body">
+                    <p>A home for the game-flavoured randomizers. Pick a realm and let fate decide the night.</p>
+
+                    <div class="about-hub-grid">
+
+                        <!-- Games -->
+                        <div class="about-hub-tool">
+                            <div class="about-hub-tool-head">
+                                <span class="about-hub-tool-icon"><i class="bi bi-shuffle"></i></span>
+                                <h4>Games</h4>
+                            </div>
+                            <p>Finds a random video game (data from IGDB) to play next.</p>
+                            <ol class="about-tut">
+                                <li>Optionally filter by platform, genre or release year.</li>
+                                <li>Press <strong>Randomize</strong>.</li>
+                                <li>Browse the pick's art, rating and details, then force your friend to buy that one co-op game you'll never touch again after day one.</li>
+                            </ol>
+                            <a href="/games" class="about-acc-open">Open Games <i class="bi bi-arrow-right"></i></a>
+                        </div>
+
+                        <!-- Challenge Generator -->
+                        <div class="about-hub-tool">
+                            <div class="about-hub-tool-head">
+                                <span class="about-hub-tool-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+                                <h4>Challenge Generator</h4>
+                            </div>
+                            <p>Rolls a self-imposed handicap to make any game interesting again.</p>
+                            <ol class="about-tut">
+                                <li>Pick a genre, a difficulty, and a single rule or a cursed run of three.</li>
+                                <li>Press <strong>Roll challenge</strong>.</li>
+                                <li>Commit to the rule (or reroll a single slot), then share the run with friends.</li>
+                            </ol>
+                            <a href="/challenge" class="about-acc-open">Open Challenge Generator <i class="bi bi-arrow-right"></i></a>
+                        </div>
+
+                        <!-- League of Legends - spans the full width, carries the Riot notice -->
+                        <div class="about-hub-tool about-hub-tool-wide">
+                            <div class="about-hub-tool-head">
+                                <span class="about-hub-tool-icon"><span class="about-hub-lol-logo" aria-hidden="true"></span></span>
+                                <h4>League of Legends</h4>
+                            </div>
+                            <p>Summoner's Rift chaos in two flavours:</p>
+                            <ul class="about-subtools">
+                                <li><strong>Ultimate Bravery</strong> - a random champion, runes, summoners and a full item path. No deviations, build it in order. <a href="/lol" class="about-acc-open">Play <i class="bi bi-arrow-right"></i></a></li>
+                                <li><strong>Team Comp Roller</strong> - five random champions and lanes for the whole team. Made for customs and Clash. <a href="/lol/team" class="about-acc-open">Play <i class="bi bi-arrow-right"></i></a></li>
+                            </ul>
+                            <p class="about-disclaimer">
+                                <i class="bi bi-info-circle"></i>
+                                Champion data and splash art come from Riot's Data Dragon. Randomize isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties, are trademarks or registered trademarks of Riot Games, Inc.
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
             </details>
 
