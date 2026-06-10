@@ -109,3 +109,38 @@
     .lol-cards { grid-template-columns: 1fr; }
     .lol-cursed { position: static; margin: 10px 20px 16px; }
 }
+
+/* ===== team comp roller (/lol/team) ===== reuses .lol-mode/.lol-roll/.lol-mini/.lol-role */
+.team-slots { display: flex; flex-direction: column; gap: 10px; }
+
+.team-slot {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface-solid); border: 1px solid var(--border);
+    border-radius: 14px; padding: 10px 14px;
+}
+
+.team-name {
+    width: 150px; padding: 7px 10px;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    font: inherit; font-size: .88rem;
+}
+.team-name:focus { outline: none; border-color: var(--accent); }
+
+.team-role { min-width: 76px; text-align: center; margin-bottom: 0; }
+
+.team-champ { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; }
+.team-square { width: 48px; height: 48px; border-radius: 8px; border: 1px solid var(--border); }
+.team-square-empty {
+    display: grid; place-items: center;
+    background: var(--surface); color: var(--text-muted); font-weight: 700;
+}
+.team-champ-name { margin: 0; font-size: 1rem; }
+.team-champ-title { display: block; font-size: .78rem; color: var(--text-muted); font-style: italic; }
+
+.team-actions { display: flex; gap: 6px; }
+
+@media (max-width: 640px) {
+    .team-slot { flex-wrap: wrap; }
+    .team-name { flex: 1 1 100%; width: auto; }
+}

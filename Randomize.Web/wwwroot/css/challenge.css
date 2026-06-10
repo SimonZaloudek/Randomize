@@ -1,0 +1,242 @@
+/* challenge.css - Challenge Generator (/challenge). Self-contained; registered
+   after gamers.css in index.html. Reuses the site surface/accent tokens.
+   Animations are transform/opacity only. */
+
+.chal-page {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 8px 4px 32px;
+    box-sizing: border-box;
+}
+
+/* ===== header ===== */
+.chal-head {
+    text-align: center;
+    padding: 18px 16px 6px;
+    margin-bottom: 16px;
+}
+
+.chal-head .page-title { margin-bottom: 12px !important; }
+
+.chal-sub {
+    margin: 0 auto;
+    max-width: 520px;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ===== setup panel ===== */
+.chal-setup {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+}
+
+.chal-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+}
+
+.chal-row-label {
+    flex: 0 0 76px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #8b8794);
+}
+
+.chal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chal-chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    font-size: 0.84rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.chal-chip:hover {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.chal-chip.active {
+    color: #fff;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 48%, transparent);
+}
+
+.chal-roll {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.chal-roll:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+/* ===== results ===== */
+.chal-results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.chal-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    animation: chal-rise 0.35s ease-out backwards;
+}
+
+.chal-card-body { flex: 1 1 auto; }
+
+.chal-card-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.chal-badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.chal-diff-1 { color: #8fd9a8; background: rgba(111, 207, 151, 0.12); border: 1px solid rgba(111, 207, 151, 0.25); }
+.chal-diff-2 { color: #f2cf6b; background: rgba(242, 201, 76, 0.10); border: 1px solid rgba(242, 201, 76, 0.25); }
+.chal-diff-3 { color: #f08a8a; background: rgba(235, 87, 87, 0.10); border: 1px solid rgba(235, 87, 87, 0.28); }
+
+.chal-genre {
+    color: var(--text-muted, #8b8794);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+}
+
+.chal-card-label {
+    margin: 0 0 4px;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.chal-card-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-muted, #8b8794);
+}
+
+/* small ghost reroll button, mirrors .lol-mini */
+.chal-mini {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.chal-mini:hover {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* ===== footer actions ===== */
+.chal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.chal-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    font-size: 0.86rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.chal-action:hover {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.chal-empty {
+    margin-top: 28px;
+    text-align: center;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.92rem;
+}
+
+@keyframes chal-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== responsive ===== */
+@media (max-width: 560px) {
+    .chal-row { flex-direction: column; gap: 8px; }
+    .chal-row-label { flex-basis: auto; }
+    .chal-setup { padding: 16px 14px; }
+}
+
+html[data-theme="default"] .chal-card { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .chal-card { animation: none !important; }
+}

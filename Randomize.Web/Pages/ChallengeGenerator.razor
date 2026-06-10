@@ -1,0 +1,167 @@
+@page "/challenge"
+@using Randomize.Web.Data
+@inject IJSRuntime JS
+
+<PageTitle>Challenge Generator</PageTitle>
+
+<div class="ghub-ambient">
+
+    <div class="ghub-bg" aria-hidden="true">
+        <span class="ghub-grid"></span>
+        <span class="ghub-orb ghub-orb-1"></span>
+        <span class="ghub-orb ghub-orb-2"></span>
+    </div>
+
+    <div class="chal-page">
+
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
+
+    <header class="chal-head">
+        <h2 class="page-title">Challenge Generator</h2>
+        <p class="chal-sub">Roll a self-imposed rule, commit to it, and make any game interesting again.</p>
+    </header>
+
+    <section class="chal-setup">
+        <div class="chal-row">
+            <span class="chal-row-label">Genre</span>
+            <div class="chal-chips">
+                @foreach (var (id, name) in GamingChallenges.Genres)
+                {
+                    <button class="chal-chip @(_genre == id ? "active" : "")" @onclick="() => _genre = id">@name</button>
+                }
+            </div>
+        </div>
+
+        <div class="chal-row">
+            <span class="chal-row-label">Difficulty</span>
+            <div class="chal-chips">
+                <button class="chal-chip @(_diff == 0 ? "active" : "")" @onclick="() => _diff = 0">Any</button>
+                @for (var d = 1; d <= 3; d++)
+                {
+                    var diff = d;
+                    <button class="chal-chip @(_diff == diff ? "active" : "")" @onclick="() => _diff = diff">@GamingChallenges.DiffLabel(diff)</button>
+                }
+            </div>
+        </div>
+
+        <div class="chal-row">
+            <span class="chal-row-label">Mode</span>
+            <div class="chal-chips">
+                <button class="chal-chip @(!_run ? "active" : "")" @onclick="() => _run = false">Single rule</button>
+                <button class="chal-chip @(_run ? "active" : "")" @onclick="() => _run = true">Cursed run &times;3</button>
+            </div>
+        </div>
+
+        <button class="chal-roll" @onclick="Roll">
+            <i class="bi bi-dice-5-fill"></i> @(_rolled.Count == 0 ? "Roll challenge" : "Reroll")
+        </button>
+    </section>
+
+    @if (_rolled.Count > 0)
+    {
+        <div class="chal-results">
+            @for (var i = 0; i < _rolled.Count; i++)
+            {
+                var idx = i;
+                var c = _rolled[idx];
+                <section class="chal-card" @key="c.Id">
+                    <div class="chal-card-body">
+                        <div class="chal-card-meta">
+                            <span class="chal-badge chal-diff-@c.Diff">@GamingChallenges.DiffLabel(c.Diff)</span>
+                            <span class="chal-badge chal-genre">@GenreName(c)</span>
+                        </div>
+                        <h3 class="chal-card-label">@c.Label</h3>
+                        <p class="chal-card-text">@c.Text</p>
+                    </div>
+                    <button class="chal-mini" title="Reroll this rule" @onclick="() => RerollSlot(idx)">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </section>
+            }
+        </div>
+
+        <div class="chal-footer">
+            <button class="chal-action" @onclick="Share">
+                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share challenge")
+            </button>
+            <button class="chal-action" @onclick="Copy">
+                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy rules")
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="chal-empty">Pick your filters and roll.</div>
+    }
+    </div>
+</div>
+
+@code {
+    private string _genre = "any";
+    private int _diff;                 // 0 = any, 1 casual, 2 sweaty, 3 cursed
+    private bool _run;                 // cursed run = 3 stacked rules
+    private List<GamingChallenge> _rolled = new();
+    private bool _copied;
+    private bool _shared;
+
+    // shared-link params: g = genre, d = difficulty, c = challenge ids
+    [Parameter, SupplyParameterFromQuery(Name = "g")] public string? G { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "d")] public string? D { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "c")] public string? C { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (GamingChallenges.Genres.Any(x => x.Id == G)) _genre = G!;
+        if (int.TryParse(D, out var d) && d is >= 0 and <= 3) _diff = d;
+        if (!string.IsNullOrEmpty(C))
+        {
+            var byId = GamingChallenges.All.ToDictionary(x => x.Id);
+            _rolled = C.Split(',').Where(byId.ContainsKey).Select(id => byId[id]).ToList();
+            _run = _rolled.Count > 1;
+        }
+    }
+
+    // generic rules are always in the pool so every genre gets full variety
+    private List<GamingChallenge> Pool()
+        => GamingChallenges.All
+            .Where(c => _genre == "any" ? c.Genres.Contains("any") : c.Genres.Contains(_genre) || c.Genres.Contains("any"))
+            .Where(c => _diff == 0 || c.Diff == _diff)
+            .ToList();
+
+    private void Roll()
+    {
+        var fresh = Pool().Where(c => !_rolled.Contains(c)).ToList();
+        if (fresh.Count == 0) fresh = Pool();
+        _rolled = fresh.OrderBy(_ => Random.Shared.Next()).Take(_run ? 3 : 1).ToList();
+        _copied = _shared = false;
+    }
+
+    private void RerollSlot(int idx)
+    {
+        var fresh = Pool().Where(c => !_rolled.Contains(c)).ToList();
+        if (fresh.Count == 0) return;
+        _rolled[idx] = fresh[Random.Shared.Next(fresh.Count)];
+        _copied = _shared = false;
+    }
+
+    private string GenreName(GamingChallenge c)
+    {
+        var id = c.Genres.First();
+        return id == "any" ? "Any game" : GamingChallenges.Genres.First(x => x.Id == id).Name;
+    }
+
+    private async Task Share()
+    {
+        var url = $"https://userandomize.net/challenge?g={_genre}&d={_diff}&c={string.Join(",", _rolled.Select(c => c.Id))}";
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", url); _shared = true; }
+        catch { }
+    }
+
+    private async Task Copy()
+    {
+        var lines = _rolled.Select(c => $"{c.Label} [{GamingChallenges.DiffLabel(c.Diff)}]: {c.Text}").ToList();
+        lines.Add("via userandomize.net/challenge");
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines)); _copied = true; }
+        catch { }
+    }
+}

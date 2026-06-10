@@ -5,28 +5,104 @@
 
 <PageTitle>@Loc["gamers.title"]</PageTitle>
 
-<h2 class="page-title">@Loc["gamers.title"]</h2>
+<div class="ghub">
 
-<div class="home-feature-grid">
-    <NavLink href="/games" class="home-feature-card">
-        <div class="home-feature-icon"><i class="bi bi-controller"></i></div>
-        <div class="home-feature-title">@Loc["nav.games"]</div>
-        <div class="home-feature-desc">@Loc["home.feature.games.desc"]</div>
-        <i class="bi bi-arrow-right home-feature-arrow"></i>
-    </NavLink>
-
-    <NavLink href="/lol" class="home-feature-card">
-        <div class="home-feature-icon"><i class="bi bi-joystick"></i></div>
-        <div class="home-feature-title">League of Legends</div>
-        <div class="home-feature-desc">Ultimate chaos: random champion, runes, items and a full challenge build.</div>
-        <i class="bi bi-arrow-right home-feature-arrow"></i>
-    </NavLink>
-
-    <div class="home-feature-card home-feature-card-soon">
-        <div class="home-feature-icon home-feature-icon-soon"><i class="bi bi-stars"></i></div>
-        <div class="home-feature-title">More games soon</div>
-        <div class="home-feature-desc">Other titles are on the way.</div>
+    <!-- ambient backdrop: static perspective grid + two drifting orbs (transform/opacity only) -->
+    <div class="ghub-bg" aria-hidden="true">
+        <span class="ghub-grid"></span>
+        <span class="ghub-orb ghub-orb-1"></span>
+        <span class="ghub-orb ghub-orb-2"></span>
     </div>
+
+    <header class="ghub-hero">
+        <h1 class="page-title">Gamers Hub</h1>
+        <p class="ghub-hero-sub">Random loadouts, chaos builds and game pickers. Pick a realm and let fate decide.</p>
+    </header>
+
+    <!-- ===== General: cross-game tools ===== -->
+    <section class="ghub-section ghub-section-general">
+        <div class="ghub-section-art ghub-section-art-hex" aria-hidden="true"></div>
+
+        <div class="ghub-section-head">
+            <div class="ghub-section-chip"><i class="bi bi-controller"></i></div>
+            <h2 class="ghub-section-title">General</h2>
+        </div>
+        <p class="ghub-section-sub">Cross-platform pickers that work for any title.</p>
+
+        <div class="ghub-card-grid">
+            <NavLink href="/games" class="ghub-card ghub-card-feature">
+                <div class="ghub-card-glyph"><i class="bi bi-shuffle"></i></div>
+                <div class="ghub-card-body">
+                    <h3 class="ghub-card-title">@Loc["nav.games"]</h3>
+                    <p class="ghub-card-desc">@Loc["home.feature.games.desc"]</p>
+                </div>
+                <span class="ghub-card-cta">Open <i class="bi bi-arrow-right"></i></span>
+            </NavLink>
+
+            <NavLink href="/challenge" class="ghub-card ghub-card-feature">
+                <div class="ghub-card-glyph"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="ghub-card-body">
+                    <h3 class="ghub-card-title">Challenge Generator</h3>
+                    <p class="ghub-card-desc">Random handicaps for any game. Roll one rule or stack a cursed run and commit.</p>
+                </div>
+                <span class="ghub-card-cta">Open <i class="bi bi-arrow-right"></i></span>
+            </NavLink>
+        </div>
+    </section>
+
+    <!-- ===== League of Legends ===== -->
+    <section class="ghub-section ghub-section-lol">
+        <div class="ghub-section-art ghub-section-art-img" aria-hidden="true"></div>
+
+        <div class="ghub-section-head">
+            <div class="ghub-section-chip ghub-section-chip-lol">
+                <span class="ghub-logo ghub-logo-lol"></span>
+            </div>
+            <h2 class="ghub-section-title">League of Legends</h2>
+        </div>
+        <p class="ghub-section-sub">Summoner's Rift chaos. Roll it, build it, commit.</p>
+
+        <div class="ghub-card-grid">
+            <NavLink href="/lol" class="ghub-card ghub-card-feature">
+                <div class="ghub-card-glyph"><i class="bi bi-dice-5-fill"></i></div>
+                <div class="ghub-card-body">
+                    <h3 class="ghub-card-title">Ultimate Bravery</h3>
+                    <p class="ghub-card-desc">Random champion, runes, summoners and a full item path. No deviations, build in order.</p>
+                </div>
+                <span class="ghub-card-cta">Play <i class="bi bi-arrow-right"></i></span>
+            </NavLink>
+
+            <NavLink href="/lol/team" class="ghub-card ghub-card-feature">
+                <div class="ghub-card-glyph"><i class="bi bi-people-fill"></i></div>
+                <div class="ghub-card-body">
+                    <h3 class="ghub-card-title">Team Comp Roller</h3>
+                    <p class="ghub-card-desc">Five players, five random champions and lanes. Roll the whole comp for customs and Clash.</p>
+                </div>
+                <span class="ghub-card-cta">Play <i class="bi bi-arrow-right"></i></span>
+            </NavLink>
+        </div>
+    </section>
+
+    <!-- ===== Scaffold: clone this block for the next game. For now it routes to
+         contact so players can request the next title to get a randomizer. ===== -->
+    <section class="ghub-section ghub-section-next">
+        <div class="ghub-section-head">
+            <div class="ghub-section-chip"><i class="bi bi-plus-lg"></i></div>
+            <h2 class="ghub-section-title">Your game next?</h2>
+        </div>
+        <p class="ghub-section-sub">Vote for the next title to get its own chaos generator.</p>
+
+        <div class="ghub-card-grid">
+            <NavLink href="/contact" class="ghub-card ghub-card-feature">
+                <div class="ghub-card-glyph"><i class="bi bi-chat-heart-fill"></i></div>
+                <div class="ghub-card-body">
+                    <h3 class="ghub-card-title">Request a game</h3>
+                    <p class="ghub-card-desc">Tell us which game deserves a randomizer and we'll build it next.</p>
+                </div>
+                <span class="ghub-card-cta">Suggest <i class="bi bi-arrow-right"></i></span>
+            </NavLink>
+        </div>
+    </section>
 </div>
 
 @code {

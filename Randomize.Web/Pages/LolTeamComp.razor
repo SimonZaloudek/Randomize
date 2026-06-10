@@ -1,0 +1,233 @@
+@page "/lol/team"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>LoL Team Comp Roller</PageTitle>
+
+<div class="lol-page lol-team">
+
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
+
+    <header class="lol-head">
+        <h2 class="page-title">Team Comp Roller</h2>
+        <p class="lol-sub">Five players, five random champions. Roll the comp for your next custom or Clash night.</p>
+
+        <div class="lol-controls">
+            <div class="lol-mode">
+                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>Summoner's Rift</button>
+                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>ARAM</button>
+            </div>
+            <button class="lol-roll" @onclick="RollTeam" disabled="@_loading">
+                <i class="bi bi-dice-5-fill"></i> @(Rolled ? "Reroll team" : "Roll team")
+            </button>
+        </div>
+    </header>
+
+    @if (_error is not null)
+    {
+        <div class="lol-error">@_error</div>
+    }
+
+    <div class="team-slots">
+        @for (var i = 0; i < Size; i++)
+        {
+            var idx = i;
+            <section class="team-slot">
+                <input class="team-name" placeholder="Player @(idx + 1)" maxlength="20" @bind="_names[idx]" />
+
+                @if (_mode == "sr" && _roles[idx] is not null)
+                {
+                    <span class="lol-role team-role">@_roles[idx]</span>
+                }
+
+                <div class="team-champ">
+                    @if (_champs[idx] is { } ch)
+                    {
+                        <img class="team-square" src="@ch.Square" alt="@ch.Name" />
+                        <div class="team-champ-text">
+                            <h3 class="team-champ-name">@ch.Name</h3>
+                            <span class="team-champ-title">@ch.Title</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="team-square team-square-empty">?</div>
+                    }
+                </div>
+
+                <div class="team-actions">
+                    <button class="lol-mini @(_locked[idx] ? "active" : "")" title="@(_locked[idx] ? "Unlock" : "Lock")"
+                            @onclick="() => _locked[idx] = !_locked[idx]">
+                        <i class="bi @(_locked[idx] ? "bi-lock-fill" : "bi-unlock")"></i>
+                    </button>
+                    <button class="lol-mini" title="Reroll" disabled="@_loading" @onclick="() => RerollSlot(idx)">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </div>
+            </section>
+        }
+    </div>
+
+    @if (Rolled)
+    {
+        <div class="lol-footer">
+            <button class="lol-copy" @onclick="Share">
+                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share comp")
+            </button>
+            <button class="lol-copy" @onclick="Copy">
+                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy comp")
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private const int Size = 5;
+    private static readonly string[] AllRoles = { "Top", "Jungle", "Mid", "Bot", "Support" };
+
+    private readonly string[] _names = new string[Size];
+    private readonly Champ?[] _champs = new Champ?[Size];
+    private readonly string?[] _roles = new string?[Size];
+    private readonly bool[] _locked = new bool[Size];
+    private string _mode = "sr";
+    private bool _loading;
+    private bool _copied;
+    private bool _shared;
+    private string? _error;
+
+    private bool Rolled => _champs.All(c => c is not null);
+
+    // shared-link params: c = champion ids, ro = roles, n = player names (each uri-escaped)
+    [Parameter, SupplyParameterFromQuery(Name = "mode")] public string? ModeParam { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "c")] public string? C { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "ro")] public string? Ro { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "n")] public string? N { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (ModeParam is "sr" or "aram") _mode = ModeParam;
+        return string.IsNullOrEmpty(C) ? RollTeam() : Hydrate();
+    }
+
+    private Task SetMode(string mode)
+    {
+        if (_mode == mode) return Task.CompletedTask;
+        _mode = mode;
+        Array.Clear(_locked);
+        Array.Clear(_roles);
+        return RollTeam();
+    }
+
+    private async Task RollTeam()
+    {
+        // locked slots (that actually hold a champion) survive the reroll
+        var open = Enumerable.Range(0, Size).Where(i => !_locked[i] || _champs[i] is null).ToList();
+        if (open.Count == 0) return;
+
+        var keep = Enumerable.Range(0, Size).Except(open).Select(i => _champs[i]!.Id);
+        var res = await Fetch($"size={open.Count}&not={string.Join(",", keep)}");
+        if (res is null) return;
+
+        for (var i = 0; i < open.Count && i < res.Champions.Length; i++)
+            _champs[open[i]] = res.Champions[i];
+
+        if (_mode == "sr")
+        {
+            // locked slots keep their lane; the rest get the remaining roles shuffled
+            var taken = Enumerable.Range(0, Size).Except(open).Select(i => _roles[i]).OfType<string>();
+            var free = AllRoles.Except(taken).OrderBy(_ => Random.Shared.Next()).ToList();
+            for (var i = 0; i < open.Count && i < free.Count; i++)
+                _roles[open[i]] = free[i];
+        }
+        else
+        {
+            Array.Clear(_roles);
+        }
+    }
+
+    private async Task RerollSlot(int idx)
+    {
+        var others = _champs.Where((c, i) => i != idx && c is not null).Select(c => c!.Id);
+        var res = await Fetch($"size=1&not={string.Join(",", others)}");
+        if (res is null || res.Champions.Length == 0) return;
+        _champs[idx] = res.Champions[0];   // lane stays, only the champion changes
+    }
+
+    private async Task<TeamRes?> Fetch(string query)
+    {
+        if (_loading) return null;
+        _loading = true;
+        _copied = _shared = false;
+        _error = null;
+        StateHasChanged();
+        try
+        {
+            var res = await Http.GetFromJsonAsync<TeamRes>($"api/lol/team?{query}");
+            if (res is null || res.Champions.Length == 0) { _error = "No response, try again."; return null; }
+            return res;
+        }
+        catch
+        {
+            _error = "Could not reach the randomizer. Try again.";
+            return null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Hydrate()
+    {
+        var res = await Fetch($"c={Uri.EscapeDataString(C!)}");
+        if (res is null) return;
+        for (var i = 0; i < Size && i < res.Champions.Length; i++) _champs[i] = res.Champions[i];
+
+        var roles = (Ro ?? "").Split(',');
+        for (var i = 0; i < Size; i++)
+            _roles[i] = _mode == "sr" && i < roles.Length && AllRoles.Contains(roles[i]) ? roles[i] : null;
+
+        var names = (N ?? "").Split(',');
+        for (var i = 0; i < Size && i < names.Length; i++) _names[i] = Uri.UnescapeDataString(names[i]);
+    }
+
+    private string DisplayName(int i) => string.IsNullOrWhiteSpace(_names[i]) ? $"Player {i + 1}" : _names[i].Trim();
+
+    private async Task Share()
+    {
+        if (!Rolled) return;
+        var q = new List<string> { $"mode={_mode}", $"c={string.Join(",", _champs.Select(c => c!.Id))}" };
+        if (_mode == "sr") q.Add($"ro={string.Join(",", _roles.Select(r => r ?? ""))}");
+        if (_names.Any(n => !string.IsNullOrWhiteSpace(n)))
+            q.Add($"n={string.Join(",", _names.Select(n => Uri.EscapeDataString(n ?? "")))}");
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", "https://userandomize.net/lol/team?" + string.Join("&", q)); _shared = true; }
+        catch { }
+    }
+
+    private async Task Copy()
+    {
+        if (!Rolled) return;
+        var lines = Enumerable.Range(0, Size)
+            .Select(i => $"{(_mode == "sr" && _roles[i] is not null ? $"{_roles[i]}: " : "")}{DisplayName(i)} - {_champs[i]!.Name}")
+            .ToList();
+        lines.Add("via userandomize.net/lol/team");
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines)); _copied = true; }
+        catch { }
+    }
+
+    // --- models (match /api/lol/team output) ---
+    private class TeamRes
+    {
+        public string? Version { get; set; }
+        public Champ[] Champions { get; set; } = Array.Empty<Champ>();
+    }
+
+    private class Champ
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Square { get; set; } = "";
+    }
+}

@@ -139,7 +139,7 @@ function randomItems(data, mode) {
 // ---------------------------------------------------------------------------
 // Shaping - attach names + Data Dragon art URLs
 // ---------------------------------------------------------------------------
-function shapeChampion(c, v) {
+export function shapeChampion(c, v) {
   return {
     id: c.id,
     name: c.name,
@@ -199,7 +199,7 @@ function cursedness(out) {
 // ---------------------------------------------------------------------------
 // Data Dragon fetch + KV cache, then index into pools
 // ---------------------------------------------------------------------------
-async function getVersion(env) {
+export async function getVersion(env) {
   const cached = await env.STATS.get("lol:version", { type: "json" });
   if (cached && cached.at > Date.now() - VER_TTL * 1000) return cached.v;
   const r = await fetch(`${DDRAGON}/api/versions.json`).catch(() => null);
@@ -209,7 +209,7 @@ async function getVersion(env) {
   return v;
 }
 
-async function getData(env, version) {
+export async function getData(env, version) {
   const [champ, spells, trees, items] = await Promise.all([
     cachedJson(env, `lol:champ:${version}`, () => ddragon(version, "champion.json")),
     cachedJson(env, `lol:spell:${version}`, () => ddragon(version, "summoner.json")),

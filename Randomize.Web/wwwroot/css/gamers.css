@@ -1,0 +1,472 @@
+/* gamers.css - Gamers Hub landing. Self-contained; registered after lol.css in index.html.
+   Mirrors the app's surfaces/fonts/borders so it doesn't read as a different site.
+   Each .ghub-section carries its own --game accent so a game can own its colour
+   without touching the global theme. Animations are transform/opacity only. */
+
+/* full-width page container so the ambient backdrop fills the whole content
+   area; the hero + sections below cap themselves at 1240px and centre. */
+.ghub {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px 32px;
+    box-sizing: border-box;
+}
+
+/* full-width wrapper so a generic page (Games, Challenge) shares the hub's grid +
+   orbs. The capped .games-page / .chal-page nests inside; the wrapper fills the
+   whole .content area so the backdrop reaches the edges, not just the column.
+   Drop a <div class="ghub-bg"> in as the first child. isolation keeps the
+   z-index:-1 backdrop behind the content without trapping the page's own
+   dropdowns. */
+.ghub-ambient {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100%;
+}
+.ghub-ambient > .ghub-bg { z-index: -1; }
+
+/* ===== ambient backdrop ===== */
+.ghub-bg {
+    position: absolute;
+    inset: -36px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* faint perspective grid, fading toward the top - static, no per-frame cost */
+.ghub-grid {
+    position: absolute;
+    inset: -20% -20% 0;
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px);
+    background-size: 46px 46px;
+    transform: perspective(420px) rotateX(58deg) translateY(8%);
+    transform-origin: center top;
+    opacity: 0.08;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 62%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 62%);
+}
+
+/* slow drifting glow orbs. Softness comes from the gradient falloff itself -
+   a filter:blur here forces the GPU to hold a huge padded texture and janks
+   weaker devices, so don't reintroduce one. */
+.ghub-orb {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    opacity: 0.14;
+    will-change: transform;
+}
+
+.ghub-orb-1 {
+    top: -120px;
+    left: -80px;
+    background: radial-gradient(circle, var(--accent) 0%, color-mix(in srgb, var(--accent) 40%, transparent) 32%, transparent 66%);
+    animation: ghub-drift-a 22s ease-in-out infinite;
+}
+
+.ghub-orb-2 {
+    top: 260px;
+    right: -120px;
+    background: radial-gradient(circle, #c8aa6e 0%, color-mix(in srgb, #c8aa6e 40%, transparent) 32%, transparent 66%);
+    animation: ghub-drift-b 26s ease-in-out infinite;
+}
+
+@keyframes ghub-drift-a {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(40px, 36px); }
+}
+
+@keyframes ghub-drift-b {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-44px, 28px); }
+}
+
+/* ===== hero ===== uses the site-wide .page-title so it matches every other page */
+.ghub-hero {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 1240px;
+    padding: 18px 16px 6px;
+    animation: ghub-rise 0.5s ease-out backwards;
+}
+
+.ghub-hero .page-title {
+    margin-bottom: 12px !important;
+}
+
+.ghub-hero-sub {
+    margin: 0 auto;
+    max-width: 560px;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+/* ===== section ===== */
+.ghub-section {
+    --game: var(--accent);
+    --game-soft: var(--accent-soft);
+    --game-text: var(--accent-text);
+
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1240px;
+    margin: 22px 0 0;
+    padding: 24px 26px 26px;
+    border-radius: 16px;
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    overflow: hidden;
+    animation: ghub-rise 0.55s ease-out backwards;
+}
+
+.ghub-section:nth-of-type(2) { animation-delay: 0.06s; }
+.ghub-section:nth-of-type(3) { animation-delay: 0.12s; }
+.ghub-section:nth-of-type(4) { animation-delay: 0.18s; }
+
+/* hairline accent strip along the top edge of each section */
+.ghub-section::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--game), transparent);
+    opacity: 0.55;
+}
+
+/* LoL rides the active theme accent (--game inherits --accent); only the splash
+   swaps per theme via --lol-splash. Default below is the modern champion, the
+   data-theme blocks override it. */
+.ghub-section-lol {
+    --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viktor_0.jpg');
+}
+
+html[data-theme="default"]  .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Nocturne_0.jpg'); }
+html[data-theme="crimson"]  .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Darius_0.jpg'); }
+html[data-theme="tropical"] .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_37.jpg'); }
+html[data-theme="forest"]   .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Singed_0.jpg'); }
+
+/* light theme stays plain: no champion splash, no hex honeycomb */
+html[data-theme="light"] .ghub-section-art { display: none; }
+
+/* header sits over the splash - shadow keeps it legible. Light has no splash, so
+   skip it there (dark text would just pick up a muddy halo). */
+html:not([data-theme="light"]) .ghub-section-lol .ghub-section-title,
+html:not([data-theme="light"]) .ghub-section-lol .ghub-section-sub {
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* over the splash, lean the cards a little more transparent and shadow the text
+   so it stays readable. Light has no splash, so it keeps the base card. */
+html:not([data-theme="light"]) .ghub-section-lol .ghub-card {
+    background: linear-gradient(155deg,
+        color-mix(in srgb, var(--game) 12%, color-mix(in srgb, var(--surface-solid) 34%, transparent)) 0%,
+        color-mix(in srgb, var(--surface-solid) 44%, transparent) 100%);
+}
+
+html:not([data-theme="light"]) .ghub-section-lol .ghub-card-title { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
+html:not([data-theme="light"]) .ghub-section-lol .ghub-card-desc { color: #cbc6d6; }
+
+/* ===== section watermark art - full-bleed, side to side ===== */
+.ghub-section-art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* per-theme champion splash (--lol-splash), full bleed side to side. The scrim is
+   an even vertical gradient (darker up top behind the header) so the art reads
+   across the whole width, not just the right. Vertical mask blends the edges. */
+.ghub-section-art-img {
+    background-image:
+        linear-gradient(180deg, rgba(11, 9, 15, 0.9) 0%, rgba(11, 9, 15, 0.52) 38%, rgba(11, 9, 15, 0.66) 100%),
+        var(--lol-splash);
+    background-size: cover, cover;
+    background-position: center, 50% 24%;
+    background-repeat: no-repeat;
+    opacity: 1;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+}
+
+/* General has no splash, so fill it with a glowing honeycomb. This layer is the
+   light source (two accent blooms); ::after drops solid matte hex tiles on top
+   via a filled-hex mask, leaving only the thin seams uncovered. So the theme
+   colour glows through the gaps and fades from each bloom. Static, small mask. */
+.ghub-section-art-hex {
+    background:
+        radial-gradient(70% 85% at 88% 30%, color-mix(in srgb, var(--game) 42%, transparent) 0%, transparent 60%),
+        radial-gradient(58% 78% at 70% 92%, color-mix(in srgb, var(--game) 28%, transparent) 0%, transparent 62%);
+    opacity: 0.58;
+}
+
+.ghub-section-art-hex::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(155deg, color-mix(in srgb, var(--game) 7%, var(--surface-solid)) 0%, var(--surface-solid) 100%);
+    -webkit-mask: url('/brand/hexgrid.svg') 0 0 / 52px 90px repeat;
+    mask: url('/brand/hexgrid.svg') 0 0 / 52px 90px repeat;
+}
+
+/* ===== section header ===== chip is centered on the title line; the subtitle
+   sits below, indented to line up under the title text (chip width + gap). */
+.ghub-section-head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.ghub-section-chip {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.35rem;
+    color: var(--game-text);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--game) 26%, transparent), color-mix(in srgb, var(--game) 6%, transparent));
+    border: 1px solid color-mix(in srgb, var(--game) 34%, transparent);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--game) 16%, transparent);
+}
+
+/* League logo, tinted to the section accent via a mask (monochrome source SVG) */
+.ghub-logo {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background: var(--game-text);
+}
+
+.ghub-logo-lol {
+    -webkit-mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
+    mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
+}
+
+.ghub-section-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+}
+
+.ghub-section-sub {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 18px 60px;   /* 60px = chip (46) + gap (14): aligns under the title */
+    font-size: 0.86rem;
+    color: var(--text-muted, #8b8794);
+}
+
+/* ===== card grid ===== */
+.ghub-card-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+/* liquid-glass card: translucent fill anchored to the theme's --surface-solid
+   (so it tracks every theme, light included) and tinted with the section's
+   --game accent. backdrop blur is static, so it stays composite-friendly. */
+.ghub-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 136px;
+    padding: 14px 14px 13px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text-primary, #fff);
+    background: linear-gradient(155deg,
+        color-mix(in srgb, var(--game) 14%, color-mix(in srgb, var(--surface-solid) 46%, transparent)) 0%,
+        color-mix(in srgb, var(--surface-solid) 56%, transparent) 100%);
+    backdrop-filter: blur(13px) saturate(135%);
+    -webkit-backdrop-filter: blur(13px) saturate(135%);
+    border: 1px solid color-mix(in srgb, var(--game) 24%, var(--surface-border));
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+/* inner radial glow, lit on hover - opacity only */
+.ghub-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--game) 10%, transparent), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+/* hover keeps to composite-only work: lift (transform), border tint, and the
+   ::after glow fade (opacity). No box-shadow animation - that repaints. */
+.ghub-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--game) 38%, transparent);
+}
+
+.ghub-card:hover::after { opacity: 1; }
+
+/* the primary card in each section reads a touch louder */
+.ghub-card-feature {
+    border-color: color-mix(in srgb, var(--game) 24%, var(--surface-border));
+}
+
+.ghub-card-glyph {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1.15rem;
+    color: var(--game-text);
+    background: color-mix(in srgb, var(--game) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--game) 26%, transparent);
+    margin-bottom: 11px;
+}
+
+.ghub-card-body { flex: 1 1 auto; }
+
+.ghub-card-title {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+}
+
+.ghub-card-desc {
+    margin: 0;
+    font-size: 0.83rem;
+    line-height: 1.45;
+    color: var(--text-muted, #8b8794);
+}
+
+.ghub-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 11px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--game-text);
+}
+
+.ghub-card-cta i { transition: transform 0.2s ease; }
+.ghub-card:hover .ghub-card-cta i { transform: translateX(4px); }
+
+/* "coming soon" cards: muted + dashed, not clickable */
+.ghub-card-soon {
+    border-style: dashed;
+    background: rgba(255, 255, 255, 0.015);
+    box-shadow: none;
+    cursor: default;
+}
+
+.ghub-card-soon .ghub-card-glyph,
+.ghub-card-soon .ghub-card-title,
+.ghub-card-soon .ghub-card-desc { color: #6f6b7d; }
+
+.ghub-card-soon .ghub-card-glyph {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.ghub-card-soon:hover {
+    transform: none;
+    border-color: var(--surface-border);
+    box-shadow: none;
+}
+
+.ghub-card-soon:hover::after { opacity: 0; }
+
+.ghub-card-cta-soon {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #8a8598;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+}
+
+@keyframes ghub-rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== back link ===== used by hub subpages (/lol, /lol/team, /challenge)
+   to return to the hub. Defined once here since gamers.css loads globally. */
+.hub-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    align-self: flex-start;
+    margin-bottom: 12px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.hub-back:hover {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.hub-back i { font-size: 0.9rem; }
+
+/* ===== responsive ===== */
+@media (max-width: 760px) {
+    .ghub-hero { padding: 10px 12px 4px; }
+    .ghub-section { padding: 18px 16px 20px; }
+    .ghub-section-sub { margin-left: 0; }
+    .ghub-card-grid { grid-template-columns: 1fr; }
+}
+
+/* default theme: drop the ambient motion + entrance animations */
+html[data-theme="default"] .ghub-bg { display: none; }
+
+html[data-theme="default"] .ghub-hero,
+html[data-theme="default"] .ghub-section {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ghub-orb,
+    .ghub-hero,
+    .ghub-section { animation: none !important; }
+}

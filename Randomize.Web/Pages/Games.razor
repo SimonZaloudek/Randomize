@@ -7,7 +7,17 @@
 
 <PageTitle>@Loc["games.pageTitle"]</PageTitle>
 
-<div class="games-page">
+<div class="ghub-ambient">
+
+    <div class="ghub-bg" aria-hidden="true">
+        <span class="ghub-grid"></span>
+        <span class="ghub-orb ghub-orb-1"></span>
+        <span class="ghub-orb ghub-orb-2"></span>
+    </div>
+
+    <div class="games-page">
+
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
 
     <header class="games-filter">
         <div class="games-filter-head">
@@ -555,6 +565,7 @@
             <p>@Loc["games.empty"]</p>
         </div>
     }
+    </div>
 </div>
 
 @code {
