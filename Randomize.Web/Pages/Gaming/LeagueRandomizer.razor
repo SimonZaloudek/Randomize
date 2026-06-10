@@ -2,24 +2,26 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
 
-<PageTitle>League Randomizer</PageTitle>
+<PageTitle>@Loc["lol.bravery.title"]</PageTitle>
 
 <div class="lol-page">
 
-    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
 
     <header class="lol-head">
-        <h2 class="page-title">League Ultimate Bravery</h2>
-        <p class="lol-sub">Roll a full random loadout and commit to it. No deviations, build in order.</p>
+        <h2 class="page-title">@Loc["lol.bravery.title"]</h2>
+        <p class="lol-sub">@Loc["lol.bravery.sub"]</p>
 
         <div class="lol-controls">
             <div class="lol-mode">
-                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>Summoner's Rift</button>
-                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>ARAM</button>
+                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>@Loc["lol.mode.sr"]</button>
+                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>@Loc["lol.mode.aram"]</button>
             </div>
             <button class="lol-roll" @onclick="RerollUnlocked" disabled="@_loading">
-                <i class="bi bi-dice-5-fill"></i> @(_l is null ? "Generate" : "Reroll")
+                <i class="bi bi-dice-5-fill"></i> @(_l is null ? Loc["lol.generate"] : Loc["lol.reroll"])
             </button>
         </div>
     </header>
@@ -69,7 +71,7 @@
                 @if (_l.Spells is not null)
                 {
                     <section class="lol-card">
-                        <div class="lol-card-head"><span>Summoner Spells</span>@Lock("spells")@Reroll("spells")</div>
+                        <div class="lol-card-head"><span>@Loc["lol.spells"]</span>@Lock("spells")@Reroll("spells")</div>
                         <div class="lol-spells">
                             @foreach (var s in _l.Spells)
                             {
@@ -85,7 +87,7 @@
                 @if (_l.Skills is not null)
                 {
                     <section class="lol-card">
-                        <div class="lol-card-head"><span>Skill Max Order</span>@Lock("skills")@Reroll("skills")</div>
+                        <div class="lol-card-head"><span>@Loc["lol.skills"]</span>@Lock("skills")@Reroll("skills")</div>
                         <div class="lol-skills">
                             @for (var i = 0; i < _l.Skills.Length; i++)
                             {
@@ -103,7 +105,7 @@
                 @if (_l.Runes is not null)
                 {
                     <section class="lol-card lol-card-wide">
-                        <div class="lol-card-head"><span>Runes</span>@Lock("runes")@Reroll("runes")</div>
+                        <div class="lol-card-head"><span>@Loc["lol.runes"]</span>@Lock("runes")@Reroll("runes")</div>
                         <div class="lol-runes">
                             <div class="lol-rune-tree">
                                 <div class="lol-rune-tree-name"><img src="@_l.Runes.Primary.Icon" alt="" /> @_l.Runes.Primary.Name</div>
@@ -137,7 +139,7 @@
                 @if (_l.Items is not null)
                 {
                     <section class="lol-card lol-card-wide">
-                        <div class="lol-card-head"><span>Build</span>@Lock("items")@Reroll("items")</div>
+                        <div class="lol-card-head"><span>@Loc["lol.build"]</span>@Lock("items")@Reroll("items")</div>
                         <div class="lol-items">
                             @foreach (var it in _l.Items)
                             {
@@ -154,17 +156,17 @@
 
             <div class="lol-footer">
                 <button class="lol-copy" @onclick="Share">
-                    <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share challenge")
+                    <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? Loc["lol.shareCopied"] : Loc["lol.share"])
                 </button>
                 <button class="lol-copy" @onclick="Copy">
-                    <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy build")
+                    <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? Loc["lol.copied"] : Loc["lol.copy"])
                 </button>
             </div>
         </div>
     }
     else
     {
-        <div class="lol-empty">@(_loading ? "Rolling..." : "Press Generate to start.")</div>
+        <div class="lol-empty">@(_loading ? Loc["lol.rolling"] : Loc["lol.start"])</div>
     }
 </div>
 
@@ -194,9 +196,14 @@
 
     protected override Task OnInitializedAsync()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         if (ModeParam is "sr" or "aram") _mode = ModeParam;
         return string.IsNullOrEmpty(C) ? RerollParts(AllParts) : Hydrate();
     }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     private Task SetMode(string mode)
     {
@@ -231,7 +238,7 @@
         try
         {
             var res = await Http.GetFromJsonAsync<Loadout>($"api/lol/random?{query}");
-            if (res is null) { _error = "No response, try again."; return; }
+            if (res is null) { _error = Loc["lol.err.noResponse"]; return; }
 
             _l ??= new Loadout();
             if (res.Champion is not null) _l.Champion = res.Champion;
@@ -245,7 +252,7 @@
         }
         catch
         {
-            _error = "Could not reach the randomizer. Try again.";
+            _error = Loc["lol.err.unreachable"];
         }
         finally
         {
@@ -283,7 +290,7 @@
     {
         builder.OpenElement(0, "button");
         builder.AddAttribute(1, "class", "lol-mini");
-        builder.AddAttribute(2, "title", "Reroll");
+        builder.AddAttribute(2, "title", Loc["lol.tip.reroll"]);
         builder.AddAttribute(3, "disabled", _loading);
         builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => RerollParts(part)));
         builder.AddMarkupContent(5, "<i class=\"bi bi-dice-5\"></i>");
@@ -295,7 +302,7 @@
         var locked = _locked.Contains(part);
         builder.OpenElement(0, "button");
         builder.AddAttribute(1, "class", "lol-mini" + (locked ? " active" : ""));
-        builder.AddAttribute(2, "title", locked ? "Unlock" : "Lock");
+        builder.AddAttribute(2, "title", locked ? Loc["lol.tip.unlock"] : Loc["lol.tip.lock"]);
         builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => ToggleLock(part)));
         builder.AddMarkupContent(4, locked ? "<i class=\"bi bi-lock-fill\"></i>" : "<i class=\"bi bi-unlock\"></i>");
         builder.CloseElement();
@@ -315,12 +322,12 @@
     {
         if (_l is null) return;
         var lines = new List<string>();
-        if (_l.Champion is not null) lines.Add($"Champion: {_l.Champion.Name}{(_l.Role is null ? "" : $" ({_l.Role})")}");
-        if (_l.Spells is not null) lines.Add($"Spells: {string.Join(" + ", _l.Spells.Select(s => s.Name))}");
-        if (_l.Skills is not null) lines.Add($"Skill max: {string.Join(" > ", _l.Skills)}");
-        if (_l.Runes is not null) lines.Add($"Runes: {_l.Runes.Primary.Name} ({_l.Runes.Primary.Keystone!.Name}) + {_l.Runes.Secondary.Name}");
-        if (_l.Items is not null) lines.Add($"Build: {string.Join(", ", _l.Items.Select(i => i.Name))}");
-        if (_l.Cursedness is not null) lines.Add($"Cursedness: {_l.Cursedness.Score} ({_l.Cursedness.Label})");
+        if (_l.Champion is not null) lines.Add($"{Loc["lol.copy.champion"]}: {_l.Champion.Name}{(_l.Role is null ? "" : $" ({_l.Role})")}");
+        if (_l.Spells is not null) lines.Add($"{Loc["lol.copy.spells"]}: {string.Join(" + ", _l.Spells.Select(s => s.Name))}");
+        if (_l.Skills is not null) lines.Add($"{Loc["lol.copy.skillMax"]}: {string.Join(" > ", _l.Skills)}");
+        if (_l.Runes is not null) lines.Add($"{Loc["lol.copy.runes"]}: {_l.Runes.Primary.Name} ({_l.Runes.Primary.Keystone!.Name}) + {_l.Runes.Secondary.Name}");
+        if (_l.Items is not null) lines.Add($"{Loc["lol.copy.build"]}: {string.Join(", ", _l.Items.Select(i => i.Name))}");
+        if (_l.Cursedness is not null) lines.Add($"{Loc["lol.copy.cursedness"]}: {_l.Cursedness.Score} ({_l.Cursedness.Label})");
         lines.Add("via userandomize.net/lol");
 
         try

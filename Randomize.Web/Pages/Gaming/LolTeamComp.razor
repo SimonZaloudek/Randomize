@@ -2,24 +2,26 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
 
-<PageTitle>LoL Team Comp Roller</PageTitle>
+<PageTitle>@Loc["lol.team.title"]</PageTitle>
 
 <div class="lol-page lol-team">
 
-    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
 
     <header class="lol-head">
-        <h2 class="page-title">Team Comp Roller</h2>
-        <p class="lol-sub">Five players, five random champions. Roll the comp for your next custom or Clash night.</p>
+        <h2 class="page-title">@Loc["lol.team.title"]</h2>
+        <p class="lol-sub">@Loc["lol.team.sub"]</p>
 
         <div class="lol-controls">
             <div class="lol-mode">
-                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>Summoner's Rift</button>
-                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>ARAM</button>
+                <button class="lol-mode-btn @(_mode == "sr" ? "active" : "")" @onclick='() => SetMode("sr")'>@Loc["lol.mode.sr"]</button>
+                <button class="lol-mode-btn @(_mode == "aram" ? "active" : "")" @onclick='() => SetMode("aram")'>@Loc["lol.mode.aram"]</button>
             </div>
             <button class="lol-roll" @onclick="RollTeam" disabled="@_loading">
-                <i class="bi bi-dice-5-fill"></i> @(Rolled ? "Reroll team" : "Roll team")
+                <i class="bi bi-dice-5-fill"></i> @(Rolled ? Loc["lol.team.reroll"] : Loc["lol.team.roll"])
             </button>
         </div>
     </header>
@@ -34,7 +36,7 @@
         {
             var idx = i;
             <section class="team-slot">
-                <input class="team-name" placeholder="Player @(idx + 1)" maxlength="20" @bind="_names[idx]" />
+                <input class="team-name" placeholder="@Loc["lol.team.player"] @(idx + 1)" maxlength="20" @bind="_names[idx]" />
 
                 @if (_mode == "sr" && _roles[idx] is not null)
                 {
@@ -57,11 +59,11 @@
                 </div>
 
                 <div class="team-actions">
-                    <button class="lol-mini @(_locked[idx] ? "active" : "")" title="@(_locked[idx] ? "Unlock" : "Lock")"
+                    <button class="lol-mini @(_locked[idx] ? "active" : "")" title="@(_locked[idx] ? Loc["lol.tip.unlock"] : Loc["lol.tip.lock"])"
                             @onclick="() => _locked[idx] = !_locked[idx]">
                         <i class="bi @(_locked[idx] ? "bi-lock-fill" : "bi-unlock")"></i>
                     </button>
-                    <button class="lol-mini" title="Reroll" disabled="@_loading" @onclick="() => RerollSlot(idx)">
+                    <button class="lol-mini" title="@Loc["lol.tip.reroll"]" disabled="@_loading" @onclick="() => RerollSlot(idx)">
                         <i class="bi bi-dice-5"></i>
                     </button>
                 </div>
@@ -73,10 +75,10 @@
     {
         <div class="lol-footer">
             <button class="lol-copy" @onclick="Share">
-                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share comp")
+                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? Loc["lol.shareCopied"] : Loc["lol.team.share"])
             </button>
             <button class="lol-copy" @onclick="Copy">
-                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy comp")
+                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? Loc["lol.copied"] : Loc["lol.team.copy"])
             </button>
         </div>
     }
@@ -106,9 +108,14 @@
 
     protected override Task OnInitializedAsync()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         if (ModeParam is "sr" or "aram") _mode = ModeParam;
         return string.IsNullOrEmpty(C) ? RollTeam() : Hydrate();
     }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     private Task SetMode(string mode)
     {
@@ -164,12 +171,12 @@
         try
         {
             var res = await Http.GetFromJsonAsync<TeamRes>($"api/lol/team?{query}");
-            if (res is null || res.Champions.Length == 0) { _error = "No response, try again."; return null; }
+            if (res is null || res.Champions.Length == 0) { _error = Loc["lol.err.noResponse"]; return null; }
             return res;
         }
         catch
         {
-            _error = "Could not reach the randomizer. Try again.";
+            _error = Loc["lol.err.unreachable"];
             return null;
         }
         finally
@@ -192,7 +199,7 @@
         for (var i = 0; i < Size && i < names.Length; i++) _names[i] = Uri.UnescapeDataString(names[i]);
     }
 
-    private string DisplayName(int i) => string.IsNullOrWhiteSpace(_names[i]) ? $"Player {i + 1}" : _names[i].Trim();
+    private string DisplayName(int i) => string.IsNullOrWhiteSpace(_names[i]) ? $"{Loc["lol.team.player"]} {i + 1}" : _names[i].Trim();
 
     private async Task Share()
     {

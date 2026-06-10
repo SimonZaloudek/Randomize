@@ -1,8 +1,10 @@
 @page "/challenge"
 @using Randomize.Web.Data
 @inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
 
-<PageTitle>Challenge Generator</PageTitle>
+<PageTitle>@Loc["challenge.title"]</PageTitle>
 
 <div class="ghub-ambient">
 
@@ -14,16 +16,16 @@
 
     <div class="chal-page">
 
-    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> Gamers Hub</NavLink>
+    <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
 
     <header class="chal-head">
-        <h2 class="page-title">Challenge Generator</h2>
-        <p class="chal-sub">Roll a self-imposed rule, commit to it, and make any game interesting again.</p>
+        <h2 class="page-title">@Loc["challenge.title"]</h2>
+        <p class="chal-sub">@Loc["challenge.sub"]</p>
     </header>
 
     <section class="chal-setup">
         <div class="chal-row">
-            <span class="chal-row-label">Genre</span>
+            <span class="chal-row-label">@Loc["challenge.genre"]</span>
             <div class="chal-chips">
                 @foreach (var (id, name) in GamingChallenges.Genres)
                 {
@@ -33,9 +35,9 @@
         </div>
 
         <div class="chal-row">
-            <span class="chal-row-label">Difficulty</span>
+            <span class="chal-row-label">@Loc["challenge.difficulty"]</span>
             <div class="chal-chips">
-                <button class="chal-chip @(_diff == 0 ? "active" : "")" @onclick="() => _diff = 0">Any</button>
+                <button class="chal-chip @(_diff == 0 ? "active" : "")" @onclick="() => _diff = 0">@Loc["challenge.any"]</button>
                 @for (var d = 1; d <= 3; d++)
                 {
                     var diff = d;
@@ -45,15 +47,15 @@
         </div>
 
         <div class="chal-row">
-            <span class="chal-row-label">Mode</span>
+            <span class="chal-row-label">@Loc["challenge.mode"]</span>
             <div class="chal-chips">
-                <button class="chal-chip @(!_run ? "active" : "")" @onclick="() => _run = false">Single rule</button>
-                <button class="chal-chip @(_run ? "active" : "")" @onclick="() => _run = true">Cursed run &times;3</button>
+                <button class="chal-chip @(!_run ? "active" : "")" @onclick="() => _run = false">@Loc["challenge.mode.single"]</button>
+                <button class="chal-chip @(_run ? "active" : "")" @onclick="() => _run = true">@Loc["challenge.mode.run"]</button>
             </div>
         </div>
 
         <button class="chal-roll" @onclick="Roll">
-            <i class="bi bi-dice-5-fill"></i> @(_rolled.Count == 0 ? "Roll challenge" : "Reroll")
+            <i class="bi bi-dice-5-fill"></i> @(_rolled.Count == 0 ? Loc["challenge.roll"] : Loc["challenge.reroll"])
         </button>
     </section>
 
@@ -73,7 +75,7 @@
                         <h3 class="chal-card-label">@c.Label</h3>
                         <p class="chal-card-text">@c.Text</p>
                     </div>
-                    <button class="chal-mini" title="Reroll this rule" @onclick="() => RerollSlot(idx)">
+                    <button class="chal-mini" title="@Loc["challenge.rerollRule"]" @onclick="() => RerollSlot(idx)">
                         <i class="bi bi-dice-5"></i>
                     </button>
                 </section>
@@ -82,16 +84,16 @@
 
         <div class="chal-footer">
             <button class="chal-action" @onclick="Share">
-                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? "Link copied" : "Share challenge")
+                <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i> @(_shared ? Loc["challenge.shareCopied"] : Loc["challenge.share"])
             </button>
             <button class="chal-action" @onclick="Copy">
-                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? "Copied" : "Copy rules")
+                <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i> @(_copied ? Loc["challenge.copied"] : Loc["challenge.copy"])
             </button>
         </div>
     }
     else
     {
-        <div class="chal-empty">Pick your filters and roll.</div>
+        <div class="chal-empty">@Loc["challenge.empty"]</div>
     }
     </div>
 </div>
@@ -111,6 +113,7 @@
 
     protected override void OnInitialized()
     {
+        Loc.LanguageChanged += OnLanguageChanged;
         if (GamingChallenges.Genres.Any(x => x.Id == G)) _genre = G!;
         if (int.TryParse(D, out var d) && d is >= 0 and <= 3) _diff = d;
         if (!string.IsNullOrEmpty(C))
@@ -120,6 +123,10 @@
             _run = _rolled.Count > 1;
         }
     }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     // generic rules are always in the pool so every genre gets full variety
     private List<GamingChallenge> Pool()
