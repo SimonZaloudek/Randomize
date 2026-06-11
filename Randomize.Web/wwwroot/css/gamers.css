@@ -29,6 +29,10 @@
     align-items: center;
     width: 100%;
     min-height: 100%;
+    /* .content is a fixed-height flex column; without this the flex algorithm
+       shrinks the wrapper to one viewport and the backdrop stops at the fold on
+       long pages. flex-shrink:0 lets it grow to the full content height. */
+    flex-shrink: 0;
 }
 .ghub-ambient > .ghub-bg { z-index: -1; }
 
