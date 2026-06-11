@@ -244,6 +244,7 @@ html:not([data-theme="light"]) .ghub-section-lol .ghub-card-desc { color: #cbc6d
     width: 46px;
     height: 46px;
     display: flex;
+    align-self: flex-start;
     align-items: center;
     justify-content: center;
     border-radius: 12px;

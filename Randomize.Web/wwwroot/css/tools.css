@@ -246,6 +246,15 @@
     opacity: 0.5;
 }
 
+/* when .page-title sits inside a filter/setup card (Games, Movies, Songs, RPS)
+   it leads straight into a subtitle, so drop the standalone 38px bottom gap */
+.games-filter-head .page-title,
+.movies-filter-head .page-title,
+.songs-filter-head .page-title,
+.rps-setup .page-title {
+    margin: 0 0 14px !important;
+}
+
 .tool-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
