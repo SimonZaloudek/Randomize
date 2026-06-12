@@ -257,7 +257,7 @@
                             <li>
                                 <button type="button"
                                         class="songs-track-row @(active ? "active" : "")"
-                                        @onclick="() => PlayTrack(tr.Id, tr.Name)">
+                                        @onclick="() => PlayTrack(tr)">
                                     <span class="songs-track-num">
                                         @if (active)
                                         {
@@ -511,8 +511,24 @@
     private void ToggleMenu(string name) => _openMenu = _openMenu == name ? null : name;
     private void CloseMenu() => _openMenu = null;
 
-    // play a track from the album list (OnAfterRender swaps it into the player)
-    private void PlayTrack(string id, string? name) => _previewId = id;
+    // play a track from the album list: swap it into the player (OnAfterRender) and
+    // update the page to that track. Album/artists/year/cover are shared, so only
+    // the track-specific fields change; popularity isn't known per album track.
+    private void PlayTrack(AlbumTrack tr)
+    {
+        _previewId = tr.Id;
+        if (_result is null) return;
+        _result = _result with
+        {
+            Id = tr.Id,
+            Title = tr.Name,
+            DurationMs = tr.DurationMs,
+            Explicit = tr.Explicit,
+            TrackNumber = tr.Number,
+            Popularity = null,
+            SpotifyUrl = $"https://open.spotify.com/track/{tr.Id}",
+        };
+    }
 
     private async Task ScrollToResult()
     {

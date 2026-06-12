@@ -235,7 +235,7 @@
     };
     private readonly Dictionary<string, string> _custom = new();
     private bool CustomReady => _custom.Count > 0;
-    private readonly string[] _arenas = { "classic", "theme", "dark" };
+    private readonly string[] _arenas = { "classic", "theme", "dark", "mcarena" };
 
     private Dictionary<string, int> _counts = new()
     {
@@ -271,6 +271,7 @@
         "classic" => "--rps-arena-bg: #f1f0e8; --rps-arena-border: #e0c460;",
         "dark"    => "--rps-arena-bg: #0e0c14; --rps-arena-border: var(--accent);",
         "theme"   => "--rps-arena-bg: var(--surface-solid); --rps-arena-border: var(--accent);",
+        "mcarena" => "--rps-arena-bg: url('/img/rps/mcArena.png') center / cover no-repeat; --rps-arena-border: var(--accent);",
         _         => ""
     };
 

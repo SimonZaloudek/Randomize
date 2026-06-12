@@ -332,6 +332,47 @@
 
 .about-connect .share { margin-top: 14px; }
 
+/* ===== support + legal footer ===== */
+.about-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.about-coffee {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #1a1a1a;
+    background: #ffdd00;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 18px rgba(255, 221, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.about-coffee:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(255, 221, 0, 0.28); }
+
+.about-legal { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+.about-legal a { color: var(--text-muted, #8b8794); text-decoration: none; }
+.about-legal a:hover { color: var(--accent); }
+.about-legal-dot { color: #555; }
+
+/* ===== legal pages (/privacy, /terms) - readable prose in about cards ===== */
+.legal .about-card { padding: 22px 26px; }
+.legal .about-card h3 { margin: 0 0 8px; color: var(--text-primary, #fff); font-size: 1.1rem; font-weight: 700; }
+.legal .about-card p { margin: 0 0 10px; color: color-mix(in srgb, var(--text-primary, #fff) 82%, transparent); font-size: 0.95rem; line-height: 1.6; }
+.legal .about-card p:last-child { margin-bottom: 0; }
+.legal .about-card a { color: var(--accent); text-decoration: none; }
+.legal .about-card a:hover { text-decoration: underline; }
+.legal-updated { color: var(--text-muted, #8b8794) !important; font-size: 0.85rem !important; }
+.legal-nav { margin-top: 4px !important; font-size: 0.85rem !important; color: var(--text-muted, #8b8794) !important; }
+
 /* ===== Responsive ===== */
 @media (max-width: 600px) {
     .about-card { padding: 20px 18px; }
