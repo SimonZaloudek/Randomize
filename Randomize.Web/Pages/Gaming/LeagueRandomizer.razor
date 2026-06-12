@@ -209,7 +209,7 @@
 
     private string[] AllParts =>
         _mode == "aram"
-            ? new[] { "champion", "spells", "runes", "skills", "items" }
+            ? new[] { "runes", "skills", "items" }
             : new[] { "champion", "role", "spells", "runes", "skills", "items" };
 
     private string? _bgStyle;
@@ -272,7 +272,7 @@
             if (res.Skills is not null) _l.Skills = res.Skills;
             if (res.Items is not null) _l.Items = res.Items;
             if (res.Cursedness is not null) _l.Cursedness = res.Cursedness;
-            if (_mode == "aram") _l.Role = null;
+            if (_mode == "aram") { _l.Champion = null; _l.Role = null; _l.Spells = null; _l.Cursedness = null; }
         }
         catch
         {

@@ -45,11 +45,15 @@ export async function onRequestGet({ request, env }) {
   return json(out);
 }
 
-// what to randomize; "all" = the full challenge loadout
+// what to randomize; "all" = the full challenge loadout.
+// ARAM has no champion pick, no lanes, and a fixed Flash + Snowball.
+const ARAM_SKIP = ["champion", "role", "spells"];
 function parseRoll(param, mode) {
   const all = ["champion", "role", "spells", "runes", "skills", "items"];
-  if (!param || param === "all") return new Set(mode === "aram" ? all.filter(p => p !== "role") : all);
-  return new Set(param.split(",").map(s => s.trim()).filter(s => all.includes(s)));
+  if (!param || param === "all") return new Set(mode === "aram" ? all.filter(p => !ARAM_SKIP.includes(p)) : all);
+  const set = new Set(param.split(",").map(s => s.trim()).filter(s => all.includes(s)));
+  if (mode === "aram") for (const p of ARAM_SKIP) set.delete(p);
+  return set;
 }
 
 // ---------------------------------------------------------------------------
