@@ -1,0 +1,48 @@
+@* Reusable line-numbered textarea (group names, shuffle list, weighted pick).
+   - value/@oninput instead of @bind so the parent can use @bind-Value.
+   - wrap="off" keeps one typed line per visual row, so gutter number N always
+     lines up with line N.
+   - the gutter mirrors the textarea's scroll via LinedTextarea.attach (JS).
+   - MinRows pads the gutter so an empty box still shows a tidy 1..N column. *@
+@inject IJSRuntime JS
+
+<div class="lined" style="--lined-rows:@MinRows">
+    <div class="lined-gutter" @ref="_gutter" aria-hidden="true">
+        @for (var n = 1; n <= GutterLines; n++)
+        {
+            <span>@n</span>
+        }
+    </div>
+    <textarea @ref="_area"
+              class="lined-area"
+              wrap="off"
+              spellcheck="false"
+              placeholder="@Placeholder"
+              value="@Value"
+              @oninput="OnInput"></textarea>
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public int MinRows { get; set; } = 10;
+
+    private ElementReference _area;
+    private ElementReference _gutter;
+    private bool _attached;
+
+    private int LineCount => string.IsNullOrEmpty(Value) ? 1 : Value.Split('\n').Length;
+    private int GutterLines => Math.Max(LineCount, MinRows);
+
+    private Task OnInput(ChangeEventArgs e) => ValueChanged.InvokeAsync(e.Value?.ToString() ?? "");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_attached)
+        {
+            _attached = true;
+            await JS.InvokeVoidAsync("LinedTextarea.attach", _area, _gutter);
+        }
+    }
+}

@@ -8,37 +8,90 @@
 
 <h2 class="page-title">@Loc["group.title"]</h2>
 
-<div class="shuffler-layout">
+<div class="shuffler">
 
-    <div class="shuffler-panel tool-card">
-        <textarea class="tool-input tool-textarea"
-                  @bind="input"
-                  @bind:event="oninput"
-                  placeholder="@Loc["group.placeholder"]"></textarea>
+    <div class="shuffler-top">
 
-        <div class="option-row">
-            <label>
-                <span class="opt-key">@Loc["group.mode.label"]</span>
-                <select class="tool-input-small" @bind="_mode">
-                    <option value="@ShuffleMode.GroupCount">@Loc["group.mode.count"]</option>
-                    <option value="@ShuffleMode.GroupSize">@Loc["group.mode.size"]</option>
-                </select>
+        <!-- Step 1: the names input -->
+        <section class="sh-card sh-input">
+            <div class="sh-card-head">
+                <span class="sh-step">1</span>
+                <h3 class="sh-card-title">@Loc["group.step.names"]</h3>
+                <span class="sh-count">@_count @(_count == 1 ? Loc["group.summary.person"] : Loc["group.summary.people"])</span>
+            </div>
+
+            <LinedTextarea @bind-Value="input" Placeholder="@Loc["group.placeholder"]" MinRows="10" />
+
+            <div class="sh-input-actions">
+                <button class="sh-mini-btn" @onclick="PasteFromClipboard">
+                    <i class="bi bi-clipboard"></i> @Loc["group.paste"]
+                </button>
+                <button class="sh-mini-btn" @onclick="LoadExample">
+                    <i class="bi bi-people"></i> @Loc["group.example"]
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: shuffle options -->
+        <section class="sh-card sh-options">
+            <div class="sh-card-head">
+                <span class="sh-step">2</span>
+                <h3 class="sh-card-title">@Loc["group.step.options"]</h3>
+            </div>
+
+            <div class="sh-field">
+                <span class="sh-label">@Loc["group.mode.label"]</span>
+                <div class="sh-mode">
+                    <button class="sh-mode-btn @(_mode == ShuffleMode.GroupCount ? "active" : "")"
+                            @onclick="@(() => _mode = ShuffleMode.GroupCount)">
+                        <i class="bi bi-grid-3x3-gap-fill"></i> @Loc["group.mode.count"]
+                    </button>
+                    <button class="sh-mode-btn @(_mode == ShuffleMode.GroupSize ? "active" : "")"
+                            @onclick="@(() => _mode = ShuffleMode.GroupSize)">
+                        <i class="bi bi-person-fill"></i> @Loc["group.mode.size"]
+                    </button>
+                </div>
+            </div>
+
+            <div class="sh-field">
+                <span class="sh-label">@(_mode == ShuffleMode.GroupCount ? Loc["group.count"] : Loc["group.size"])</span>
+                <div class="sh-stepper">
+                    <button class="sh-step-btn" @onclick="() => Step(-1)" disabled="@(_groupCount <= 1)" aria-label="@Loc["group.stepper.dec"]">−</button>
+                    <span class="sh-step-val">@_groupCount</span>
+                    <button class="sh-step-btn" @onclick="() => Step(1)" disabled="@(_groupCount >= 15)" aria-label="@Loc["group.stepper.inc"]">+</button>
+                </div>
+            </div>
+
+            @if (_mode == ShuffleMode.GroupSize)
+            {
+                <div class="sh-field">
+                    <span class="sh-label">@Loc["group.balance.label"]</span>
+                    <select class="sh-balance" @bind="_balance">
+                        <option value="even">@Loc["group.balance.even"]</option>
+                        <option value="exact">@Loc["group.balance.exact"]</option>
+                    </select>
+                </div>
+            }
+
+            <label class="sh-toggle">
+                <input type="checkbox" @bind="_keepOrder" />
+                <span class="sh-toggle-track"><span class="sh-toggle-thumb"></span></span>
+                <span class="sh-toggle-text">
+                    <strong>@Loc["group.keepOrder"]</strong>
+                    <small>@Loc["group.keepOrder.hint"]</small>
+                </span>
             </label>
-            <label>
-                <span class="opt-key">@(_mode == ShuffleMode.GroupCount ? Loc["group.count"] : Loc["group.size"])</span>
-                <input type="number" min="1" max="15" class="tool-input-small"
-                       @bind-value="rawGroupCount"
-                       @oninput="HandleInput"
-                       @onblur="HandleBlur" />
-            </label>
-        </div>
 
-        @if (!string.IsNullOrEmpty(_error))
-        {
-            <div class="shuffler-error" role="alert">@_error</div>
-        }
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <div class="shuffler-error" role="alert">@_error</div>
+            }
 
-        <button class="tool-btn" @onclick="Shuffle">@Loc["group.btn"]</button>
+            <button class="sh-shuffle" @onclick="Shuffle">
+                <i class="bi bi-shuffle"></i> @Loc["group.btn"]
+            </button>
+        </section>
+
     </div>
 
     @if (groups.Count > 0)
@@ -115,12 +168,16 @@
     }
 
     private string input = "";
-    private string rawGroupCount = "2";
     private int _groupCount = 2;
     private ShuffleMode _mode = ShuffleMode.GroupCount;
+    private string _balance = "even";   // "even" = balanced sizes | "exact" = groups of N
+    private bool _keepOrder;            // true = split as typed, skip the shuffle
     private string _error = "";
     private int _lastInputCount;
     private int _shuffleId;
+
+    // live name count shown in the input card header
+    private int _count => GroupShufflerCore.InputCount(input);
 
     private List<GroupBucket> groups = new();
 
@@ -153,22 +210,24 @@
 
     public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
-    private void HandleInput(ChangeEventArgs e)
+    // stepper: nudge the group count/size, kept within 1..15
+    private void Step(int delta) => _groupCount = Math.Clamp(_groupCount + delta, 1, 15);
+
+    private async Task PasteFromClipboard()
     {
-        rawGroupCount = e.Value?.ToString() ?? string.Empty;
-        if (int.TryParse(rawGroupCount, out int parsed) && parsed >= 1 && parsed <= 15)
-            _groupCount = parsed;
+        try
+        {
+            var text = await JS.InvokeAsync<string>("navigator.clipboard.readText");
+            if (!string.IsNullOrWhiteSpace(text)) input = text;
+        }
+        catch { /* clipboard blocked or unavailable - ignore */ }
     }
 
-    private void HandleBlur()
+    private void LoadExample() => input = string.Join("\n", new[]
     {
-        if (int.TryParse(rawGroupCount, out int parsed))
-            _groupCount = Math.Clamp(parsed, 1, 15);
-        else
-            _groupCount = 2;
-
-        rawGroupCount = _groupCount.ToString();
-    }
+        "Alex", "Sam", "Jordan", "Taylor", "Casey", "Riley",
+        "Morgan", "Jamie", "Avery", "Quinn", "Drew", "Skyler"
+    });
 
     private void Shuffle()
     {
@@ -194,8 +253,8 @@
         }
 
         var raw = _mode == ShuffleMode.GroupCount
-            ? GroupShufflerCore.ShuffleIntoGroups(input, _groupCount)
-            : GroupShufflerCore.ShuffleIntoGroupsOfSize(input, _groupCount);
+            ? GroupShufflerCore.ShuffleIntoGroups(input, _groupCount, shuffle: !_keepOrder)
+            : GroupShufflerCore.ShuffleIntoGroupsOfSize(input, _groupCount, shuffle: !_keepOrder, exactSize: _balance == "exact");
 
         // keep custom names where indices line up
         var oldNames = groups.Select(g => g.Name).ToList();
