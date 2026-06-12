@@ -6,12 +6,37 @@ namespace Randomize.Core.Services
 {
     public static class GroupShufflerCore
     {
-        // N groups: shuffle, then round-robin so sizes differ by at most one
-        public static List<List<string>> ShuffleIntoGroups(string input, int groupCount)
+        // N groups: optionally shuffle, then round-robin so sizes differ by at most one.
+        // shuffle:false keeps the input order (the "keep order" toggle).
+        public static List<List<string>> ShuffleIntoGroups(string input, int groupCount, bool shuffle = true)
         {
             var people = SplitPeople(input);
-            FisherYates(people);
+            if (shuffle) FisherYates(people);
+            return RoundRobin(people, groupCount);
+        }
 
+        // groups of N. Balanced (default) evens the sizes out via round-robin;
+        // exactSize fills each group to exactly `size` and leaves the remainder
+        // in the final group.
+        public static List<List<string>> ShuffleIntoGroupsOfSize(string input, int size, bool shuffle = true, bool exactSize = false)
+        {
+            if (size < 1) size = 1;
+            var people = SplitPeople(input);
+            if (people.Count == 0) return new List<List<string>>();
+            if (shuffle) FisherYates(people);
+
+            if (exactSize) return Chunk(people, size);
+
+            int groupCount = (int)Math.Ceiling(people.Count / (double)size);
+            return RoundRobin(people, groupCount);
+        }
+
+        public static int InputCount(string input) => SplitPeople(input).Count;
+
+        // deal people out one at a time across the groups -> sizes differ by <= 1
+        private static List<List<string>> RoundRobin(List<string> people, int groupCount)
+        {
+            if (groupCount < 1) groupCount = 1;
             var groups = Enumerable.Range(0, groupCount)
                 .Select(_ => new List<string>())
                 .ToList();
@@ -22,17 +47,14 @@ namespace Randomize.Core.Services
             return groups;
         }
 
-        // groups of N: derive the count, then reuse the round-robin split
-        public static List<List<string>> ShuffleIntoGroupsOfSize(string input, int size)
+        // contiguous blocks of `size`; the last block keeps whatever is left over
+        private static List<List<string>> Chunk(List<string> people, int size)
         {
-            if (size < 1) size = 1;
-            int total = InputCount(input);
-            if (total == 0) return new List<List<string>>();
-            int groupCount = (int)Math.Ceiling(total / (double)size);
-            return ShuffleIntoGroups(input, groupCount);
+            var groups = new List<List<string>>();
+            for (int i = 0; i < people.Count; i += size)
+                groups.Add(people.GetRange(i, Math.Min(size, people.Count - i)));
+            return groups;
         }
-
-        public static int InputCount(string input) => SplitPeople(input).Count;
 
         // split on newlines, trim, drop empties
         private static List<string> SplitPeople(string input) =>

@@ -47,10 +47,7 @@
         <h3 class="tool-card-title"><i class="bi bi-shuffle"></i> @Loc["string.shuffle.title"]</h3>
         <p class="tool-card-hint">@Loc["string.shuffle.hint"]</p>
         <div class="tool-card-body">
-            <textarea class="tool-input tool-textarea"
-                      @bind="_shuffleInput"
-                      @bind:event="oninput"
-                      placeholder="@Loc["string.shuffle.placeholder"]"></textarea>
+            <LinedTextarea @bind-Value="_shuffleInput" Placeholder="@Loc["string.shuffle.placeholder"]" MinRows="6" />
         </div>
         <button class="tool-btn" @onclick="DoShuffle">@Loc["string.shuffle.btn"]</button>
         <div class="tool-result">
@@ -142,10 +139,7 @@
         <h3 class="tool-card-title"><i class="bi bi-sliders"></i> @Loc["string.weighted.title"]</h3>
         <p class="tool-card-hint">@Loc["string.weighted.hintBefore"]<code>weight:</code>@Loc["string.weighted.hintAfter"]</p>
         <div class="tool-card-body">
-            <textarea class="tool-input tool-textarea"
-                      @bind="_weightedInput"
-                      @bind:event="oninput"
-                      placeholder="@_weightedPlaceholder"></textarea>
+            <LinedTextarea @bind-Value="_weightedInput" Placeholder="@_weightedPlaceholder" MinRows="6" />
         </div>
         <button class="tool-btn" @onclick="DoWeighted">@Loc["string.weighted.btn"]</button>
         <div class="tool-result">

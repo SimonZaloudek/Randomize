@@ -1,22 +1,283 @@
 /* tools.css - split from app.css; load order fixed in index.html */
 /* === GROUP SHUFFLER === */
 /* --group-accent is set per card in the razor */
-.shuffler-layout {
-    width: 100%;
-    max-width: 1100px;
+.shuffler {
+    width: 84%;
+    max-width: 1180px;
     margin: 8px auto 48px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 24px;
+    gap: 22px;
 }
 
-.shuffler-panel {
-    /* fill the content area (already margined) capped at 560px; 95vw used to ignore
-       those margins and bleed to the screen edges on phones */
-    width: 100%;
-    max-width: 560px;
-    gap: 14px;
+/* step 1 (input) next to step 2 (options); input gets the extra room */
+.shuffler-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 18px;
+}
+
+.sh-card {
+    background: var(--surface-grad);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    box-shadow: var(--surface-shadow);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sh-card-head { display: flex; align-items: center; gap: 12px; }
+
+.sh-step {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-text, #fff);
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.sh-card-title {
+    margin: 0;
+    flex: 1 1 auto;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-primary, #fff);
+}
+
+.sh-count {
+    flex: 0 0 auto;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted, #8b8794);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+}
+
+.sh-input-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.sh-mini-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.sh-mini-btn:hover {
+    color: var(--text-primary, #fff);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* ===== options fields ===== */
+.sh-field { display: flex; flex-direction: column; gap: 8px; }
+.sh-label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted, #8b8794); }
+
+/* segmented mode toggle */
+.sh-mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+}
+
+.sh-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted, #8b8794);
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sh-mode-btn.active { background: color-mix(in srgb, var(--accent) 85%, #000); color: #fff; }
+
+/* stepper */
+.sh-stepper {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+}
+
+.sh-step-btn {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary, #fff);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.sh-step-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.07); }
+.sh-step-btn:disabled { opacity: 0.4; cursor: default; }
+
+.sh-step-val {
+    min-width: 48px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary, #fff);
+}
+
+/* balance dropdown */
+.sh-balance {
+    align-self: flex-start;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: var(--surface-solid);
+    color: var(--text-primary, #fff);
+    border: 1px solid var(--surface-border);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* keep-order toggle */
+.sh-toggle { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px 0; }
+.sh-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+
+.sh-toggle-track {
+    flex: 0 0 auto;
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--surface-border);
+    transition: background 0.18s ease;
+}
+
+.sh-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.18s ease;
+}
+
+.sh-toggle input:checked + .sh-toggle-track { background: color-mix(in srgb, var(--accent) 80%, #000); }
+.sh-toggle input:checked + .sh-toggle-track .sh-toggle-thumb { transform: translateX(18px); }
+
+.sh-toggle-text { display: flex; flex-direction: column; }
+.sh-toggle-text strong { font-size: 0.9rem; font-weight: 600; color: var(--text-primary, #fff); }
+.sh-toggle-text small { font-size: 0.78rem; color: var(--text-muted, #8b8794); }
+
+/* big shuffle button */
+.sh-shuffle {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 20px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-soft, var(--accent)), var(--accent));
+    color: #fff;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 26%, transparent);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sh-shuffle:hover { transform: translateY(-1px); }
+
+/* ===== lined textarea (LinedTextarea.razor) =====
+   the gutter and textarea share a fixed line-height (a length, not em) so a
+   smaller gutter font still lines up row-for-row with the text. */
+.lined {
+    --lined-lh: 1.5rem;
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.lined:focus-within { border-color: color-mix(in srgb, var(--accent) 50%, var(--surface-border)); }
+
+.lined-gutter {
+    flex: 0 0 auto;
+    overflow: hidden;          /* scroll is mirrored from the textarea via JS */
+    user-select: none;
+    padding: 10px 8px;
+    text-align: right;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: var(--lined-lh);
+    color: color-mix(in srgb, var(--text-muted, #8b8794) 70%, transparent);
+    background: rgba(255, 255, 255, 0.03);
+    border-right: 1px solid var(--surface-border);
+}
+
+.lined-gutter span { display: block; }
+
+.lined-area {
+    flex: 1 1 auto;
+    min-width: 0;
+    resize: vertical;
+    min-height: calc(var(--lined-rows, 10) * var(--lined-lh) + 20px);
+    padding: 10px 12px;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary, #fff);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: var(--lined-lh);
+    white-space: pre;
+    overflow: auto;
+}
+
+.lined-area:focus { outline: none; }
+.lined-area::placeholder { color: var(--text-muted, #8b8794); }
+
+@media (max-width: 760px) {
+    .shuffler { width: 100%; }
+    .shuffler-top { grid-template-columns: 1fr; }
 }
 
 .shuffler-error {
