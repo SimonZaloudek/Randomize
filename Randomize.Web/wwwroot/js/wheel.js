@@ -48,12 +48,28 @@ function fitLabel(ctx, text, maxWidth) {
     return t + '…';
 }
 
+// turn weights into cumulative wedge boundaries; equal weights => even slices
+function buildSegments(items) {
+    const w = items.map(it => (it && it.weight > 0 ? it.weight : 1));
+    const total = w.reduce((a, b) => a + b, 0) || 1;
+    let acc = 0;
+    return w.map(weight => {
+        const seg = { startFrac: acc / total, frac: weight / total };
+        acc += weight;
+        return seg;
+    });
+}
+
 // slice index under the top pointer (angle 3π/2) for a rotation
-function indexAtPointer(rotation, total) {
-    const seg = (2 * Math.PI) / total;
+function indexAtPointer(rotation, items) {
+    const segs = buildSegments(items);
     let a = (1.5 * Math.PI - rotation) % (2 * Math.PI);
     if (a < 0) a += 2 * Math.PI;
-    return Math.floor(a / seg) % total;
+    const f = a / (2 * Math.PI);
+    for (let i = segs.length - 1; i >= 0; i--) {
+        if (f >= segs[i].startFrac) return i;
+    }
+    return 0;
 }
 
 function drawPointer(ctx, cx, pivotY, tick) {
@@ -88,7 +104,8 @@ function drawWheel(items, rotation, highlight, tick) {
 
     ctx.clearRect(0, 0, size, size);
     if (total === 0) return;
-    const seg = (2 * Math.PI) / total;
+    const segs = buildSegments(items);
+    const TAU = 2 * Math.PI;
 
     // shadow disc behind the wheel
     ctx.save();
@@ -107,10 +124,10 @@ function drawWheel(items, rotation, highlight, tick) {
     ctx.rotate(rotation);
 
     for (let i = 0; i < total; i++) {
-        const a0 = i * seg;
+        const a0 = segs[i].startFrac * TAU;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, a0, a0 + seg);
+        ctx.arc(0, 0, radius, a0, a0 + segs[i].frac * TAU);
         ctx.closePath();
         ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
         ctx.fill();
@@ -121,11 +138,11 @@ function drawWheel(items, rotation, highlight, tick) {
 
     // glow on the winning slice
     if (highlight != null && highlight >= 0 && highlight < total) {
-        const a0 = highlight * seg;
+        const a0 = segs[highlight].startFrac * TAU;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, a0, a0 + seg);
+        ctx.arc(0, 0, radius, a0, a0 + segs[highlight].frac * TAU);
         ctx.closePath();
         ctx.shadowColor = 'rgba(255,255,255,0.95)';
         ctx.shadowBlur = 16;
@@ -141,8 +158,8 @@ function drawWheel(items, rotation, highlight, tick) {
     ctx.textBaseline = 'middle';
     for (let i = 0; i < total; i++) {
         ctx.save();
-        ctx.rotate(i * seg + seg / 2);
-        const label = fitLabel(ctx, items[i], radius - 34);
+        ctx.rotate((segs[i].startFrac + segs[i].frac / 2) * TAU);
+        const label = fitLabel(ctx, items[i] && items[i].label, radius - 34);
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(0,0,0,0.55)';
         ctx.strokeText(label, radius - 14, 0);
@@ -184,7 +201,7 @@ window.spinWheel = function (items) {
     const finalRotation = startRotation + turns * 2 * Math.PI + Math.random() * 2 * Math.PI;
     const duration = 3000 + Math.random() * 900;
     const startTime = performance.now();
-    let lastIdx = indexAtPointer(startRotation, total);
+    let lastIdx = indexAtPointer(startRotation, wheelItems);
     let tick = 0;
 
     return new Promise(resolve => {
@@ -196,7 +213,7 @@ window.spinWheel = function (items) {
             wheelRotation = rotation;
 
             // kick the pointer as each slice passes
-            const idx = indexAtPointer(rotation, total);
+            const idx = indexAtPointer(rotation, wheelItems);
             if (idx !== lastIdx) { tick = 0.42; lastIdx = idx; }
             tick *= 0.82;
 
@@ -206,7 +223,7 @@ window.spinWheel = function (items) {
                 requestAnimationFrame(frame);
             } else {
                 wheelRotation = finalRotation % (2 * Math.PI);
-                const winner = indexAtPointer(wheelRotation, total);
+                const winner = indexAtPointer(wheelRotation, wheelItems);
                 wheelHighlight = winner;
                 drawWheel(wheelItems, wheelRotation, winner, 0);
                 resolve(winner);

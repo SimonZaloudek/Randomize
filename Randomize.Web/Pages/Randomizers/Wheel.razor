@@ -42,17 +42,32 @@
                 <input type="checkbox" @bind="_eliminate" disabled="@_spinning" />
                 @Loc["wheel.eliminate"]
             </label>
+            <label>
+                <input type="checkbox" checked="@_weighted" @onchange="ToggleWeighted" disabled="@_spinning" />
+                @Loc["wheel.weighted"]
+            </label>
         </div>
 
-        <div class="wheel-labels">
+        <div class="wheel-labels @(_weighted ? "is-weighted" : "")">
             @for (int i = 0; i < items.Count; i++)
             {
                 var idx = i;
-                <input class="tool-input wheel-label-input"
-                       value="@items[idx].Label"
-                       disabled="@_spinning"
-                       @oninput="e => OnLabelInput(e, idx)"
-                       placeholder="@items[idx].Placeholder" />
+                <div class="wheel-label-row">
+                    <input class="tool-input wheel-label-input"
+                           value="@items[idx].Label"
+                           disabled="@_spinning"
+                           @oninput="e => OnLabelInput(e, idx)"
+                           placeholder="@items[idx].Placeholder" />
+                    @if (_weighted)
+                    {
+                        <input type="number" min="1" max="99" step="1"
+                               class="tool-input wheel-weight-input"
+                               value="@items[idx].Weight"
+                               disabled="@_spinning"
+                               @oninput="e => OnWeightInput(e, idx)"
+                               title="@Loc["wheel.weight.title"]" />
+                    }
+                </div>
             }
         </div>
 
@@ -105,6 +120,7 @@
     private string selectedResult = "";
     private bool _spinning;
     private bool _eliminate;
+    private bool _weighted;
     private int _spinCount;
     private readonly List<string> _history = new();
 
@@ -199,14 +215,19 @@
             .Select(i => new WheelItem
             {
                 Label = current.ElementAtOrDefault(i - 1)?.Label ?? string.Empty,
+                Weight = current.ElementAtOrDefault(i - 1)?.Weight ?? 1,
                 Placeholder = $"{Loc["wheel.option"]} {i}"
             })
             .ToList();
     }
 
+    // labels + effective weights for the canvas; weights collapse to 1 when the toggle is off
+    private object[] WheelPayload() =>
+        items.Select(i => (object)new { label = i.Label, weight = _weighted ? i.Weight : 1.0 }).ToArray();
+
     private async Task RenderWheel()
     {
-        await JS.InvokeVoidAsync("renderWheel", items.Select(i => i.Label));
+        await JS.InvokeVoidAsync("renderWheel", new object[] { WheelPayload() });
     }
 
     private async Task SpinWheel()
@@ -218,7 +239,7 @@
         selectedResult = "";
         StateHasChanged();
 
-        int winner = await JS.InvokeAsync<int>("spinWheel", items.Select(i => i.Label));
+        int winner = await JS.InvokeAsync<int>("spinWheel", new object[] { WheelPayload() });
 
         if (winner >= 0 && winner < items.Count)
         {
@@ -256,6 +277,25 @@
         items[index].Label = e.Value?.ToString() ?? string.Empty;
         ClearResult();
         await RenderWheel();
+    }
+
+    private async Task OnWeightInput(ChangeEventArgs e, int index)
+    {
+        if (index < 0 || index >= items.Count)
+            return;
+
+        items[index].Weight = double.TryParse(e.Value?.ToString(), out var w)
+            ? Math.Clamp(w, 1, 99)
+            : 1;
+        ClearResult();
+        await RenderWheel();
+    }
+
+    private Task ToggleWeighted()
+    {
+        _weighted = !_weighted;
+        ClearResult();
+        return RenderWheel();
     }
 
     private void ClearHistory() => _history.Clear();

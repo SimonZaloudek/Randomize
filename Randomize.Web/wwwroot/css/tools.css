@@ -1000,8 +1000,23 @@ select.tool-input-small option {
     gap: 8px;
 }
 
+.wheel-label-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
 .wheel-label-input {
     min-width: 0;
+    flex: 1;
+}
+
+.wheel-weight-input {
+    width: 52px;
+    flex: 0 0 auto;
+    text-align: center;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .wheel-history {

@@ -216,6 +216,8 @@
   "wheel.winner": "Víťaz",
   "wheel.options": "Možnosti:",
   "wheel.eliminate": "Po každom točení odstrániť víťaza",
+  "wheel.weighted": "Vážené diely",
+  "wheel.weight.title": "Váha dielu (väčšia = vyššia šanca)",
   "wheel.option": "Možnosť",
   "wheel.history": "História",
   "wheel.clear": "Vymazať",

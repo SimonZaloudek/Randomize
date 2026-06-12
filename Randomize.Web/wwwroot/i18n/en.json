@@ -216,6 +216,8 @@
   "wheel.winner": "Winner",
   "wheel.options": "Options:",
   "wheel.eliminate": "Remove the winner after each spin",
+  "wheel.weighted": "Weighted slices",
+  "wheel.weight.title": "Slice weight (bigger = better odds)",
   "wheel.option": "Option",
   "wheel.history": "History",
   "wheel.clear": "Clear",

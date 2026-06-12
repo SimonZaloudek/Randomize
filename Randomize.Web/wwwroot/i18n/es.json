@@ -216,6 +216,8 @@
   "wheel.winner": "Ganador",
   "wheel.options": "Opciones:",
   "wheel.eliminate": "Eliminar al ganador tras cada giro",
+  "wheel.weighted": "Porciones ponderadas",
+  "wheel.weight.title": "Peso de la porción (mayor = más probabilidad)",
   "wheel.option": "Opción",
   "wheel.history": "Historial",
   "wheel.clear": "Limpiar",
