@@ -259,16 +259,34 @@
 .content {
     flex: 1;
     padding: 36px;
-    background: var(--content-bg, #111);
+    /* Honeycomb content backdrop: dark hex combs (top svg layer) over two muted
+       accent blooms, over the themed base. The blooms give the gradient glow -
+       the seams light up near a bloom and fade to dark, like the cards / gamers
+       hub. Background layers clip to .content automatically (never the navbar)
+       and stay put as the content scrolls. Excluded on own-backdrop pages below. */
+    background:
+        url('/brand/hexgrid-dark.svg') 0 0 / 56px 97px repeat,
+        radial-gradient(85% 120% at var(--hb1, 18% 18%), color-mix(in srgb, color-mix(in srgb, var(--accent) 50%, #000) 14%, transparent) 0%, transparent 60%),
+        radial-gradient(80% 115% at var(--hb2, 100% 100%), color-mix(in srgb, color-mix(in srgb, var(--accent) 50%, #000) 9%, transparent) 0%, transparent 64%),
+        var(--content-bg, #111);
     position: relative;
     overflow-y: auto;
     overflow-x: clip;
     scrollbar-width: thin;
     scrollbar-color: #333 #222;
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
+
+/* pages that carry their own full backdrop keep the plain base background */
+.content:has(.home-page),
+.content:has(.ghub),
+.content:has(.lol-shell) { background: var(--content-bg, #111); }
+
+/* default + light themes stay plain, no honeycomb */
+html[data-theme="default"] .content,
+html[data-theme="light"] .content { background: var(--content-bg, #111); }
 
     .content h1 {
         font-family: var(--app-font);

@@ -232,10 +232,6 @@ body {
 /* applies to every theme except default + light - i.e. Modern, Crimson, Tropical, Liquid */
 /* uses var(--accent) so the same rules tint differently per theme */
 
-html:not([data-theme="default"]):not([data-theme="light"]) .content {
-    background: var(--content-bg, linear-gradient(180deg, #08070f 0%, #040308 100%));
-}
-
 html:not([data-theme="default"]):not([data-theme="light"]) .tool-card,
 html:not([data-theme="default"]):not([data-theme="light"]) .group-card {
     background: var(--surface-grad);

@@ -1,6 +1,8 @@
 @inherits LayoutComponentBase
 @using Randomize.Web.Pages.Media
+@using Microsoft.AspNetCore.Components.Routing
 @inject LocalizationService Loc
+@inject NavigationManager Nav
 @implements IDisposable
 
 <!-- song-colour glow that rings the app card; lit only while a song plays -->
@@ -68,7 +70,7 @@
     <div class="sidebar-backdrop @(isSidebarOpen ? "visible" : "")" @onclick="CloseSidebar"></div>
 
     <!-- Main content -->
-    <div class="content">
+    <div class="content" style="@_bloomStyle">
         <!-- Only the "open" affordance is needed. Closing happens via backdrop
              tap or a nav-link tap, so no on-screen close button is necessary. -->
         @if (!isSidebarOpen)
@@ -97,15 +99,37 @@
     // theme is applied by index.html on initial load + Settings page on change
     private bool isSidebarOpen = false;
 
+    // randomised positions for the two content-background honeycomb blooms,
+    // re-rolled on every navigation so each page glows a little differently
+    private string _bloomStyle = "";
+
     protected override async Task OnInitializedAsync()
     {
         Loc.LanguageChanged += OnLanguageChanged;
+        Nav.LocationChanged += OnLocationChanged;
+        RollBlooms();
         await Loc.InitializeAsync();
     }
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
-    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        RollBlooms();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void RollBlooms()
+    {
+        var r = Random.Shared;
+        _bloomStyle = $"--hb1:{r.Next(0, 101)}% {r.Next(0, 40)}%;--hb2:{r.Next(0, 101)}% {r.Next(60, 101)}%";
+    }
+
+    public void Dispose()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        Nav.LocationChanged -= OnLocationChanged;
+    }
 
     private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
 
