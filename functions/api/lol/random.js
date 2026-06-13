@@ -41,17 +41,47 @@ export async function onRequestGet({ request, env }) {
 
   const out = generate(data, { mode, roll, version, pin });
 
+  // skin needs the per-champion file (champion.json has no skins), so it's async
+  if (roll.has("skin")) out.skin = await randomSkin(env, version, data);
+
   await incrementStat(env, "lol");
   return json(out);
 }
 
+// chromas live in the skins list too but have no splash art (403). They're the
+// ones with a colour in parens, e.g. "... (Ruby)" - but keep year re-releases "(2022)".
+function isChroma(skin) {
+  const m = (skin.name || "").match(/\(([^)]+)\)/);
+  return !!m && !/^\d{4}$/.test(m[1].trim());
+}
+
+// pick a random champion, then a random real skin from its detail file
+async function randomSkin(env, version, data) {
+  const champ = pick(data.champions);
+  if (!champ) return null;
+  const detail = await cachedJson(env, `lol:skins:${version}:${champ.id}`,
+    () => ddragon(version, `champion/${champ.id}.json`));
+  const skins = (detail?.data?.[champ.id]?.skins || []).filter(s => !isChroma(s));
+  const skin = pick(skins);
+  if (!skin) return null;
+  return {
+    champion: champ.name,
+    name: skin.num === 0 ? champ.name : skin.name,
+    splash: `${DDRAGON}/cdn/img/champion/splash/${champ.id}_${skin.num}.jpg`,
+    loading: `${DDRAGON}/cdn/img/champion/loading/${champ.id}_${skin.num}.jpg`,
+  };
+}
+
 // what to randomize; "all" = the full challenge loadout.
 // ARAM has no champion pick, no lanes, and a fixed Flash + Snowball.
+const ALL = ["champion", "role", "spells", "runes", "skills", "items"];
+const PICK = ["item", "skin"];                 // singular rolls used only by the modular picker
+const VALID = new Set([...ALL, ...PICK]);
 const ARAM_SKIP = ["champion", "role", "spells"];
 function parseRoll(param, mode) {
-  const all = ["champion", "role", "spells", "runes", "skills", "items"];
-  if (!param || param === "all") return new Set(mode === "aram" ? all.filter(p => !ARAM_SKIP.includes(p)) : all);
-  const set = new Set(param.split(",").map(s => s.trim()).filter(s => all.includes(s)));
+  if (!param || param === "all")
+    return new Set(mode === "aram" ? ALL.filter(p => !ARAM_SKIP.includes(p)) : ALL);
+  const set = new Set(param.split(",").map(s => s.trim()).filter(s => VALID.has(s)));
   if (mode === "aram") for (const p of ARAM_SKIP) set.delete(p);
   return set;
 }
@@ -70,7 +100,7 @@ export function generate(data, { mode, roll, version, pin = {} }) {
     else if (pin.role) out.role = pin.role;
   }
 
-  if (roll.has("spells")) out.spells = pickTwo(data.spells[mode]).map(s => shapeSpell(s, version));
+  if (roll.has("spells")) out.spells = randomSpells(data, mode, out.role ?? pin.role, version);
   else if (pin.spells?.length) out.spells = pin.spells.map(id => data.spellById[id]).filter(Boolean).map(s => shapeSpell(s, version));
 
   if (roll.has("skills")) out.skills = shuffle(["Q", "W", "E"]);
@@ -81,6 +111,13 @@ export function generate(data, { mode, roll, version, pin = {} }) {
 
   if (roll.has("items")) out.items = randomItems(data, mode).map(i => shapeItem(i, version));
   else if (pin.items?.length) out.items = pin.items.map(id => data.itemById[id]).filter(Boolean).map(i => shapeItem(i, version));
+
+  // picker: a single random legendary, separate from the full build above
+  if (roll.has("item")) {
+    const pool = data.legendaries.sr.length ? data.legendaries.sr : data.legendaries.aram;
+    const it = pick(pool);
+    if (it) out.item = shapeItem(it, version);
+  }
 
   if (out.champion && out.items) out.cursedness = cursedness(out);
   return out;
@@ -132,6 +169,19 @@ function randomRunes(trees) {
       return { name: s.name, icon: img(`perk-images/StatMods/${s.icon}`), idx };
     }),
   };
+}
+
+// SR junglers always run Smite; everyone else gets two distinct spells for the mode
+function randomSpells(data, mode, role, version) {
+  const pool = data.spells[mode];
+  if (mode === "sr" && role === "Jungle") {
+    const smite = pool.find(s => s.id === "SummonerSmite");
+    if (smite) {
+      const other = pick(pool.filter(s => s.id !== "SummonerSmite"));
+      return shuffle([smite, other].filter(Boolean)).map(s => shapeSpell(s, version));
+    }
+  }
+  return pickTwo(pool).map(s => shapeSpell(s, version));
 }
 
 function randomItems(data, mode) {

@@ -8,7 +8,7 @@
 
 <PageTitle>@Loc["lol.team.title"]</PageTitle>
 
-<div class="ghub-ambient lol-shell" style="@_bgStyle">
+<div class="ghub-ambient lol-shell @(_hudHidden ? "hud-hidden" : "")" style="@_bgStyle">
 
     <div class="lol-bg" aria-hidden="true"><div class="lol-bg-photo"></div></div>
 
@@ -16,17 +16,20 @@
 
     <div class="lol-topbar">
         <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
-        @if (Rolled)
-        {
-            <div class="lol-actions">
+        <div class="lol-actions">
+            <button class="lol-icon-btn lol-eye" title="@(_hudHidden ? Loc["lol.showHud"] : Loc["lol.hideHud"])" @onclick="ToggleHud">
+                <i class="bi @(_hudHidden ? "bi-eye-slash" : "bi-eye")"></i>
+            </button>
+            @if (Rolled)
+            {
                 <button class="lol-icon-btn" title="@(_shared ? Loc["lol.shareCopied"] : Loc["lol.team.share"])" @onclick="Share">
                     <i class="bi @(_shared ? "bi-check2" : "bi-share-fill")"></i>
                 </button>
                 <button class="lol-icon-btn" title="@(_copied ? Loc["lol.copied"] : Loc["lol.team.copy"])" @onclick="Copy">
                     <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
                 </button>
-            </div>
-        }
+            }
+        </div>
     </div>
 
     <header class="lol-head">
@@ -99,6 +102,7 @@
     private bool _loading;
     private bool _copied;
     private bool _shared;
+    private bool _hudHidden;
     private string? _error;
     private string? _bgStyle;
 
@@ -118,6 +122,8 @@
     }
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    private void ToggleHud() => _hudHidden = !_hudHidden;
 
     public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
