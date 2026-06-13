@@ -989,6 +989,26 @@ select.tool-input-small option {
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+.wheel-result-list {
+    padding: 14px 22px;
+}
+
+.wheel-winners {
+    margin: 6px 0 0;
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.wheel-winners li {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    word-break: break-word;
+}
+
 .wheel-panel {
     width: min(360px, 92vw);
     gap: 14px;

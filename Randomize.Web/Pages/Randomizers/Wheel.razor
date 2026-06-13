@@ -15,10 +15,22 @@
         <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
 
         <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
-            @(_spinning ? Loc["wheel.spinning"] : Loc["wheel.spinBtn"])
+            @SpinLabel
         </button>
 
-        @if (!string.IsNullOrEmpty(selectedResult))
+        @if (_winners.Count > 0)
+        {
+            <div class="wheel-result wheel-result-list" @key="_winners.Count">
+                <span class="wheel-result-label">@Loc["wheel.winners"]</span>
+                <ol class="wheel-winners">
+                    @foreach (var w in _winners)
+                    {
+                        <li>@w</li>
+                    }
+                </ol>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(selectedResult))
         {
             <div class="wheel-result" @key="_spinCount">
                 <span class="wheel-result-label">@Loc["wheel.winner"]</span>
@@ -39,14 +51,29 @@
 
         <div class="option-row option-row-wrap">
             <label>
-                <input type="checkbox" @bind="_eliminate" disabled="@_spinning" />
+                <input type="checkbox" @bind="_eliminate" disabled="@(_spinning || _raffle)" />
                 @Loc["wheel.eliminate"]
             </label>
             <label>
                 <input type="checkbox" checked="@_weighted" @onchange="ToggleWeighted" disabled="@_spinning" />
                 @Loc["wheel.weighted"]
             </label>
+            <label>
+                <input type="checkbox" checked="@_raffle" @onchange="ToggleRaffle" disabled="@_spinning" />
+                @Loc["wheel.raffle"]
+            </label>
         </div>
+
+        @if (_raffle)
+        {
+            <div class="option-row">
+                <label>
+                    <span class="opt-key">@Loc["wheel.drawCount"]</span>
+                    <input type="number" min="1" max="15" class="tool-input-small"
+                           disabled="@_spinning" @bind="_drawCount" />
+                </label>
+            </div>
+        }
 
         <div class="wheel-labels @(_weighted ? "is-weighted" : "")">
             @for (int i = 0; i < items.Count; i++)
@@ -161,6 +188,9 @@
     private bool _spinning;
     private bool _eliminate;
     private bool _weighted;
+    private bool _raffle;
+    private int _drawCount = 2;
+    private readonly List<string> _winners = new();
     private string _saveName = "";
     private List<SavedWheel> _saved = new();
     private const string SavedKey = "wheel.saved";
@@ -179,6 +209,11 @@
 
     // saving needs at least two filled labels, but tolerates blank ones
     private bool CanSave => items.Count(i => !string.IsNullOrWhiteSpace(i.Label)) >= 2;
+
+    private string SpinLabel =>
+        _spinning ? Loc["wheel.spinning"]
+        : _raffle ? $"{Loc["wheel.drawBtn"]} {Math.Clamp(_drawCount, 1, Math.Max(1, items.Count - 1))}"
+        : Loc["wheel.spinBtn"];
 
     protected override void OnInitialized()
     {
@@ -283,38 +318,96 @@
         if (!CanSpin)
             return;
 
+        if (_raffle)
+        {
+            await Draw();
+            return;
+        }
+
         _spinning = true;
         selectedResult = "";
+        _winners.Clear();
         StateHasChanged();
 
-        int winner = await JS.InvokeAsync<int>("spinWheel", new object[] { WheelPayload() });
-
+        int winner = await SpinOnce();
         if (winner >= 0 && winner < items.Count)
         {
             selectedResult = items[winner].Label;
             _spinCount++;
-            Stats.Increment("wheel");
-            _history.Insert(0, selectedResult);
-            if (_history.Count > 8)
-                _history.RemoveAt(_history.Count - 1);
+            AddHistory(selectedResult);
             StateHasChanged();
-
-            await JS.InvokeVoidAsync("celebrate");
 
             // elimination mode: drop winner, keep at least 2
             if (_eliminate && items.Count > 2)
             {
-                items.RemoveAt(winner);
-                _count = items.Count;
-                rawCountInput = items.Count.ToString();
-                for (int i = 0; i < items.Count; i++)
-                    items[i].Placeholder = $"{Loc["wheel.option"]} {i + 1}";
+                RemoveWinner(winner);
                 await RenderWheel();
             }
         }
 
         _spinning = false;
         StateHasChanged();
+    }
+
+    // raffle: spin repeatedly, removing each winner, until we've drawn the target count
+    private async Task Draw()
+    {
+        selectedResult = "";
+        _winners.Clear();
+        _spinning = true;
+        StateHasChanged();
+
+        int target = Math.Clamp(_drawCount, 1, Math.Max(1, items.Count - 1));
+        for (int k = 0; k < target && items.Count >= 2; k++)
+        {
+            int winner = await SpinOnce();
+            if (winner < 0 || winner >= items.Count) break;
+
+            _winners.Add(items[winner].Label);
+            AddHistory(items[winner].Label);
+            RemoveWinner(winner);
+            await RenderWheel();
+            StateHasChanged();
+        }
+
+        _spinning = false;
+        StateHasChanged();
+    }
+
+    // one animated spin; counts the stat and celebrates a valid landing
+    private async Task<int> SpinOnce()
+    {
+        int winner = await JS.InvokeAsync<int>("spinWheel", new object[] { WheelPayload() });
+        if (winner >= 0 && winner < items.Count)
+        {
+            Stats.Increment("wheel");
+            await JS.InvokeVoidAsync("celebrate");
+        }
+        return winner;
+    }
+
+    // drop a slice and renumber the remaining placeholders
+    private void RemoveWinner(int idx)
+    {
+        items.RemoveAt(idx);
+        _count = items.Count;
+        rawCountInput = items.Count.ToString();
+        for (int i = 0; i < items.Count; i++)
+            items[i].Placeholder = $"{Loc["wheel.option"]} {i + 1}";
+    }
+
+    private void AddHistory(string label)
+    {
+        _history.Insert(0, label);
+        if (_history.Count > 8)
+            _history.RemoveAt(_history.Count - 1);
+    }
+
+    private Task ToggleRaffle()
+    {
+        _raffle = !_raffle;
+        ClearResult();
+        return Task.CompletedTask;
     }
 
     private async Task OnLabelInput(ChangeEventArgs e, int index)
@@ -419,7 +512,11 @@
 
     private void ClearHistory() => _history.Clear();
 
-    private void ClearResult() => selectedResult = "";
+    private void ClearResult()
+    {
+        selectedResult = "";
+        _winners.Clear();
+    }
 
     // serialized to localStorage under SavedKey
     private class SavedWheel
