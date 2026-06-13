@@ -1019,6 +1019,104 @@ select.tool-input-small option {
     padding-right: 6px;
 }
 
+.wheel-presets,
+.wheel-saved {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+}
+
+.wheel-section-label {
+    font-size: 0.74rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #888;
+}
+
+.wheel-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.wheel-preset-chip {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wheel-preset-chip:hover:not(:disabled) {
+    color: #fff;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.wheel-preset-chip:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.wheel-save-row {
+    display: flex;
+    gap: 6px;
+}
+
+.wheel-save-row .tool-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.wheel-saved-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.wheel-saved-load {
+    max-width: 160px;
+    padding: 4px 4px 4px 12px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: #ddd;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+}
+
+.wheel-saved-load:hover:not(:disabled) {
+    color: var(--accent-text);
+}
+
+.wheel-saved-del {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px 4px 4px;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.wheel-saved-del:hover {
+    color: #ef6f6c;
+}
+
 .wheel-history {
     display: flex;
     flex-direction: column;

@@ -71,6 +71,46 @@
             }
         </div>
 
+        <div class="wheel-presets">
+            <span class="wheel-section-label">@Loc["wheel.presets"]</span>
+            <div class="wheel-chip-row">
+                <button class="wheel-preset-chip" disabled="@_spinning"
+                        @onclick='() => ApplyPreset(new[] { Loc["wheel.preset.yes"], Loc["wheel.preset.no"] })'>@Loc["wheel.preset.yesno"]</button>
+                <button class="wheel-preset-chip" disabled="@_spinning"
+                        @onclick='() => ApplyPreset(new[] { Loc["wheel.preset.heads"], Loc["wheel.preset.tails"] })'>@Loc["wheel.preset.coin"]</button>
+                <button class="wheel-preset-chip" disabled="@_spinning" @onclick="() => ApplyPreset(NumberRange(6))">1-6</button>
+                <button class="wheel-preset-chip" disabled="@_spinning" @onclick="() => ApplyPreset(NumberRange(10))">1-10</button>
+            </div>
+        </div>
+
+        <div class="wheel-saved">
+            <span class="wheel-section-label">@Loc["wheel.saved"]</span>
+            <div class="wheel-save-row">
+                <input class="tool-input" placeholder="@Loc["wheel.savePlaceholder"]"
+                       @bind="_saveName" @bind:event="oninput" disabled="@_spinning" />
+                <button class="sh-mini-btn" @onclick="SaveCurrent"
+                        disabled="@(_spinning || string.IsNullOrWhiteSpace(_saveName) || !CanSave)">
+                    <i class="bi bi-bookmark-plus"></i> @Loc["wheel.save"]
+                </button>
+            </div>
+            @if (_saved.Count > 0)
+            {
+                <div class="wheel-chip-row">
+                    @foreach (var w in _saved)
+                    {
+                        var saved = w;
+                        <span class="wheel-saved-chip">
+                            <button class="wheel-saved-load" disabled="@_spinning"
+                                    @onclick="() => ApplySaved(saved)" title="@Loc["wheel.loadTitle"]">@saved.Name</button>
+                            <button class="wheel-saved-del" @onclick="() => DeleteSaved(saved)" title="@Loc["wheel.deleteTitle"]">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
         @if (_history.Count > 0)
         {
             <div class="wheel-history">
@@ -121,6 +161,9 @@
     private bool _spinning;
     private bool _eliminate;
     private bool _weighted;
+    private string _saveName = "";
+    private List<SavedWheel> _saved = new();
+    private const string SavedKey = "wheel.saved";
     private int _spinCount;
     private readonly List<string> _history = new();
 
@@ -133,6 +176,9 @@
         !_spinning &&
         items.Count >= 2 &&
         items.All(i => !string.IsNullOrWhiteSpace(i.Label));
+
+    // saving needs at least two filled labels, but tolerates blank ones
+    private bool CanSave => items.Count(i => !string.IsNullOrWhiteSpace(i.Label)) >= 2;
 
     protected override void OnInitialized()
     {
@@ -173,6 +219,8 @@
         if (firstRender)
         {
             await RenderWheel();
+            await LoadSaved();
+            StateHasChanged();
             if (_autoSpin && CanSpin)
             {
                 _autoSpin = false;
@@ -298,7 +346,91 @@
         return RenderWheel();
     }
 
+    // --- presets & saved wheels ---
+
+    private static string[] NumberRange(int n) =>
+        Enumerable.Range(1, n).Select(i => i.ToString()).ToArray();
+
+    private Task ApplyPreset(string[] labels) =>
+        LoadItems(labels.Select(l => (l, 1.0)).ToList());
+
+    private Task ApplySaved(SavedWheel w) =>
+        LoadItems(w.Items.Select(s => (s.Label, s.Weight)).ToList());
+
+    // fill the wheel from a label/weight set, resizing to fit (clamped 2..16)
+    private async Task LoadItems(List<(string Label, double Weight)> data)
+    {
+        int n = Math.Clamp(data.Count, 2, 16);
+        _count = n;
+        rawCountInput = n.ToString();
+        InitItems();
+        for (int i = 0; i < n && i < items.Count; i++)
+        {
+            items[i].Label = data[i].Label;
+            items[i].Weight = data[i].Weight <= 0 ? 1 : data[i].Weight;
+        }
+        if (data.Take(n).Any(d => d.Weight != 1)) _weighted = true;   // reveal weights if any differ
+        ClearResult();
+        await RenderWheel();
+    }
+
+    private async Task SaveCurrent()
+    {
+        var name = _saveName.Trim();
+        var slices = items
+            .Where(i => !string.IsNullOrWhiteSpace(i.Label))
+            .Select(i => new SavedSlice { Label = i.Label, Weight = i.Weight })
+            .ToList();
+        if (name.Length == 0 || slices.Count < 2) return;
+
+        _saved.RemoveAll(w => string.Equals(w.Name, name, StringComparison.OrdinalIgnoreCase));
+        _saved.Insert(0, new SavedWheel { Name = name, Items = slices });
+        if (_saved.Count > 12) _saved.RemoveRange(12, _saved.Count - 12);
+        _saveName = "";
+        await PersistSaved();
+    }
+
+    private async Task DeleteSaved(SavedWheel w)
+    {
+        _saved.Remove(w);
+        await PersistSaved();
+    }
+
+    private async Task LoadSaved()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", SavedKey);
+            if (!string.IsNullOrWhiteSpace(json))
+                _saved = System.Text.Json.JsonSerializer.Deserialize<List<SavedWheel>>(json) ?? new();
+        }
+        catch { _saved = new(); }
+    }
+
+    private async Task PersistSaved()
+    {
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(_saved);
+            await JS.InvokeVoidAsync("localStorage.setItem", SavedKey, json);
+        }
+        catch { /* storage blocked - keep in-memory copy */ }
+    }
+
     private void ClearHistory() => _history.Clear();
 
     private void ClearResult() => selectedResult = "";
+
+    // serialized to localStorage under SavedKey
+    private class SavedWheel
+    {
+        public string Name { get; set; } = "";
+        public List<SavedSlice> Items { get; set; } = new();
+    }
+
+    private class SavedSlice
+    {
+        public string Label { get; set; } = "";
+        public double Weight { get; set; } = 1;
+    }
 }
