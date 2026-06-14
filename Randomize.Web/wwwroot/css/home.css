@@ -154,6 +154,7 @@
 .home-feature-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 1fr;   /* every card the same height */
     gap: 14px;
     width: 100%;
     max-width: 1200px;
@@ -166,94 +167,156 @@
 
 .home-feature-card {
     position: relative;
+    isolation: isolate;   /* own stacking context: honeycomb < logo < text, always */
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: var(--surface-grad);
-    border: 1px solid var(--surface-border);
-    border-radius: 14px;
-    padding: 18px 16px 42px;
+    align-items: center;
+    justify-content: flex-start;   /* titles top-aligned so they share one Y line */
+    text-align: center;
+    gap: 8px;
+    box-sizing: border-box;
+    /* two accent blooms light the honeycomb seams; positions are randomised
+       per card via --b1/--b2 (set inline) so no two cards glow alike. Kept dim
+       and darkened so the cards sit in the near-black page, not jump off it. */
+    background:
+        radial-gradient(85% 110% at var(--b1, 18% 4%), color-mix(in srgb, color-mix(in srgb, var(--accent) 62%, #000) 16%, transparent) 0%, transparent 58%),
+        radial-gradient(85% 110% at var(--b2, 100% 100%), color-mix(in srgb, color-mix(in srgb, var(--accent) 62%, #000) 11%, transparent) 0%, transparent 62%),
+        linear-gradient(155deg,
+            color-mix(in srgb, var(--accent) 6%, color-mix(in srgb, var(--surface-solid) 82%, transparent)) 0%,
+            color-mix(in srgb, var(--surface-solid) 90%, transparent) 100%);
+    border: 1px solid color-mix(in srgb, var(--accent) 11%, var(--surface-border));
+    border-radius: 16px;
+    padding: 22px 18px 38px;
     color: #fff;
     text-decoration: none;
-    box-shadow: var(--surface-shadow);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     overflow: hidden;
     animation: home-fade-up 0.55s ease-out backwards;
 }
 
+/* honeycomb: matte hex tiles masked over the blooms, leaving the seams glowing
+   (same hexgrid mask as the gamers hub). Brightens on hover via opacity. */
+.home-feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(155deg, color-mix(in srgb, var(--accent) 4%, var(--surface-solid)) 0%, var(--surface-solid) 100%);
+    -webkit-mask: url('/brand/hexgrid.svg') 0 0 / 44px 76px repeat;
+    mask: url('/brand/hexgrid.svg') 0 0 / 44px 76px repeat;
+    opacity: 0.5;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.home-feature-card > * { position: relative; z-index: 2; }
+
+/* the feature logo, sitting on the honeycomb (like the team-comp splash) */
+.home-feature-card .home-feature-art {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    font-size: 7.5rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--accent) 68%, #000);
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.home-feature-card:hover .home-feature-art {
+    opacity: 0.4;
+    transform: scale(1.08);
+}
+
+/* the meals card's fork & knife is an inline SVG, sized like the glyph watermarks */
+.home-meal-glyph { width: 6rem; height: 6rem; }
+
+/* Songs keeps the real Spotify mark - brand identity, full colour */
+.home-feature-card .home-feature-art-spotify {
+    background: url('/brand/spotify-icon.svg') center / 5.4rem no-repeat;
+    opacity: 0.42;
+}
+
+.home-feature-card:hover .home-feature-art-spotify { opacity: 0.55; }
+
 .home-feature-card:nth-child(1) { animation-delay: 0.05s; }
-.home-feature-card:nth-child(2) { animation-delay: 0.12s; }
-.home-feature-card:nth-child(3) { animation-delay: 0.19s; }
-.home-feature-card:nth-child(4) { animation-delay: 0.26s; }
-.home-feature-card:nth-child(5) { animation-delay: 0.33s; }
+.home-feature-card:nth-child(2) { animation-delay: 0.10s; }
+.home-feature-card:nth-child(3) { animation-delay: 0.15s; }
+.home-feature-card:nth-child(4) { animation-delay: 0.20s; }
+.home-feature-card:nth-child(5) { animation-delay: 0.25s; }
 
 .home-feature-card:hover {
     transform: translateY(-3px);
-    border-color: var(--surface-border-hover);
-    box-shadow: var(--surface-shadow-hover);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--surface-border));
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* "coming soon" teaser - dashed so it reads as an invite, not a live tool */
-.home-feature-card-soon {
-    border-style: dashed;
-    border-color: color-mix(in srgb, var(--accent) 38%, var(--surface-border));
-}
-
-.home-feature-icon-soon {
-    background: var(--icon-grad, rgba(255, 255, 255, 0.06));
-    color: var(--accent);
-}
-
-.home-feature-icon {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: var(--icon-grad);
-    border: 1px solid var(--icon-border);
-    color: var(--accent-text);
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}
-
-.home-feature-icon i {
-    font-size: 1.1rem;
-}
-
-.home-feature-icon-text {
-    font-family: var(--app-font);
-}
+.home-feature-card:hover::before { opacity: 0.6; }
 
 .home-feature-title {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    font-weight: 700;
     color: #fff;
     margin: 0;
+    letter-spacing: -0.01em;
 }
 
 .home-feature-desc {
-    color: #888;
-    font-size: 0.82rem;
+    color: #c2bcd0;
+    font-size: 0.98rem;
     line-height: 1.4;
     margin: 0;
+    max-width: 24ch;
 }
 
 .home-feature-arrow {
     position: absolute;
-    bottom: 14px;
-    right: 16px;
-    color: #555;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: color-mix(in srgb, var(--accent) 60%, var(--text-muted, #777));
     font-size: 0.95rem;
-    transition: color 0.2s ease, transform 0.2s ease;
+    opacity: 0.65;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .home-feature-card:hover .home-feature-arrow {
-    color: var(--accent-soft);
-    transform: translateX(3px);
+    opacity: 1;
+    transform: translateX(-50%) translateY(2px);
+}
+
+/* "coming soon" scaffold: a dashed, hatched blueprint placeholder */
+.home-feature-card-soon {
+    border-style: dashed;
+    border-width: 1.5px;
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--surface-border));
+    background:
+        repeating-linear-gradient(135deg,
+            transparent 0, transparent 12px,
+            color-mix(in srgb, var(--accent) 6%, transparent) 12px,
+            color-mix(in srgb, var(--accent) 6%, transparent) 24px),
+        color-mix(in srgb, var(--surface-solid) 55%, transparent);
+}
+
+.home-feature-card-soon::before { display: none; }
+
+.home-feature-card-soon .home-feature-title,
+.home-feature-card-soon .home-feature-desc { opacity: 0.8; }
+
+.home-soon-mark {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--surface-border));
+    color: var(--accent-text, var(--accent));
+    font-size: 1.1rem;
 }
 
 .home-tagline {
@@ -262,8 +325,12 @@
     margin: 36px auto 18px;
     padding: 28px 28px 24px;
     text-align: center;
-    background: var(--surface-grad);
-    border: 1px solid var(--surface-border);
+    /* same toned accent palette as the feature cards: dim blooms over the dark surface */
+    background:
+        radial-gradient(60% 130% at 10% 0%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 14%, transparent) 0%, transparent 56%),
+        radial-gradient(55% 130% at 100% 100%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 10%, transparent) 0%, transparent 58%),
+        var(--surface-grad);
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--surface-border));
     border-radius: 14px;
     box-shadow: var(--surface-shadow);
     box-sizing: border-box;
@@ -372,13 +439,13 @@
         gap: 10px;
     }
     .home-feature-card {
-        padding: 16px 12px 38px;
+        padding: 20px 12px 34px;
     }
     .home-feature-title {
-        font-size: 0.95rem;
+        font-size: 1.22rem;
     }
     .home-feature-desc {
-        font-size: 0.78rem;
+        font-size: 0.88rem;
     }
 }
 
@@ -389,13 +456,13 @@
         gap: 12px;
     }
     .home-feature-card {
-        padding: 16px 16px 40px;
+        padding: 20px 16px 36px;
     }
     .home-feature-title {
-        font-size: 1rem;
+        font-size: 1.35rem;
     }
     .home-feature-desc {
-        font-size: 0.82rem;
+        font-size: 0.95rem;
     }
 
     .home-tagline {
@@ -454,8 +521,12 @@ html[data-theme="default"] .home-feature-card {
     max-width: 1200px;
     margin: 18px auto 22px;
     padding: 22px 28px 24px;
-    background: var(--surface-grad);
-    border: 1px solid var(--surface-border);
+    /* same toned accent palette as the feature cards */
+    background:
+        radial-gradient(60% 130% at 10% 0%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 14%, transparent) 0%, transparent 56%),
+        radial-gradient(55% 130% at 100% 100%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 10%, transparent) 0%, transparent 58%),
+        var(--surface-grad);
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--surface-border));
     border-radius: 14px;
     box-shadow: var(--surface-shadow);
     box-sizing: border-box;

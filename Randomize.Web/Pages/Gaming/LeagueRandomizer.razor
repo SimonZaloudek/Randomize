@@ -8,7 +8,7 @@
 
 <PageTitle>@Loc["lol.bravery.title"]</PageTitle>
 
-<div class="ghub-ambient lol-shell" style="@_bgStyle">
+<div class="ghub-ambient lol-shell @(_hudHidden ? "hud-hidden" : "")" style="@_bgStyle">
 
     <div class="lol-bg" aria-hidden="true"><div class="lol-bg-photo"></div></div>
 
@@ -19,6 +19,9 @@
         @if (_l is not null)
         {
             <div class="lol-actions">
+                <button class="lol-icon-btn lol-eye" title="@(_hudHidden ? Loc["lol.showHud"] : Loc["lol.hideHud"])" @onclick="ToggleHud">
+                    <i class="bi @(_hudHidden ? "bi-eye-slash" : "bi-eye")"></i>
+                </button>
                 <button class="lol-icon-btn" title="@(_shared ? Loc["lol.shareCopied"] : Loc["lol.share"])" @onclick="Share">
                     <i class="bi @(_shared ? "bi-check2" : "bi-share-fill")"></i>
                 </button>
@@ -194,6 +197,7 @@
     private bool _loading;
     private bool _copied;
     private bool _shared;
+    private bool _hudHidden;
     private string? _error;
     private readonly HashSet<string> _locked = new();
 
@@ -227,6 +231,8 @@
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
+    private void ToggleHud() => _hudHidden = !_hudHidden;
+
     public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
 
     private Task SetMode(string mode)
@@ -244,7 +250,14 @@
     }
 
     private Task RerollParts(params string[] parts)
-        => parts.Length == 0 ? Task.CompletedTask : Fetch($"mode={_mode}&roll={string.Join(",", parts)}");
+    {
+        if (parts.Length == 0) return Task.CompletedTask;
+        var query = $"mode={_mode}&roll={string.Join(",", parts)}";
+        // rerolling spells alone: tell the server the current role so SR junglers keep Smite
+        if (_mode == "sr" && parts.Contains("spells") && !parts.Contains("role") && _l?.Role is not null)
+            query += $"&ro={Uri.EscapeDataString(_l.Role)}";
+        return Fetch(query);
+    }
 
     private Task Hydrate()
         => Fetch($"mode={_mode}&roll=none" + P("c", C) + P("ro", Ro) + P("s", S) + P("sk", Sk) + P("i", I) + P("r", R) + P("sh", Sh));

@@ -65,69 +65,76 @@
     </div>
 
     <div class="home-feature-grid">
-        <NavLink href="/base" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-shuffle"></i></div>
+        <NavLink href="/base" class="home-feature-card" style="@_blooms[0]">
+            <i class="bi bi-shuffle home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.base.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.base.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/wheel" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-arrow-repeat"></i></div>
+        <NavLink href="/wheel" class="home-feature-card" style="@_blooms[1]">
+            <i class="bi bi-arrow-repeat home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.wheel.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.wheel.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/groupshuffler" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-people-fill"></i></div>
+        <NavLink href="/groupshuffler" class="home-feature-card" style="@_blooms[2]">
+            <i class="bi bi-people-fill home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.groupshuffler.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.groupshuffler.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/shiftplanner" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-clock"></i></div>
+        <NavLink href="/shiftplanner" class="home-feature-card" style="@_blooms[3]">
+            <i class="bi bi-clock home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.shiftplanner.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.shiftplanner.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/movies" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-film"></i></div>
+        <NavLink href="/movies" class="home-feature-card" style="@_blooms[4]">
+            <i class="bi bi-film home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.movies.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.movies.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/rps" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-scissors"></i></div>
+        <NavLink href="/rps" class="home-feature-card" style="@_blooms[5]">
+            <i class="bi bi-scissors home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.rps.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.rps.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/songs" class="home-feature-card">
-            <div class="home-feature-icon home-feature-icon-spotify"><img src="brand/spotify-icon.svg" alt="Spotify" /></div>
-            <div class="home-feature-title">@Loc["home.feature.songs.title"]</div>
-            <div class="home-feature-desc">@Loc["home.feature.songs.desc"]</div>
+        <NavLink href="/meals" class="home-feature-card" style="@_blooms[7]">
+            <span class="home-feature-art" aria-hidden="true"><MealIcon Class="home-meal-glyph" /></span>
+            <div class="home-feature-title">@Loc["home.feature.meals.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.meals.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/gamershub" class="home-feature-card">
-            <div class="home-feature-icon"><i class="bi bi-controller"></i></div>
+        <NavLink href="/gamershub" class="home-feature-card" style="@_blooms[8]">
+            <i class="bi bi-controller home-feature-art" aria-hidden="true"></i>
             <div class="home-feature-title">@Loc["home.feature.gamers.title"]</div>
             <div class="home-feature-desc">@Loc["home.feature.gamers.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
 
-        <NavLink href="/contact" class="home-feature-card home-feature-card-soon">
-            <div class="home-feature-icon home-feature-icon-soon"><i class="bi bi-stars"></i></div>
-            <div class="home-feature-title">@Loc["home.feature.soon.title"]</div>
-            <div class="home-feature-desc">@Loc["home.feature.soon.desc"]</div>
+        <NavLink href="/songs" class="home-feature-card" style="@_blooms[6]">
+            <span class="home-feature-art home-feature-art-spotify" aria-hidden="true"></span>
+            <div class="home-feature-title">@Loc["home.feature.songs.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.songs.desc"]</div>
             <i class="bi bi-arrow-right home-feature-arrow"></i>
         </NavLink>
+
+        <NavLink href="/contact" class="home-feature-card home-feature-card-soon">
+            <span class="home-soon-mark"><i class="bi bi-plus-lg"></i></span>
+            <div class="home-feature-title">@Loc["home.feature.soon.title"]</div>
+            <div class="home-feature-desc">@Loc["home.feature.soon.desc"]</div>
+        </NavLink>
     </div>
+
 
     <div class="home-tagline">
         <h2 class="home-tagline-title">@Loc["home.tagline"]</h2>
@@ -213,6 +220,13 @@
 
     private StatsSnapshot? _stats;
     private readonly CancellationTokenSource _cts = new();
+
+    // random bloom positions per card, generated once so they stay put across re-renders
+    private readonly string[] _blooms = Enumerable.Range(0, 9).Select(_ =>
+    {
+        var r = Random.Shared;
+        return $"--b1:{r.Next(0, 101)}% {r.Next(0, 40)}%;--b2:{r.Next(0, 101)}% {r.Next(60, 101)}%";
+    }).ToArray();
 
     protected override async Task OnInitializedAsync()
     {

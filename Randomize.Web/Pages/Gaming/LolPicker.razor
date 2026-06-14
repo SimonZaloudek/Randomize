@@ -1,0 +1,314 @@
+@page "/lol/picker"
+@using System.Net.Http.Json
+@using Randomize.Web.Data
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["lol.picker.title"]</PageTitle>
+
+<div class="ghub-ambient lol-shell @(_hudHidden ? "hud-hidden" : "")" style="@_bgStyle">
+
+    <div class="lol-bg" aria-hidden="true"><div class="lol-bg-photo"></div></div>
+
+    <div class="lol-page">
+
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+            <div class="lol-actions">
+                <button class="lol-icon-btn lol-eye" title="@(_hudHidden ? Loc["lol.showHud"] : Loc["lol.hideHud"])" @onclick="ToggleHud">
+                    <i class="bi @(_hudHidden ? "bi-eye-slash" : "bi-eye")"></i>
+                </button>
+            </div>
+        </div>
+
+        <header class="lol-head">
+            <h2 class="page-title">@Loc["lol.picker.title"]</h2>
+            <p class="lol-sub">@Loc["lol.picker.sub"]</p>
+
+            <div class="lol-controls">
+                <button class="lol-roll" @onclick="RollAll" disabled="@(LoadingAny || _rateLimited)">
+                    <i class="bi bi-dice-5-fill"></i> @Loc["lol.picker.rollAll"]
+                </button>
+            </div>
+        </header>
+
+        @if (_rateLimited)
+        {
+            <div class="pick-notice" role="alert">
+                <i class="bi bi-hourglass-split"></i> @Loc["lol.picker.rateLimited"]
+            </div>
+        }
+
+        <div class="pick-grid">
+
+            <!-- Champion -->
+            <section class="pick-tile">
+                <div class="pick-tile-head">
+                    <span class="pick-tile-title">@Loc["lol.picker.champion"]</span>
+                    <button class="lol-mini" @onclick="RollChampion" disabled="@(_loadingChampion || _rateLimited)" title="@Loc["lol.tip.reroll"]">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </div>
+                <div class="pick-tile-body pick-splash" style="background-image:url('@_champion?.Splash')">
+                    @if (_champion is not null)
+                    {
+                        <div class="pick-splash-info">
+                            <h3 class="pick-name">@_champion.Name</h3>
+                            <span class="pick-meta">@_champion.Title</span>
+                            <div class="lol-tags">
+                                @foreach (var t in _champion.Roles)
+                                {
+                                    <span class="lol-tag">@t</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="pick-empty">@Loc["lol.picker.empty"]</span>
+                    }
+                </div>
+            </section>
+
+            <!-- Skin -->
+            <section class="pick-tile">
+                <div class="pick-tile-head">
+                    <span class="pick-tile-title">@Loc["lol.picker.skin"]</span>
+                    <button class="lol-mini" @onclick="RollSkin" disabled="@(_loadingSkin || _rateLimited)" title="@Loc["lol.tip.reroll"]">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </div>
+                <div class="pick-tile-body pick-splash" style="background-image:url('@_skin?.Splash')">
+                    @if (_skin is not null)
+                    {
+                        <div class="pick-splash-info">
+                            <h3 class="pick-name">@_skin.Name</h3>
+                            <span class="pick-meta">@_skin.Champion</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="pick-empty">@Loc["lol.picker.empty"]</span>
+                    }
+                </div>
+            </section>
+
+            <!-- Item -->
+            <section class="pick-tile">
+                <div class="pick-tile-head">
+                    <span class="pick-tile-title">@Loc["lol.picker.item"]</span>
+                    <button class="lol-mini" @onclick="RollItem" disabled="@(_loadingItem || _rateLimited)" title="@Loc["lol.tip.reroll"]">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </div>
+                <div class="pick-tile-body pick-center">
+                    @if (_item is not null)
+                    {
+                        <img class="pick-item-icon" src="@_item.Icon" alt="@_item.Name" />
+                        <h3 class="pick-name">@_item.Name</h3>
+                        <span class="pick-meta pick-gold">@_item.Gold @Loc["lol.picker.gold"]</span>
+                    }
+                    else
+                    {
+                        <span class="pick-empty">@Loc["lol.picker.empty"]</span>
+                    }
+                </div>
+            </section>
+
+            <!-- Game mode -->
+            <section class="pick-tile">
+                <div class="pick-tile-head">
+                    <span class="pick-tile-title">@Loc["lol.picker.mode"]</span>
+                    <button class="lol-mini" @onclick="RollMode" title="@Loc["lol.tip.reroll"]">
+                        <i class="bi bi-dice-5"></i>
+                    </button>
+                </div>
+                <div class="pick-tile-body pick-center">
+                    @if (_mode is not null)
+                    {
+                        <h3 class="pick-name pick-mode-name">@_mode.Name</h3>
+                        <span class="pick-format">@_mode.Format</span>
+                    }
+                    else
+                    {
+                        <span class="pick-empty">@Loc["lol.picker.empty"]</span>
+                    }
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private Champion? _champion;
+    private Item? _item;
+    private Skin? _skin;
+    private GameMode? _mode;
+
+    private bool _loadingChampion;
+    private bool _loadingItem;
+    private bool _loadingSkin;
+    private bool LoadingAny => _loadingChampion || _loadingItem || _loadingSkin;
+
+    private bool _rateLimited;
+    private CancellationTokenSource? _cooldownCts;
+    private bool _hudHidden;
+
+    private string? _bgStyle;
+
+    // currently-available queues only (rotating game modes like URF/One for All
+    // come and go, so they're left out). Proper nouns + format, no translation.
+    private record GameMode(string Name, string Format);
+    private static readonly GameMode[] AllModes =
+    {
+        new("Ranked Solo/Duo", "5v5"),
+        new("Ranked Flex", "5v5"),
+        new("Normal Draft", "5v5"),
+        new("Quickplay", "5v5"),
+        new("ARAM", "5v5"),
+        new("Arena", "2v2v2v2"),
+        new("Co-op vs. AI", "5v5"),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        var theme = await JS.InvokeAsync<string?>("document.documentElement.getAttribute", "data-theme");
+        var bg = LolBackgrounds.Random(theme);
+        if (bg is not null) _bgStyle = $"--lol-bg-img:url('{bg}')";
+
+        await RollAll();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    private void ToggleHud() => _hudHidden = !_hudHidden;
+
+    public void Dispose()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        _cooldownCts?.Cancel();
+        _cooldownCts?.Dispose();
+    }
+
+    // one request for all three API tiles (the API rolls them together), so a
+    // "roll all" costs a single call instead of three
+    private async Task RollAll()
+    {
+        RollMode();
+        if (LoadingAny || _rateLimited) return;
+        _loadingChampion = _loadingItem = _loadingSkin = true;
+        StateHasChanged();
+
+        var r = await Fetch("champion,item,skin");
+        if (r?.Champion is not null) _champion = r.Champion;
+        if (r?.Item is not null) _item = r.Item;
+        if (r?.Skin is not null) _skin = r.Skin;
+
+        _loadingChampion = _loadingItem = _loadingSkin = false;
+        StateHasChanged();
+    }
+
+    private async Task RollChampion()
+    {
+        if (_loadingChampion) return;
+        _loadingChampion = true;
+        StateHasChanged();
+        var r = await Fetch("champion");
+        if (r?.Champion is not null) _champion = r.Champion;
+        _loadingChampion = false;
+        StateHasChanged();
+    }
+
+    private async Task RollItem()
+    {
+        if (_loadingItem) return;
+        _loadingItem = true;
+        StateHasChanged();
+        var r = await Fetch("item");
+        if (r?.Item is not null) _item = r.Item;
+        _loadingItem = false;
+        StateHasChanged();
+    }
+
+    private async Task RollSkin()
+    {
+        if (_loadingSkin) return;
+        _loadingSkin = true;
+        StateHasChanged();
+        var r = await Fetch("skin");
+        if (r?.Skin is not null) _skin = r.Skin;
+        _loadingSkin = false;
+        StateHasChanged();
+    }
+
+    // pick a different mode than the one showing
+    private void RollMode()
+    {
+        GameMode next;
+        do { next = AllModes[Random.Shared.Next(AllModes.Length)]; }
+        while (AllModes.Length > 1 && next == _mode);
+        _mode = next;
+    }
+
+    private async Task<PickResponse?> Fetch(string roll)
+    {
+        try
+        {
+            var res = await Http.GetAsync($"api/lol/random?roll={roll}");
+            if ((int)res.StatusCode == 429) { StartCooldown(); return null; }
+            if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<PickResponse>();
+        }
+        catch { return null; }
+    }
+
+    // server pushed back (429) - show the notice and pause rolls for ~10s
+    private void StartCooldown()
+    {
+        _cooldownCts?.Cancel();
+        _cooldownCts = new CancellationTokenSource();
+        var token = _cooldownCts.Token;
+        _rateLimited = true;
+        _ = Task.Run(async () =>
+        {
+            try { await Task.Delay(TimeSpan.FromSeconds(10), token); }
+            catch (TaskCanceledException) { return; }
+            _rateLimited = false;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    // --- models (subset of /api/lol/random output) ---
+    private class PickResponse
+    {
+        public Champion? Champion { get; set; }
+        public Item? Item { get; set; }
+        public Skin? Skin { get; set; }
+    }
+
+    private class Champion
+    {
+        public string Name { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string[] Roles { get; set; } = Array.Empty<string>();
+        public string Splash { get; set; } = "";
+    }
+
+    private class Item
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public int Gold { get; set; }
+    }
+
+    private class Skin
+    {
+        public string Champion { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Splash { get; set; } = "";
+    }
+}

@@ -1,0 +1,272 @@
+/* valorant.css - Valorant Ultimate Bravery (/valorant). Reuses the generic
+   lol topbar/mini/roll button utilities; everything structural is val-*. */
+
+.val-shell { --val-bg-img: none; }
+
+/* blurred map splash backdrop, bleeding under the content padding */
+.val-bg {
+    position: absolute;
+    inset: -36px;
+    z-index: -1;
+    overflow: hidden;
+    background: var(--content-bg, #08070f);
+}
+
+.val-bg-photo {
+    position: absolute;
+    inset: 0;
+    background: var(--val-bg-img, none) center / cover no-repeat;
+    filter: blur(8px) brightness(0.5) saturate(1.05);
+    transform: scale(1.1);
+}
+
+.val-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(1100px 560px at 50% -80px, color-mix(in srgb, var(--accent) 24%, transparent), transparent 72%),
+        linear-gradient(180deg, rgba(8, 7, 12, 0.66) 0%, rgba(8, 7, 12, 0.5) 40%, rgba(8, 7, 12, 0.82) 100%);
+}
+
+.val-page {
+    position: relative;
+    width: 100%;
+    max-width: 1180px;
+    padding: 6px 4px 52px;
+    box-sizing: border-box;
+}
+
+/* ===== head ===== */
+.val-head { text-align: center; }
+.val-head .page-title { margin: 6px 0 10px !important; }
+
+.val-sub {
+    margin: 0 auto 6px;
+    max-width: 560px;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.val-controls { display: flex; justify-content: center; margin-top: 14px; }
+
+.val-error,
+.val-empty {
+    text-align: center;
+    color: var(--text-muted, #8b8794);
+    padding: 60px 0;
+    font-size: 1.05rem;
+}
+
+/* ===== board ===== */
+.val-board {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+    animation: val-rise 0.4s ease-out backwards;
+}
+
+@keyframes val-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ===== agent hero ===== */
+.val-agent {
+    position: relative;
+    overflow: hidden;
+    min-height: 240px;
+    display: flex;
+    align-items: stretch;
+    border-radius: 18px;
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--surface-border));
+    background: linear-gradient(120deg,
+        color-mix(in srgb, var(--accent) 14%, color-mix(in srgb, var(--surface-solid) 78%, transparent)) 0%,
+        color-mix(in srgb, var(--surface-solid) 86%, transparent) 60%);
+    box-shadow: var(--surface-shadow);
+}
+
+.val-agent-info {
+    position: relative;
+    z-index: 1;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    max-width: 62%;
+}
+
+.val-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    align-self: flex-start;
+    background: color-mix(in srgb, var(--accent) 82%, #000);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 13px;
+    border-radius: 999px;
+}
+
+.val-role img { width: 15px; height: 15px; }
+
+.val-agent-name {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.02;
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.7);
+}
+
+.val-abilities { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+
+.val-ability {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.val-ability img { width: 24px; height: 24px; }
+.val-ability span { font-size: 0.82rem; color: #e8e2f2; }
+
+/* the agent portrait, anchored to the bottom-right of the panel */
+.val-agent-portrait {
+    position: absolute;
+    right: -6px;
+    bottom: 0;
+    height: 108%;
+    max-width: 52%;
+    object-fit: contain;
+    object-position: bottom right;
+    filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.55));
+    pointer-events: none;
+}
+
+.val-card-actions {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+}
+
+/* ===== cards ===== */
+.val-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+.val-card {
+    background: linear-gradient(155deg,
+        color-mix(in srgb, var(--accent) 8%, color-mix(in srgb, var(--surface-solid) 72%, transparent)) 0%,
+        color-mix(in srgb, var(--surface-solid) 82%, transparent) 100%);
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--surface-border));
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.val-card-wide { grid-column: 1 / -1; }
+
+.val-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary, #fff);
+    margin-bottom: 14px;
+}
+
+.val-card-head > span:first-child { flex: 1; display: inline-flex; align-items: center; gap: 9px; }
+
+.val-card-head > span:first-child::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* weapon */
+.val-weapon { display: flex; align-items: center; gap: 14px; min-height: 78px; }
+.val-weapon-img { width: 60%; max-width: 230px; max-height: 70px; object-fit: contain; object-position: left center; }
+.val-weapon-name { margin: 0; font-size: 1.3rem; font-weight: 800; color: #fff; }
+.val-weapon-meta { color: var(--text-muted, #8b8794); font-size: 0.86rem; }
+
+/* map */
+.val-map {
+    position: relative;
+    min-height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+}
+
+.val-map::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(8, 7, 12, 0.9) 0%, rgba(8, 7, 12, 0.2) 55%, transparent 100%);
+}
+
+.val-map-info { position: relative; z-index: 1; padding: 12px 14px; }
+
+.val-side {
+    display: inline-block;
+    background: color-mix(in srgb, var(--accent) 82%, #000);
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+}
+
+.val-map-name { margin: 0; font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
+
+/* rule */
+.val-rule {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ===== hud-hidden: tuck the panels to admire the map splash ===== */
+.val-head,
+.val-board { transition: opacity 0.3s ease; }
+.val-bg::before { transition: opacity 0.3s ease; }
+
+.val-shell.hud-hidden .val-head,
+.val-shell.hud-hidden .val-board { opacity: 0; pointer-events: none; }
+
+.val-shell.hud-hidden .val-bg-photo { filter: brightness(0.92) saturate(1.06); transform: none; }
+.val-shell.hud-hidden .val-bg::before { opacity: 0.25; }
+
+.val-shell.hud-hidden .lol-topbar .hub-back,
+.val-shell.hud-hidden .lol-actions .lol-icon-btn:not(.lol-eye) { visibility: hidden; }
+
+@media (max-width: 720px) {
+    .val-cards { grid-template-columns: 1fr; }
+    .val-agent-info { max-width: 100%; }
+    .val-agent-portrait { opacity: 0.4; max-width: 70%; }
+    .val-agent-name { font-size: 1.9rem; }
+}
