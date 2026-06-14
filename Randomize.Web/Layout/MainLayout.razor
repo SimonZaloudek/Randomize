@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Routing
 @inject LocalizationService Loc
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 @implements IDisposable
 
 <!-- song-colour glow that rings the app card; lit only while a song plays -->
@@ -35,6 +36,9 @@
             </NavLink>
             <NavLink href="/movies" class="nav-item">
                 <i class="bi bi-film"></i> @Loc["nav.movies"]
+            </NavLink>
+            <NavLink href="/meals" class="nav-item">
+                <MealIcon Class="nav-meal-icon" /> @Loc["nav.meals"]
             </NavLink>
             <NavLink href="/gamershub" class="nav-item">
                 <i class="bi bi-controller"></i> @Loc["nav.gamers"]
@@ -82,6 +86,13 @@
             </button>
         }
 
+        @if (ShowBack)
+        {
+            <button class="content-back" @onclick="GoBack">
+                <i class="bi bi-arrow-left"></i> @Loc["nav.back"]
+            </button>
+        }
+
         @Body
 
         <!-- Songs lives here (not as a routed page) so it stays alive across
@@ -118,6 +129,18 @@
         RollBlooms();
         InvokeAsync(StateHasChanged);
     }
+
+    // back button on every page except home and the hubs that carry their own back
+    private bool ShowBack
+    {
+        get
+        {
+            var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/').ToLowerInvariant();
+            return path.Length > 0 && path != "gamershub" && !path.StartsWith("lol");
+        }
+    }
+
+    private async Task GoBack() => await JS.InvokeVoidAsync("history.back");
 
     private void RollBlooms()
     {

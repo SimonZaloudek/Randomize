@@ -77,7 +77,7 @@
 }
 
 .about-acc {
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, #fff 4%, var(--surface-solid));
     border: 1px solid var(--surface-border);
     border-radius: 12px;
     overflow: hidden;
@@ -117,6 +117,7 @@
 }
 
     .about-acc-icon img { width: 18px; height: 18px; }
+    .about-acc-icon svg { width: 19px; height: 19px; }
 
 .about-acc-title {
     color: #fff;
@@ -256,6 +257,14 @@
     background: var(--accent);
     -webkit-mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
     mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
+}
+
+.about-hub-val-logo {
+    width: 17px;
+    height: 17px;
+    background: var(--accent);
+    -webkit-mask: url('/brand/valorant.svg') center / contain no-repeat;
+    mask: url('/brand/valorant.svg') center / contain no-repeat;
 }
 
 .about-hub-tool > p {

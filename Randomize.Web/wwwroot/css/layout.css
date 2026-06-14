@@ -36,6 +36,50 @@
         opacity: 1;
     }
 
+/* global "back to previous page" pill, top-left of the content (mirrors .hub-back) */
+.content-back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 16px;
+    padding: 7px 15px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted, #8b8794);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.content-back:hover {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.content-back i { font-size: 0.9rem; }
+
+/* pages that carry their own in-page back (hub-back) don't need the global one */
+.content:has(.hub-back) .content-back { display: none; }
+
+/* shared "Powered by <source>" credit line under a page header */
+.powered-credit {
+    margin: -4px 0 18px;
+    font-size: 0.8rem;
+    color: var(--text-muted, #8b8794);
+}
+
+.powered-credit a { color: var(--accent-text, var(--accent)); text-decoration: none; }
+.powered-credit a:hover { text-decoration: underline; }
+
+/* on mobile the hamburger sits top-left, so push the back pill clear of it */
+@media (max-width: 767px) {
+    .content-back { margin-left: 44px; }
+}
+
 .sidebar-toggle {
     position: absolute;
     top: 7px;
@@ -250,6 +294,14 @@
         margin-right: 10px;
     }
 
+    /* custom fork & knife icon, sized to sit with the bi nav icons */
+    .nav-meal-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+
 
 
 
@@ -262,13 +314,15 @@
     /* Honeycomb content backdrop: dark hex combs (top svg layer) over two muted
        accent blooms, over the themed base. The blooms give the gradient glow -
        the seams light up near a bloom and fade to dark, like the cards / gamers
-       hub. Background layers clip to .content automatically (never the navbar)
-       and stay put as the content scrolls. Excluded on own-backdrop pages below. */
+       hub. Background layers clip to .content automatically (never the navbar).
+       background-attachment:local makes them span the full scroll height and move
+       with the content. Excluded on own-backdrop pages below. */
     background:
         url('/brand/hexgrid-dark.svg') 0 0 / 56px 97px repeat,
         radial-gradient(85% 120% at var(--hb1, 18% 18%), color-mix(in srgb, color-mix(in srgb, var(--accent) 50%, #000) 14%, transparent) 0%, transparent 60%),
         radial-gradient(80% 115% at var(--hb2, 100% 100%), color-mix(in srgb, color-mix(in srgb, var(--accent) 50%, #000) 9%, transparent) 0%, transparent 64%),
         var(--content-bg, #111);
+    background-attachment: local, local, local, local;
     position: relative;
     overflow-y: auto;
     overflow-x: clip;
@@ -279,10 +333,11 @@
     align-items: center;
 }
 
-/* pages that carry their own full backdrop keep the plain base background */
+/* pages that carry their own full backdrop keep the plain base background.
+   .ghub-ambient covers the games / challenge / LoL / Valorant pages in one go. */
 .content:has(.home-page),
 .content:has(.ghub),
-.content:has(.lol-shell) { background: var(--content-bg, #111); }
+.content:has(.ghub-ambient) { background: var(--content-bg, #111); }
 
 /* default + light themes stay plain, no honeycomb */
 html[data-theme="default"] .content,

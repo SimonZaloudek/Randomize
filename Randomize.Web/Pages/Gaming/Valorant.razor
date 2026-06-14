@@ -1,0 +1,277 @@
+@page "/valorant"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["val.title"]</PageTitle>
+
+<div class="ghub-ambient val-shell @(_hudHidden ? "hud-hidden" : "")" style="@_bgStyle">
+
+    <div class="val-bg" aria-hidden="true"><div class="val-bg-photo"></div></div>
+
+    <div class="val-page">
+
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+            @if (_l is not null)
+            {
+                <div class="lol-actions">
+                    <button class="lol-icon-btn lol-eye" title="@(_hudHidden ? Loc["val.showHud"] : Loc["val.hideHud"])" @onclick="ToggleHud">
+                        <i class="bi @(_hudHidden ? "bi-eye-slash" : "bi-eye")"></i>
+                    </button>
+                    <button class="lol-icon-btn" title="@(_copied ? Loc["val.copied"] : Loc["val.copy"])" @onclick="Copy">
+                        <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <header class="val-head">
+            <h2 class="page-title">@Loc["val.title"]</h2>
+            <p class="val-sub">@Loc["val.sub"]</p>
+            <p class="powered-credit">@Loc["val.poweredBy"] <a href="https://dash.valorant-api.com" target="_blank" rel="noopener">valorant-api.com</a></p>
+
+            <div class="val-controls">
+                <button class="lol-roll" @onclick="RerollUnlocked" disabled="@_loading">
+                    <i class="bi bi-dice-5-fill"></i> @(_l is null ? Loc["val.roll"] : Loc["val.reroll"])
+                </button>
+            </div>
+        </header>
+
+        @if (_error is not null)
+        {
+            <div class="val-error">@_error</div>
+        }
+        else if (_l is not null)
+        {
+            <div class="val-board">
+
+                @if (_l.Agent is not null)
+                {
+                    <section class="val-agent">
+                        <div class="val-card-actions">@Lock("agent")@Reroll("agent")</div>
+                        <div class="val-agent-info">
+                            @if (_l.Agent.Role is not null)
+                            {
+                                <span class="val-role">
+                                    @if (_l.Agent.RoleIcon is not null)
+                                    {
+                                        <img src="@_l.Agent.RoleIcon" alt="" />
+                                    }
+                                    @_l.Agent.Role
+                                </span>
+                            }
+                            <h3 class="val-agent-name">@_l.Agent.Name</h3>
+                            <div class="val-abilities">
+                                @foreach (var ab in _l.Agent.Abilities)
+                                {
+                                    <div class="val-ability" title="@ab.Name">
+                                        <img src="@ab.Icon" alt="@ab.Name" />
+                                        <span>@ab.Name</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        @if (_l.Agent.Portrait is not null)
+                        {
+                            <img class="val-agent-portrait" src="@_l.Agent.Portrait" alt="@_l.Agent.Name" />
+                        }
+                    </section>
+                }
+
+                <div class="val-cards">
+
+                    @if (_l.Weapon is not null)
+                    {
+                        <section class="val-card">
+                            <div class="val-card-head"><span>@Loc["val.weapon"]</span>@Lock("weapon")@Reroll("weapon")</div>
+                            <div class="val-weapon">
+                                <img class="val-weapon-img" src="@_l.Weapon.Icon" alt="@_l.Weapon.Name" />
+                                <div class="val-weapon-text">
+                                    <h4 class="val-weapon-name">@_l.Weapon.Name</h4>
+                                    <span class="val-weapon-meta">@_l.Weapon.Category · @(_l.Weapon.Cost > 0 ? $"{_l.Weapon.Cost}" : Loc["val.free"])</span>
+                                </div>
+                            </div>
+                        </section>
+                    }
+
+                    @if (_l.Map is not null)
+                    {
+                        <section class="val-card">
+                            <div class="val-card-head"><span>@Loc["val.map"]</span>@Lock("map")@Reroll("map")</div>
+                            <div class="val-map" style="background-image:url('@_l.Map.Splash')">
+                                <div class="val-map-info">
+                                    <span class="val-side">@_l.Map.Side</span>
+                                    <h4 class="val-map-name">@_l.Map.Name</h4>
+                                </div>
+                            </div>
+                        </section>
+                    }
+
+                    @if (_l.Rule is not null)
+                    {
+                        <section class="val-card val-card-wide">
+                            <div class="val-card-head"><span>@Loc["val.rule"]</span>@Lock("rule")@Reroll("rule")</div>
+                            <p class="val-rule">@_l.Rule</p>
+                        </section>
+                    }
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="val-empty">@(_loading ? Loc["val.rolling"] : Loc["val.start"])</div>
+        }
+    </div>
+</div>
+
+@code {
+    private Loadout? _l;
+    private bool _loading;
+    private bool _copied;
+    private bool _hudHidden;
+    private string? _error;
+    private string? _bgStyle;
+    private readonly HashSet<string> _locked = new();
+
+    private static readonly string[] AllParts = { "agent", "weapon", "map", "rule" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        await RerollParts(AllParts);
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    private void ToggleHud() => _hudHidden = !_hudHidden;
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private Task RerollUnlocked()
+    {
+        var parts = AllParts.Where(p => !_locked.Contains(p)).ToArray();
+        return parts.Length == 0 ? Task.CompletedTask : RerollParts(parts);
+    }
+
+    private Task RerollParts(params string[] parts)
+        => parts.Length == 0 ? Task.CompletedTask : Fetch($"roll={string.Join(",", parts)}");
+
+    private async Task Fetch(string query)
+    {
+        if (_loading) return;
+        _loading = true;
+        _copied = false;
+        _error = null;
+        StateHasChanged();
+        try
+        {
+            var res = await Http.GetFromJsonAsync<Loadout>($"api/valorant/random?{query}");
+            if (res is null) { _error = Loc["val.err"]; return; }
+
+            _l ??= new Loadout();
+            if (res.Agent is not null) _l.Agent = res.Agent;
+            if (res.Weapon is not null) _l.Weapon = res.Weapon;
+            if (res.Map is not null) { _l.Map = res.Map; _bgStyle = $"--val-bg-img:url('{res.Map.Splash}')"; }
+            if (res.Rule is not null) _l.Rule = res.Rule;
+        }
+        catch
+        {
+            _error = Loc["val.err"];
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Copy()
+    {
+        if (_l is null) return;
+        var lines = new List<string>();
+        if (_l.Agent is not null) lines.Add($"{Loc["val.agent"]}: {_l.Agent.Name}{(_l.Agent.Role is null ? "" : $" ({_l.Agent.Role})")}");
+        if (_l.Weapon is not null) lines.Add($"{Loc["val.weapon"]}: {_l.Weapon.Name}");
+        if (_l.Map is not null) lines.Add($"{Loc["val.map"]}: {_l.Map.Name} ({_l.Map.Side})");
+        if (_l.Rule is not null) lines.Add($"{Loc["val.rule"]}: {_l.Rule}");
+        lines.Add("via userandomize.net/valorant");
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    private RenderFragment Reroll(string part) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini");
+        builder.AddAttribute(2, "title", Loc["val.tip.reroll"]);
+        builder.AddAttribute(3, "disabled", _loading);
+        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => RerollParts(part)));
+        builder.AddMarkupContent(5, "<i class=\"bi bi-dice-5\"></i>");
+        builder.CloseElement();
+    };
+
+    private RenderFragment Lock(string part) => builder =>
+    {
+        var locked = _locked.Contains(part);
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini" + (locked ? " active" : ""));
+        builder.AddAttribute(2, "title", locked ? Loc["val.tip.unlock"] : Loc["val.tip.lock"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => ToggleLock(part)));
+        builder.AddMarkupContent(4, locked ? "<i class=\"bi bi-lock-fill\"></i>" : "<i class=\"bi bi-unlock\"></i>");
+        builder.CloseElement();
+    };
+
+    private void ToggleLock(string part)
+    {
+        if (!_locked.Remove(part)) _locked.Add(part);
+    }
+
+    // --- models (match /api/valorant/random output) ---
+    private class Loadout
+    {
+        public Agent? Agent { get; set; }
+        public Weapon? Weapon { get; set; }
+        public MapInfo? Map { get; set; }
+        public string? Rule { get; set; }
+    }
+
+    private class Agent
+    {
+        public string Name { get; set; } = "";
+        public string? Role { get; set; }
+        public string? RoleIcon { get; set; }
+        public string Icon { get; set; } = "";
+        public string? Portrait { get; set; }
+        public Ability[] Abilities { get; set; } = Array.Empty<Ability>();
+    }
+
+    private class Ability
+    {
+        public string Slot { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+    }
+
+    private class Weapon
+    {
+        public string Name { get; set; } = "";
+        public string Category { get; set; } = "";
+        public int Cost { get; set; }
+        public string Icon { get; set; } = "";
+    }
+
+    private class MapInfo
+    {
+        public string Name { get; set; } = "";
+        public string? Splash { get; set; }
+        public string? Icon { get; set; }
+        public string Side { get; set; } = "";
+    }
+}

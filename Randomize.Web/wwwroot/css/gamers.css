@@ -168,26 +168,47 @@ html[data-theme="crimson"]  .ghub-section-lol { --lol-splash: url('https://ddrag
 html[data-theme="tropical"] .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_37.jpg'); }
 html[data-theme="forest"]   .ghub-section-lol { --lol-splash: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Singed_0.jpg'); }
 
+/* Valorant rides the active accent (--game); a per-theme agent render swaps in via
+   --val-splash (colour-matched to each theme), fed into the backdrop below. */
+.ghub-section-valorant { --val-splash: url('https://media.valorant-api.com/agents/8e253930-4c05-31dd-1b6c-968525494517/fullportrait.png'); }
+
+html[data-theme="default"]  .ghub-section-valorant { --val-splash: url('https://media.valorant-api.com/agents/add6443a-41bd-e414-f6ad-e58d267f4e95/fullportrait.png'); }
+html[data-theme="crimson"]  .ghub-section-valorant { --val-splash: url('https://media.valorant-api.com/agents/a3bfb853-43b2-7238-a4f1-ad90e9e46bcc/fullportrait.png'); }
+html[data-theme="tropical"] .ghub-section-valorant { --val-splash: url('https://media.valorant-api.com/agents/eb93336a-449b-9c1b-0a54-a891f7921d69/fullportrait.png'); }
+html[data-theme="forest"]   .ghub-section-valorant { --val-splash: url('https://media.valorant-api.com/agents/707eab51-4836-f488-046a-cda6bf494859/fullportrait.png'); }
+
+/* the agent portrait is a transparent character render, so anchor it bottom-right
+   and let the dark base show through; a left-to-right scrim keeps the header legible. */
+.ghub-section-valorant .ghub-section-art-img {
+    background-image:
+        linear-gradient(90deg, rgba(11, 9, 15, 0.92) 0%, rgba(11, 9, 15, 0.55) 38%, rgba(11, 9, 15, 0.12) 70%, transparent 100%),
+        var(--val-splash);
+    background-size: cover, auto 104%;
+    background-position: center, right -6px bottom;
+    -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+}
+
 /* light theme stays plain: no champion splash, no hex honeycomb */
 html[data-theme="light"] .ghub-section-art { display: none; }
 
 /* header sits over the splash - shadow keeps it legible. Light has no splash, so
    skip it there (dark text would just pick up a muddy halo). */
-html:not([data-theme="light"]) .ghub-section-lol .ghub-section-title,
-html:not([data-theme="light"]) .ghub-section-lol .ghub-section-sub {
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-section-title,
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-section-sub {
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* over the splash, lean the cards a little more transparent and shadow the text
    so it stays readable. Light has no splash, so it keeps the base card. */
-html:not([data-theme="light"]) .ghub-section-lol .ghub-card {
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card {
     background: linear-gradient(155deg,
         color-mix(in srgb, var(--game) 10%, color-mix(in srgb, var(--surface-solid) 16%, transparent)) 0%,
         color-mix(in srgb, var(--surface-solid) 26%, transparent) 100%);
 }
 
-html:not([data-theme="light"]) .ghub-section-lol .ghub-card-title { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
-html:not([data-theme="light"]) .ghub-section-lol .ghub-card-desc { color: #cbc6d6; }
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card-title { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card-desc { color: #cbc6d6; }
 
 /* ===== section watermark art - full-bleed, side to side ===== */
 .ghub-section-art {
@@ -270,6 +291,11 @@ html:not([data-theme="light"]) .ghub-section-lol .ghub-card-desc { color: #cbc6d
 .ghub-logo-lol {
     -webkit-mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
     mask: url('/brand/leagueoflegends.svg') center / contain no-repeat;
+}
+
+.ghub-logo-valorant {
+    -webkit-mask: url('/brand/valorant.svg') center / contain no-repeat;
+    mask: url('/brand/valorant.svg') center / contain no-repeat;
 }
 
 .ghub-section-title {

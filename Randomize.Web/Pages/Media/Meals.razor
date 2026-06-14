@@ -1,0 +1,278 @@
+@page "/meals"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["meals.title"]</PageTitle>
+
+<div class="meals">
+
+    <header class="meals-head">
+        <h2 class="page-title">@Loc["meals.title"]</h2>
+        <p class="meals-sub">@Loc["meals.sub"]</p>
+        <p class="powered-credit">@Loc["meals.poweredBy"] <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a></p>
+
+        <div class="meals-controls">
+            <div class="movies-multi">
+                <button type="button" class="movies-multi-trigger @(_openMenu == "cat" ? "open" : "")"
+                        aria-haspopup="listbox" aria-expanded="@(_openMenu == "cat" ? "true" : "false")"
+                        @onclick='() => ToggleMenu("cat")' disabled="@_loading">
+                    <span class="movies-multi-label">@Loc["meals.category"]</span>
+                    <span class="movies-multi-value">@(_category.Length == 0 ? Loc["meals.any"] : _category)</span>
+                    <i class="bi bi-chevron-down movies-multi-chevron"></i>
+                </button>
+                @if (_openMenu == "cat")
+                {
+                    <div class="movies-multi-backdrop" @onclick="CloseMenu"></div>
+                    <div class="movies-multi-panel" role="listbox">
+                        <div class="movies-multi-list">
+                            <button type="button" class="movies-multi-option @(_category.Length == 0 ? "active" : "")"
+                                    role="option" @onclick='() => SetCategory("")'><span>@Loc["meals.any"]</span></button>
+                            @foreach (var c in Categories)
+                            {
+                                var cat = c;
+                                <button type="button" class="movies-multi-option @(_category == cat ? "active" : "")"
+                                        role="option" @onclick="() => SetCategory(cat)"><span>@cat</span></button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="movies-multi">
+                <button type="button" class="movies-multi-trigger @(_openMenu == "area" ? "open" : "")"
+                        aria-haspopup="listbox" aria-expanded="@(_openMenu == "area" ? "true" : "false")"
+                        @onclick='() => ToggleMenu("area")' disabled="@_loading">
+                    <span class="movies-multi-label">@Loc["meals.cuisine"]</span>
+                    <span class="movies-multi-value">@(_area.Length == 0 ? Loc["meals.any"] : _area)</span>
+                    <i class="bi bi-chevron-down movies-multi-chevron"></i>
+                </button>
+                @if (_openMenu == "area")
+                {
+                    <div class="movies-multi-backdrop" @onclick="CloseMenu"></div>
+                    <div class="movies-multi-panel" role="listbox">
+                        <div class="movies-multi-list">
+                            <button type="button" class="movies-multi-option @(_area.Length == 0 ? "active" : "")"
+                                    role="option" @onclick='() => SetArea("")'><span>@Loc["meals.any"]</span></button>
+                            @foreach (var a in Areas)
+                            {
+                                var area = a;
+                                <button type="button" class="movies-multi-option @(_area == area ? "active" : "")"
+                                        role="option" @onclick="() => SetArea(area)"><span>@area</span></button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="meals-roll" @onclick="Roll" disabled="@_loading">
+                <i class="bi bi-dice-5-fill"></i>
+                @(_loading ? Loc["meals.rolling"] : _meal is null ? Loc["meals.roll"] : Loc["meals.reroll"])
+            </button>
+        </div>
+    </header>
+
+    @if (_error is not null)
+    {
+        <div class="meals-error">@_error</div>
+    }
+    else if (_meal is not null)
+    {
+        <article class="meal-card">
+            <div class="meal-hero" style="background-image:url('@_meal.Thumb')">
+                <div class="meal-hero-info">
+                    <h3 class="meal-name">@_meal.Name</h3>
+                    <div class="meal-badges">
+                        @if (_meal.Area is not null)
+                        {
+                            <span class="meal-badge meal-badge-area">@_meal.Area</span>
+                        }
+                        @if (_meal.Category is not null)
+                        {
+                            <span class="meal-badge">@_meal.Category</span>
+                        }
+                        @foreach (var t in _meal.Tags)
+                        {
+                            <span class="meal-tag">@t</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="meal-body">
+                <section class="meal-ingredients">
+                    <h4 class="meal-section-title">@Loc["meals.ingredients"]</h4>
+                    <ul class="meal-ingredient-list">
+                        @foreach (var ing in _meal.Ingredients)
+                        {
+                            <li class="meal-ingredient">
+                                <span class="meal-ing-name">@ing.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(ing.Measure))
+                                {
+                                    <span class="meal-ing-measure">@ing.Measure</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </section>
+
+                <section class="meal-instructions">
+                    <h4 class="meal-section-title">@Loc["meals.instructions"]</h4>
+                    @foreach (var para in Paragraphs(_meal.Instructions))
+                    {
+                        <p>@para</p>
+                    }
+                </section>
+            </div>
+
+            <div class="meal-footer">
+                <div class="meal-links">
+                    @if (_meal.Youtube is not null)
+                    {
+                        <a class="meal-link meal-link-yt" href="@_meal.Youtube" target="_blank" rel="noopener">
+                            <i class="bi bi-youtube"></i> @Loc["meals.watch"]
+                        </a>
+                    }
+                    @if (_meal.Source is not null)
+                    {
+                        <a class="meal-link" href="@_meal.Source" target="_blank" rel="noopener">
+                            <i class="bi bi-link-45deg"></i> @Loc["meals.source"]
+                        </a>
+                    }
+                </div>
+
+                @if (_meal.Delivery.Length > 0)
+                {
+                    <div class="meal-order">
+                        <span class="meal-order-label"><i class="bi bi-bag"></i> @Loc["meals.orderOn"]</span>
+                        <div class="meal-order-list">
+                            @foreach (var d in _meal.Delivery)
+                            {
+                                <a class="meal-order-link" href="@d.Url" target="_blank" rel="noopener">@d.Name</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </article>
+    }
+    else
+    {
+        <div class="meals-empty">@Loc["meals.start"]</div>
+    }
+</div>
+
+@code {
+    private Meal? _meal;
+    private bool _loading;
+    private string? _error;
+
+    private string _category = "";
+    private string _area = "";
+
+    // TheMealDB has 14 stable categories; its area list now includes ~195 mostly
+    // empty nationalities, so cuisines are the curated set that actually has recipes.
+    private static readonly string[] Categories =
+    {
+        "Beef", "Breakfast", "Chicken", "Dessert", "Goat", "Lamb", "Miscellaneous",
+        "Pasta", "Pork", "Seafood", "Side", "Starter", "Vegan", "Vegetarian",
+    };
+
+    private static readonly string[] Areas =
+    {
+        "American", "British", "Canadian", "Chinese", "Croatian", "Dutch", "Egyptian",
+        "Filipino", "French", "Greek", "Indian", "Irish", "Italian", "Jamaican", "Japanese",
+        "Kenyan", "Malaysian", "Mexican", "Moroccan", "Polish", "Portuguese", "Russian",
+        "Spanish", "Thai", "Tunisian", "Turkish", "Ukrainian", "Vietnamese",
+    };
+
+    private string? _openMenu;   // which dropdown is open ("cat" / "area")
+
+    private void ToggleMenu(string m) => _openMenu = _openMenu == m ? null : m;
+    private void CloseMenu() => _openMenu = null;
+
+    // the API filters one facet at a time, so picking one clears the other
+    private void SetCategory(string c)
+    {
+        _category = c;
+        if (c.Length > 0) _area = "";
+        _openMenu = null;
+    }
+
+    private void SetArea(string a)
+    {
+        _area = a;
+        if (a.Length > 0) _category = "";
+        _openMenu = null;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        await Roll();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private async Task Roll()
+    {
+        if (_loading) return;
+        _loading = true;
+        _error = null;
+        StateHasChanged();
+        try
+        {
+            var query = _category.Length > 0 ? $"?category={Uri.EscapeDataString(_category)}"
+                      : _area.Length > 0 ? $"?area={Uri.EscapeDataString(_area)}"
+                      : "";
+            var res = await Http.GetFromJsonAsync<Meal>($"api/meals/random{query}");
+            if (res is null) _error = Loc["meals.err"];
+            else _meal = res;
+        }
+        catch
+        {
+            _error = Loc["meals.err"];
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    // TheMealDB instructions come as one blob with \r\n breaks; split into paragraphs
+    private static IEnumerable<string> Paragraphs(string text) =>
+        (text ?? "")
+            .Replace("\r\n", "\n")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    // --- models (match /api/meals/random output) ---
+    private class Meal
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string? Category { get; set; }
+        public string? Area { get; set; }
+        public string? Thumb { get; set; }
+        public string Instructions { get; set; } = "";
+        public string[] Tags { get; set; } = Array.Empty<string>();
+        public Ingredient[] Ingredients { get; set; } = Array.Empty<Ingredient>();
+        public string? Youtube { get; set; }
+        public string? Source { get; set; }
+        public DeliveryLink[] Delivery { get; set; } = Array.Empty<DeliveryLink>();
+    }
+
+    private class Ingredient
+    {
+        public string Name { get; set; } = "";
+        public string Measure { get; set; } = "";
+    }
+
+    private class DeliveryLink
+    {
+        public string Name { get; set; } = "";
+        public string Url { get; set; } = "";
+    }
+}

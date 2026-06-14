@@ -1,0 +1,253 @@
+/* meals.css - Meal & Recipe randomizer (/meals) */
+
+.meals {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding-bottom: 48px;
+}
+
+.meals-head { text-align: center; }
+.meals-head .page-title { margin: 6px 0 10px !important; }
+
+.meals-sub {
+    margin: 0 auto 8px;
+    max-width: 540px;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.95rem;
+}
+
+
+.meals-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.meals-roll {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 28px;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent-soft, var(--accent)), var(--accent));
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 24%, transparent);
+    transition: transform 0.15s ease;
+}
+
+.meals-roll:hover:not(:disabled) { transform: translateY(-1px); }
+.meals-roll:disabled { opacity: 0.6; cursor: default; }
+
+.meals-error,
+.meals-empty {
+    text-align: center;
+    color: var(--text-muted, #8b8794);
+    padding: 50px 0;
+    font-size: 1.02rem;
+}
+
+/* ===== recipe card ===== */
+.meal-card {
+    margin-top: 24px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--surface-grad);
+    border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--surface-border));
+    box-shadow: var(--surface-shadow);
+    animation: meal-rise 0.4s ease-out backwards;
+}
+
+@keyframes meal-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.meal-hero {
+    position: relative;
+    min-height: 280px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+}
+
+.meal-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(8, 7, 12, 0.92) 0%, rgba(8, 7, 12, 0.35) 45%, transparent 80%);
+}
+
+.meal-hero-info {
+    position: relative;
+    z-index: 1;
+    padding: 22px 24px;
+    width: 100%;
+}
+
+.meal-name {
+    margin: 0 0 10px;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
+}
+
+.meal-badges { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.meal-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.meal-badge-area { background: color-mix(in srgb, var(--accent) 82%, #000); border-color: transparent; }
+
+.meal-tag {
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    color: #e6d6ff;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* ===== body: ingredients + instructions ===== */
+.meal-body {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) 1.4fr;
+    gap: 26px;
+    padding: 24px;
+}
+
+.meal-section-title {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.meal-section-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.meal-ingredient-list { list-style: none; margin: 0; padding: 0; }
+
+.meal-ingredient {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.meal-ing-name { color: var(--text-primary, #fff); font-size: 0.92rem; }
+.meal-ing-measure { color: var(--text-muted, #8b8794); font-size: 0.82rem; white-space: nowrap; }
+
+.meal-instructions p {
+    margin: 0 0 12px;
+    color: #c2bcd0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* ===== footer: source links (left) + delivery (right) ===== */
+.meal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 0 24px 24px;
+}
+
+.meal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.meal-order {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+    margin-left: auto;
+}
+
+.meal-order-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted, #8b8794);
+}
+
+.meal-order-list { display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }
+
+.meal-order-link {
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-primary, #fff);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--surface-border));
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.meal-order-link:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.meal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-primary, #fff);
+    background: color-mix(in srgb, var(--surface-solid) 55%, transparent);
+    border: 1px solid var(--surface-border);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.meal-link:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.meal-link-yt { background: color-mix(in srgb, #ff0000 18%, transparent); border-color: color-mix(in srgb, #ff0000 36%, transparent); }
+
+@media (max-width: 640px) {
+    .meal-body { grid-template-columns: 1fr; gap: 20px; }
+}
