@@ -319,26 +319,7 @@
     font-size: 1.1rem;
 }
 
-.home-tagline {
-    width: 100%;
-    max-width: 1200px;
-    margin: 36px auto 18px;
-    padding: 28px 28px 24px;
-    text-align: center;
-    /* same toned accent palette as the feature cards: dim blooms over the dark surface */
-    background:
-        radial-gradient(60% 130% at 10% 0%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 14%, transparent) 0%, transparent 56%),
-        radial-gradient(55% 130% at 100% 100%, color-mix(in srgb, color-mix(in srgb, var(--accent) 60%, #000) 10%, transparent) 0%, transparent 58%),
-        var(--surface-grad);
-    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--surface-border));
-    border-radius: 14px;
-    box-shadow: var(--surface-shadow);
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-}
-
-.home-tagline .home-stats-grid {
+.home-stats-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     width: 100%;
@@ -348,7 +329,7 @@
     border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.home-tagline .home-stat-pill {
+.home-stat-pill {
     background: transparent;
     border: none;
     border-radius: 0;
@@ -357,31 +338,17 @@
     transition: color 0.2s ease;
 }
 
-.home-tagline .home-stat-pill:hover {
+.home-stat-pill:hover {
     transform: none;
     background: transparent;
     border-color: transparent;
     box-shadow: none;
 }
 
-.home-tagline .home-stat-pill:hover .home-stat-icon {
+home-stat-pill:hover .home-stat-icon {
     color: var(--accent-soft);
 }
 
-.home-tagline-title {
-    color: #fff;
-    font-size: 1.4rem !important;
-    font-weight: 600;
-    margin: 0 0 10px !important;
-}
-
-.home-tagline-text {
-    color: #888 !important;
-    font-size: 0.95rem !important;
-    line-height: 1.5;
-    max-width: 720px;
-    margin: 0 auto !important;
-}
 
 .home-stats-grid {
     display: grid;
@@ -519,7 +486,7 @@ html[data-theme="default"] .home-feature-card {
 .home-livestats-card {
     width: 100%;
     max-width: 1200px;
-    margin: 18px auto 22px;
+    margin: 22px auto 22px !important;
     padding: 22px 28px 24px;
     /* same toned accent palette as the feature cards */
     background:
@@ -639,4 +606,4 @@ html[data-theme="default"] .home-feature-card {
     }
 }
 
-
+
