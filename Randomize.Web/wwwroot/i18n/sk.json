@@ -215,6 +215,8 @@
   "group.groupName": "Skupina",
 
   "wheel.title": "Koleso šťastia",
+  "wheel.question": "Otázka:",
+  "wheel.questionPh": "napr. Kto je GOAT?",
   "wheel.spinBtn": "Točiť",
   "wheel.spinning": "Točí sa…",
   "wheel.winner": "Víťaz",
@@ -223,6 +225,9 @@
   "wheel.weighted": "Vážené diely",
   "wheel.weight.title": "Váha dielu (väčšia = vyššia šanca)",
   "wheel.raffle": "Tombola (ťahaj viacerých)",
+  "wheel.images": "Obrázky na dieloch",
+  "wheel.imagesTitle": "Klikni na diel alebo naň pretiahni obrázok; ťahaním posúvaš, kolieskom približuješ",
+  "wheel.imageClearTitle": "odstrániť obrázok",
   "wheel.drawCount": "Víťazi:",
   "wheel.drawBtn": "Ťahať",
   "wheel.winners": "Víťazi",

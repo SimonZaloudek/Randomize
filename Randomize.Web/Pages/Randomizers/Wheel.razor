@@ -11,8 +11,18 @@
 <div class="wheel-layout">
 
     <div class="wheel-stage">
-        <!-- tap the wheel to spin -->
-        <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
+        @if (_goatLine is not null)
+        {
+            <div class="wheel-question wheel-result-goat">@_goatLine</div>
+        }
+        else if (!string.IsNullOrWhiteSpace(_question))
+        {
+            <div class="wheel-question">@_question</div>
+        }
+
+        <!-- tap the wheel to spin; in image mode the canvas belongs to image editing -->
+        <canvas id="wheelCanvas" class="wheel-canvas @(_images ? "is-image-mode" : "")"
+                width="320" height="320" @onclick="OnCanvasClick"></canvas>
 
         <button class="tool-btn wheel-spin-btn" @onclick="SpinWheel" disabled="@(!CanSpin)">
             @SpinLabel
@@ -21,6 +31,14 @@
         @if (_winners.Count > 0)
         {
             <div class="wheel-result wheel-result-list" @key="_winners.Count">
+                @if (_goatLine is not null)
+                {
+                    <span class="wheel-result-question wheel-result-goat">@_goatLine</span>
+                }
+                else if (!string.IsNullOrWhiteSpace(_question))
+                {
+                    <span class="wheel-result-question">@_question</span>
+                }
                 <span class="wheel-result-label">@Loc["wheel.winners"]</span>
                 <ol class="wheel-winners">
                     @foreach (var w in _winners)
@@ -33,6 +51,14 @@
         else if (!string.IsNullOrEmpty(selectedResult))
         {
             <div class="wheel-result" @key="_spinCount">
+                @if (_goatLine is not null)
+                {
+                    <span class="wheel-result-question wheel-result-goat">@_goatLine</span>
+                }
+                else if (!string.IsNullOrWhiteSpace(_question))
+                {
+                    <span class="wheel-result-question">@_question</span>
+                }
                 <span class="wheel-result-label">@Loc["wheel.winner"]</span>
                 <span class="wheel-result-value">🎉 @selectedResult</span>
             </div>
@@ -40,6 +66,16 @@
     </div>
 
     <div class="wheel-panel tool-card">
+        <div class="option-row">
+            <label class="wheel-question-row">
+                <span class="opt-key">@Loc["wheel.question"]</span>
+                <input class="tool-input" maxlength="80"
+                       placeholder="@Loc["wheel.questionPh"]"
+                       disabled="@_spinning"
+                       @bind="_question" @bind:event="oninput" />
+            </label>
+        </div>
+
         <div class="option-row">
             <label>
                 <span class="opt-key">@Loc["wheel.options"]</span>
@@ -61,6 +97,10 @@
             <label>
                 <input type="checkbox" checked="@_raffle" @onchange="ToggleRaffle" disabled="@_spinning" />
                 @Loc["wheel.raffle"]
+            </label>
+            <label title="@Loc["wheel.imagesTitle"]">
+                <input type="checkbox" checked="@_images" @onchange="ToggleImages" disabled="@_spinning" />
+                @Loc["wheel.images"]
             </label>
         </div>
 
@@ -93,6 +133,14 @@
                                disabled="@_spinning"
                                @oninput="e => OnWeightInput(e, idx)"
                                title="@Loc["wheel.weight.title"]" />
+                    }
+                    @if (_images && items[idx].HasImage)
+                    {
+                        <button type="button" class="wheel-img-clear" disabled="@_spinning"
+                                @onclick="() => ClearImage(idx)"
+                                title="@($"{items[idx].ImageFileName} - {Loc["wheel.imageClearTitle"]}")">
+                            <i class="bi bi-image"></i><i class="bi bi-x"></i>
+                        </button>
                     }
                 </div>
             }
@@ -185,6 +233,11 @@
 
     private List<WheelItem> items = new();
     private string selectedResult = "";
+    private string _question = "";
+    private string? _goatLine;    // replaces the question after a Messi win
+    private bool _images;
+    private int _nextId;
+    private DotNetObjectReference<Wheel>? _objRef;
     private bool _spinning;
     private bool _eliminate;
     private bool _weighted;
@@ -202,10 +255,11 @@
     [Parameter, SupplyParameterFromQuery] public bool Go { get; set; }
     private bool _autoSpin;
 
+    // a slice counts as filled when it has a label or an image
     private bool CanSpin =>
         !_spinning &&
         items.Count >= 2 &&
-        items.All(i => !string.IsNullOrWhiteSpace(i.Label));
+        items.All(i => !string.IsNullOrWhiteSpace(i.Label) || (_images && i.HasImage));
 
     // saving needs at least two filled labels, but tolerates blank ones
     private bool CanSave => items.Count(i => !string.IsNullOrWhiteSpace(i.Label)) >= 2;
@@ -247,12 +301,18 @@
         _ = RenderWheel();
     }
 
-    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+    public void Dispose()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        _objRef?.Dispose();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // drop image state left over from a previous visit (slice ids restart at 0)
+            await JS.InvokeVoidAsync("wheelImages.reset");
             await RenderWheel();
             await LoadSaved();
             StateHasChanged();
@@ -294,19 +354,27 @@
         var current = items;
         int n = _count ?? 2;
 
+        // keep each slice's identity (and thus its JS-side image) across resizes
         items = Enumerable.Range(1, n)
-            .Select(i => new WheelItem
+            .Select(i =>
             {
-                Label = current.ElementAtOrDefault(i - 1)?.Label ?? string.Empty,
-                Weight = current.ElementAtOrDefault(i - 1)?.Weight ?? 1,
-                Placeholder = $"{Loc["wheel.option"]} {i}"
+                var old = current.ElementAtOrDefault(i - 1);
+                return new WheelItem
+                {
+                    Id = old?.Id ?? _nextId++,
+                    Label = old?.Label ?? string.Empty,
+                    Weight = old?.Weight ?? 1,
+                    HasImage = old?.HasImage ?? false,
+                    ImageFileName = old?.ImageFileName,
+                    Placeholder = $"{Loc["wheel.option"]} {i}"
+                };
             })
             .ToList();
     }
 
     // labels + effective weights for the canvas; weights collapse to 1 when the toggle is off
     private object[] WheelPayload() =>
-        items.Select(i => (object)new { label = i.Label, weight = _weighted ? i.Weight : 1.0 }).ToArray();
+        items.Select(i => (object)new { id = i.Id, label = i.Label, weight = _weighted ? i.Weight : 1.0 }).ToArray();
 
     private async Task RenderWheel()
     {
@@ -325,14 +393,14 @@
         }
 
         _spinning = true;
-        selectedResult = "";
-        _winners.Clear();
+        ClearResult();
         StateHasChanged();
 
         int winner = await SpinOnce();
         if (winner >= 0 && winner < items.Count)
         {
-            selectedResult = items[winner].Label;
+            selectedResult = DisplayLabel(items[winner]);
+            if (IsMessi(items[winner])) _goatLine = RandomGoatLine();
             _spinCount++;
             AddHistory(selectedResult);
             StateHasChanged();
@@ -352,8 +420,7 @@
     // raffle: spin repeatedly, removing each winner, until we've drawn the target count
     private async Task Draw()
     {
-        selectedResult = "";
-        _winners.Clear();
+        ClearResult();
         _spinning = true;
         StateHasChanged();
 
@@ -363,8 +430,10 @@
             int winner = await SpinOnce();
             if (winner < 0 || winner >= items.Count) break;
 
-            _winners.Add(items[winner].Label);
-            AddHistory(items[winner].Label);
+            var label = DisplayLabel(items[winner]);
+            if (IsMessi(items[winner])) _goatLine = RandomGoatLine();
+            _winners.Add(label);
+            AddHistory(label);
             RemoveWinner(winner);
             await RenderWheel();
             StateHasChanged();
@@ -377,13 +446,48 @@
     // one animated spin; counts the stat and celebrates a valid landing
     private async Task<int> SpinOnce()
     {
-        int winner = await JS.InvokeAsync<int>("spinWheel", new object[] { WheelPayload() });
+        int winner = await JS.InvokeAsync<int>("spinWheel", new object?[] { WheelPayload(), PickRiggedIndex() });
         if (winner >= 0 && winner < items.Count)
         {
             Stats.Increment("wheel");
             await JS.InvokeVoidAsync("celebrate");
         }
         return winner;
+    }
+
+    // --- the Messi clause 🐐 ---
+    // any slice mentioning messi (label or image filename) always wins
+
+    private bool IsMessi(WheelItem i) =>
+        i.Label.Contains("messi", StringComparison.OrdinalIgnoreCase) ||
+        (_images && i.HasImage &&
+         (i.ImageFileName?.Contains("messi", StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private int? PickRiggedIndex()
+    {
+        var goats = Enumerable.Range(0, items.Count).Where(i => IsMessi(items[i])).ToList();
+        return goats.Count == 0 ? null : goats[Random.Shared.Next(goats.Count)];
+    }
+
+    private static readonly string[] GoatLines =
+    {
+        "No question. Messi is the BEST! 🐐",
+        "The wheel never had a choice. MESSI.",
+        "GOAT detected. Question irrelevant.",
+        "It was always going to be Messi.",
+        "ANKARA MESSI, MESSI, MESSI!"
+    };
+
+    private static string RandomGoatLine() => GoatLines[Random.Shared.Next(GoatLines.Length)];
+
+    // what the result card shows; image-only slices fall back to the filename
+    private string DisplayLabel(WheelItem i)
+    {
+        if (!string.IsNullOrWhiteSpace(i.Label)) return i.Label;
+        var name = i.ImageFileName;
+        if (string.IsNullOrWhiteSpace(name)) return i.Placeholder;
+        int dot = name.LastIndexOf('.');
+        return dot > 0 ? name[..dot] : name;
     }
 
     // drop a slice and renumber the remaining placeholders
@@ -439,6 +543,36 @@
         return RenderWheel();
     }
 
+    // --- slice images (bitmaps live in wheel.js, keyed by WheelItem.Id) ---
+
+    // in image mode the canvas is for picking/adjusting images; spin via the button
+    private Task OnCanvasClick() => _images ? Task.CompletedTask : SpinWheel();
+
+    private async Task ToggleImages()
+    {
+        _images = !_images;
+        _objRef ??= DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("wheelImages.setEnabled", _images, _objRef);
+    }
+
+    private async Task ClearImage(int idx)
+    {
+        if (idx < 0 || idx >= items.Count) return;
+        items[idx].HasImage = false;
+        items[idx].ImageFileName = null;
+        await JS.InvokeVoidAsync("wheelImages.clear", items[idx].Id);
+    }
+
+    [JSInvokable]
+    public void OnSliceImageChanged(int id, string? fileName)
+    {
+        var item = items.FirstOrDefault(i => i.Id == id);
+        if (item is null) return;
+        item.HasImage = fileName != null;
+        item.ImageFileName = fileName;
+        InvokeAsync(StateHasChanged);
+    }
+
     // --- presets & saved wheels ---
 
     private static string[] NumberRange(int n) =>
@@ -447,8 +581,11 @@
     private Task ApplyPreset(string[] labels) =>
         LoadItems(labels.Select(l => (l, 1.0)).ToList());
 
-    private Task ApplySaved(SavedWheel w) =>
-        LoadItems(w.Items.Select(s => (s.Label, s.Weight)).ToList());
+    private Task ApplySaved(SavedWheel w)
+    {
+        _question = w.Question ?? "";
+        return LoadItems(w.Items.Select(s => (s.Label, s.Weight)).ToList());
+    }
 
     // fill the wheel from a label/weight set, resizing to fit (clamped 2..16)
     private async Task LoadItems(List<(string Label, double Weight)> data)
@@ -477,7 +614,7 @@
         if (name.Length == 0 || slices.Count < 2) return;
 
         _saved.RemoveAll(w => string.Equals(w.Name, name, StringComparison.OrdinalIgnoreCase));
-        _saved.Insert(0, new SavedWheel { Name = name, Items = slices });
+        _saved.Insert(0, new SavedWheel { Name = name, Items = slices, Question = _question.Trim() });
         if (_saved.Count > 12) _saved.RemoveRange(12, _saved.Count - 12);
         _saveName = "";
         await PersistSaved();
@@ -516,12 +653,14 @@
     {
         selectedResult = "";
         _winners.Clear();
+        _goatLine = null;
     }
 
     // serialized to localStorage under SavedKey
     private class SavedWheel
     {
         public string Name { get; set; } = "";
+        public string? Question { get; set; }
         public List<SavedSlice> Items { get; set; } = new();
     }
 

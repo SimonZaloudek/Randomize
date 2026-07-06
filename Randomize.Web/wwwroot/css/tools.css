@@ -945,8 +945,56 @@ select.tool-input-small option {
 
 .wheel-canvas {
     display: block;
-    width: min(420px, 78vw);
-    height: min(420px, 78vw);
+    width: min(462px, 80vw);
+    height: min(462px, 80vw);
+}
+
+/* image mode: canvas is an editor (pick / pan / zoom), not a spin button */
+.wheel-canvas.is-image-mode {
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* optional question shown above the wheel */
+.wheel-question {
+    max-width: min(462px, 86vw);
+    text-align: center;
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: #fff;
+    word-break: break-word;
+}
+
+.wheel-question::before,
+.wheel-question::after {
+    content: "";
+    display: inline-block;
+    width: 22px;
+    height: 1px;
+    margin: 0 10px;
+    vertical-align: middle;
+    background: var(--accent);
+    opacity: 0.7;
+}
+
+.wheel-result-question {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-text);
+    text-align: center;
+    word-break: break-word;
+    margin-bottom: 2px;
+}
+
+/* the Messi clause: the question yields to the GOAT */
+.wheel-result-goat {
+    color: #f0c05a;
+    text-shadow: 0 0 14px rgba(240, 192, 90, 0.45);
+}
+
+.wheel-question.wheel-result-goat::before,
+.wheel-question.wheel-result-goat::after {
+    background: #f0c05a;
 }
 
 .wheel-spin-btn {
@@ -1014,6 +1062,18 @@ select.tool-input-small option {
     gap: 14px;
 }
 
+.wheel-question-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.wheel-question-row .tool-input {
+    flex: 1;
+    min-width: 0;
+}
+
 .wheel-labels {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1037,6 +1097,33 @@ select.tool-input-small option {
     text-align: center;
     padding-left: 6px;
     padding-right: 6px;
+}
+
+/* per-row badge: this slice has an image; click removes it */
+.wheel-img-clear {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 5px;
+    border: 1px solid rgba(138, 107, 255, 0.45);
+    border-radius: 8px;
+    background: rgba(138, 107, 255, 0.12);
+    color: var(--accent-text);
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.wheel-img-clear:hover:not(:disabled) {
+    background: rgba(239, 111, 108, 0.18);
+    border-color: rgba(239, 111, 108, 0.6);
+    color: #ef6f6c;
+}
+
+.wheel-img-clear:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .wheel-presets,
