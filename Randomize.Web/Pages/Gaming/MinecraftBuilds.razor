@@ -1,0 +1,223 @@
+@page "/minecraft/builds"
+@using Randomize.Web.Data
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@inject StatsClient Stats
+@implements IDisposable
+
+<PageTitle>@Loc["mc.builds.title"]</PageTitle>
+
+<div class="ghub-ambient mc-shell mc-page-builds">
+    <div class="mc-bg" aria-hidden="true"></div>
+
+    <div class="mc-page">
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+            @if (Rolled)
+            {
+                <div class="lol-actions">
+                    <button class="lol-icon-btn" title="@(_shared ? Loc["mc.shared"] : Loc["mc.share"])" @onclick="ShareLink">
+                        <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i>
+                    </button>
+                    <button class="lol-icon-btn" title="@(_copied ? Loc["mc.copied"] : Loc["mc.copy"])" @onclick="Copy">
+                        <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <header class="mc-head">
+            <h2 class="page-title">@Loc["mc.builds.title"]</h2>
+            <p class="mc-sub">@Loc["mc.builds.sub"]</p>
+
+            <div class="mc-controls">
+                <button class="lol-roll" @onclick="RerollUnlocked">
+                    <i class="bi bi-dice-5-fill"></i> @(Rolled ? Loc["mc.reroll"] : Loc["mc.builds.roll"])
+                </button>
+            </div>
+        </header>
+
+        @if (Rolled)
+        {
+            <div class="mc-board">
+
+                <section class="mc-card mc-card-grass mc-card-wide mc-notched">
+                    <div class="mc-card-head"><span>@Loc["mc.structure"]</span>@Lock("structure")@Reroll("structure")</div>
+                    <h3 class="mc-goal-label">@_structure!.Name</h3>
+                    <p class="mc-prompt">
+                        <strong>@_style!.Name</strong> · @_setting!.Name.ToLowerInvariant()
+                    </p>
+                </section>
+
+                <div class="mc-cards">
+                    <section class="mc-card mc-notched">
+                        <div class="mc-card-head"><span>@Loc["mc.style"]</span>@Lock("style")@Reroll("style")</div>
+                        <h4 class="mc-biome-name">@_style!.Name</h4>
+                    </section>
+
+                    <section class="mc-card mc-notched">
+                        <div class="mc-card-head"><span>@Loc["mc.setting"]</span>@Lock("setting")@Reroll("setting")</div>
+                        <h4 class="mc-biome-name">@_setting!.Name</h4>
+                    </section>
+
+                    <section class="mc-card mc-notched @(_twist is not null ? "mc-card-enchant" : "")">
+                        <div class="mc-card-head"><span>@Loc["mc.twist"]</span>@Lock("twist")@Reroll("twist")</div>
+                        <p class="mc-biome-note">@(_twist?.Text ?? Loc["mc.notwist"])</p>
+                    </section>
+                </div>
+
+                <section class="mc-card mc-card-wide mc-notched">
+                    <div class="mc-card-head"><span>@Loc["mc.palette"] · @_palette!.Name</span>@Lock("palette")@Reroll("palette")</div>
+                    <div class="mc-swatches">
+                        @foreach (var b in _palette.Blocks)
+                        {
+                            <div class="mc-swatch">
+                                <span class="mc-swatch-chip" style="background:@b.Hex"></span>
+                                <span>@b.Name</span>
+                            </div>
+                        }
+                    </div>
+                </section>
+            </div>
+        }
+        else
+        {
+            <div class="mc-empty">@Loc["mc.builds.start"]</div>
+        }
+    </div>
+</div>
+
+@code {
+    private McStructure? _structure;
+    private McStyle? _style;
+    private McPalette? _palette;
+    private McSetting? _setting;
+    private McTwist? _twist;          // null = free build, no twist
+    private bool _copied;
+    private bool _shared;
+    private readonly HashSet<string> _locked = new();
+
+    private static readonly string[] AllParts = { "structure", "style", "palette", "setting", "twist" };
+
+    private bool Rolled => _structure is not null && _style is not null && _palette is not null && _setting is not null;
+
+    // inbound share link (?s=&y=&p=&l=&t=; t is "-" for an explicit no-twist)
+    [Parameter, SupplyParameterFromQuery] public string? S { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? Y { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? P { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? L { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? T { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        Hydrate();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void Hydrate()
+    {
+        if (S is null && Y is null && P is null && L is null && T is null) return;
+
+        _structure = MinecraftData.Structures.FirstOrDefault(x => x.Id == S);
+        _style = MinecraftData.Styles.FirstOrDefault(x => x.Id == Y);
+        _palette = MinecraftData.Palettes.FirstOrDefault(x => x.Id == P);
+        _setting = MinecraftData.Settings.FirstOrDefault(x => x.Id == L);
+        _twist = T == "-" ? null : MinecraftData.Twists.FirstOrDefault(x => x.Id == T);
+
+        if (_structure is null || _style is null || _palette is null || _setting is null)
+            RollParts(AllParts, countStat: false);
+    }
+
+    private void RerollUnlocked()
+    {
+        var parts = AllParts.Where(p => !_locked.Contains(p)).ToArray();
+        if (parts.Length > 0) RollParts(parts);
+    }
+
+    private void RollParts(string[] parts, bool countStat = true)
+    {
+        foreach (var part in parts)
+        {
+            switch (part)
+            {
+                case "structure": _structure = Pick(MinecraftData.Structures); break;
+                case "style": _style = Pick(MinecraftData.Styles); break;
+                case "palette": _palette = Pick(MinecraftData.Palettes); break;
+                case "setting": _setting = Pick(MinecraftData.Settings); break;
+                case "twist":
+                    // 40% of prompts stay twist-free; a twist should feel like an event
+                    _twist = Random.Shared.Next(100) < 40 ? null : Pick(MinecraftData.Twists);
+                    break;
+            }
+        }
+        _copied = false;
+        _shared = false;
+        if (countStat) Stats.Increment("minecraft");
+    }
+
+    private static TItem Pick<TItem>(TItem[] pool) => pool[Random.Shared.Next(pool.Length)];
+
+    private string ShareUrl() =>
+        $"https://userandomize.net/minecraft/builds?s={_structure!.Id}&y={_style!.Id}" +
+        $"&p={_palette!.Id}&l={_setting!.Id}&t={(_twist?.Id ?? "-")}";
+
+    private async Task ShareLink()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", ShareUrl());
+            _shared = true;
+        }
+        catch { }
+    }
+
+    private async Task Copy()
+    {
+        var lines = new List<string>
+        {
+            "Minecraft Build Idea",
+            $"{Loc["mc.structure"]}: {_structure!.Name} ({_style!.Name}, {_setting!.Name.ToLowerInvariant()})",
+            $"{Loc["mc.palette"]}: {_palette!.Name} - {string.Join(", ", _palette.Blocks.Select(b => b.Name))}",
+        };
+        if (_twist is not null) lines.Add($"{Loc["mc.twist"]}: {_twist.Text}");
+        lines.Add("via userandomize.net/minecraft/builds");
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    private RenderFragment Reroll(string part) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini");
+        builder.AddAttribute(2, "title", Loc["mc.tip.reroll"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => RollParts(new[] { part })));
+        builder.AddMarkupContent(4, "<i class=\"bi bi-dice-5\"></i>");
+        builder.CloseElement();
+    };
+
+    private RenderFragment Lock(string part) => builder =>
+    {
+        var locked = _locked.Contains(part);
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini" + (locked ? " active" : ""));
+        builder.AddAttribute(2, "title", locked ? Loc["mc.tip.unlock"] : Loc["mc.tip.lock"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => ToggleLock(part)));
+        builder.AddMarkupContent(4, locked ? "<i class=\"bi bi-lock-fill\"></i>" : "<i class=\"bi bi-unlock\"></i>");
+        builder.CloseElement();
+    };
+
+    private void ToggleLock(string part)
+    {
+        if (!_locked.Remove(part)) _locked.Add(part);
+    }
+}

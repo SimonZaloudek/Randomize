@@ -136,7 +136,7 @@
         get
         {
             var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/').ToLowerInvariant();
-            return path.Length > 0 && path != "gamershub" && !path.StartsWith("lol");
+            return path.Length > 0 && path != "gamershub" && !path.StartsWith("lol") && !path.StartsWith("minecraft");
         }
     }
 

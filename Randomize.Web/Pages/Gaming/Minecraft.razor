@@ -1,0 +1,290 @@
+@page "/minecraft"
+@using Randomize.Web.Data
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@inject StatsClient Stats
+@implements IDisposable
+
+<PageTitle>@Loc["mc.bravery.title"]</PageTitle>
+
+<div class="ghub-ambient mc-shell mc-page-bravery">
+    <div class="mc-bg" aria-hidden="true"></div>
+
+    <div class="mc-page">
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+            @if (Rolled)
+            {
+                <div class="lol-actions">
+                    <button class="lol-icon-btn" title="@(_shared ? Loc["mc.shared"] : Loc["mc.share"])" @onclick="ShareLink">
+                        <i class="bi @(_shared ? "bi-check2" : "bi-share")"></i>
+                    </button>
+                    <button class="lol-icon-btn" title="@(_copied ? Loc["mc.copied"] : Loc["mc.copy"])" @onclick="Copy">
+                        <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <header class="mc-head">
+            <h2 class="page-title">@Loc["mc.bravery.title"]</h2>
+            <p class="mc-sub">@Loc["mc.bravery.sub"]</p>
+
+            <div class="mc-curse">
+                <div class="mc-curse-top">
+                    <span class="mc-label">@Loc["mc.curse"]</span>
+                    <input type="range" min="0" max="100" step="5" class="mc-slider"
+                           value="@_curse" @oninput="OnCurseInput" />
+                    <span class="mc-curse-word @(_curse >= 75 ? "is-cursed" : "")">@MinecraftData.CurseLabel(_curse)</span>
+                </div>
+                <div class="mc-xpbar @(_curse >= 75 ? "mc-xpbar-enchant" : "")">
+                    <span style="width:@(_curse)%"></span>
+                </div>
+            </div>
+
+            <div class="mc-controls">
+                <button class="lol-roll" @onclick="RerollUnlocked">
+                    <i class="bi bi-dice-5-fill"></i> @(Rolled ? Loc["mc.reroll"] : Loc["mc.roll"])
+                </button>
+            </div>
+        </header>
+
+        @if (Rolled)
+        {
+            <div class="mc-board">
+
+                <section class="mc-card mc-card-grass mc-card-wide mc-notched">
+                    <div class="mc-card-head"><span>@Loc["mc.goal"]</span>@Lock("goal")@Reroll("goal")</div>
+                    <h3 class="mc-goal-label">@_goal!.Label</h3>
+                    <p class="mc-goal-text">@_goal.Text</p>
+                </section>
+
+                <div class="mc-cards">
+                    <section class="mc-card mc-notched @(_curse >= 75 ? "mc-card-enchant" : "")">
+                        <div class="mc-card-head"><span>@Loc["mc.rules"]</span>@Lock("rules")@Reroll("rules")</div>
+                        <div class="mc-list">
+                            @foreach (var r in _rules)
+                            {
+                                <div class="mc-slot">
+                                    <span>@r.Text</span>
+                                    <span class="mc-pips mc-pips-@r.Curse">
+                                        @for (int i = 0; i < r.Curse; i++)
+                                        {
+                                            <span class="mc-pip"></span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </section>
+
+                    <section class="mc-card mc-notched">
+                        <div class="mc-card-head"><span>@Loc["mc.gear"]</span>@Lock("gear")@Reroll("gear")</div>
+                        <div class="mc-list">
+                            @foreach (var g in _gear)
+                            {
+                                <div class="mc-slot">
+                                    <span>@g.Text</span>
+                                    <span class="mc-pips mc-pips-@g.Curse">
+                                        @for (int i = 0; i < g.Curse; i++)
+                                        {
+                                            <span class="mc-pip"></span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </section>
+
+                    <section class="mc-card mc-notched">
+                        <div class="mc-card-head"><span>@Loc["mc.biome"]</span>@Lock("biome")@Reroll("biome")</div>
+                        <h4 class="mc-biome-name">@_biome!.Name</h4>
+                        <p class="mc-biome-note">@_biome.Note</p>
+                    </section>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="mc-empty">@Loc["mc.start"]</div>
+        }
+    </div>
+</div>
+
+@code {
+    private McGoal? _goal;
+    private List<McRule> _rules = new();
+    private List<McGear> _gear = new();
+    private McBiome? _biome;
+    private int _curse = 35;
+    private bool _copied;
+    private bool _shared;
+    private readonly HashSet<string> _locked = new();
+
+    private static readonly string[] AllParts = { "goal", "rules", "gear", "biome" };
+
+    private bool Rolled => _goal is not null && _biome is not null;
+
+    // inbound share link (?g=goal&r=id.id&e=id.id&b=biome&c=35)
+    [Parameter, SupplyParameterFromQuery] public string? G { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? R { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? E { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? B { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? C { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        Hydrate();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    // rebuild a shared run sheet from ids; unknown ids are skipped, not errors
+    private void Hydrate()
+    {
+        if (G is null && R is null && E is null && B is null) return;
+        if (C is >= 0 and <= 100) _curse = C.Value;
+
+        _goal = MinecraftData.Goals.FirstOrDefault(x => x.Id == G);
+        _biome = MinecraftData.Biomes.FirstOrDefault(x => x.Id == B);
+        _rules = (R ?? "").Split('.', StringSplitOptions.RemoveEmptyEntries)
+            .Select(id => MinecraftData.Rules.FirstOrDefault(x => x.Id == id))
+            .Where(x => x is not null).Select(x => x!).ToList();
+        _gear = (E ?? "").Split('.', StringSplitOptions.RemoveEmptyEntries)
+            .Select(id => MinecraftData.Gear.FirstOrDefault(x => x.Id == id))
+            .Where(x => x is not null).Select(x => x!).ToList();
+
+        // a partial or mangled link still needs a complete sheet
+        if (_goal is null || _biome is null || _rules.Count == 0 || _gear.Count == 0)
+            RollParts(AllParts, countStat: false);
+    }
+
+    private void OnCurseInput(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var v))
+            _curse = Math.Clamp(v, 0, 100);
+    }
+
+    private void RerollUnlocked()
+    {
+        var parts = AllParts.Where(p => !_locked.Contains(p)).ToArray();
+        if (parts.Length > 0) RollParts(parts);
+    }
+
+    private void RollParts(string[] parts, bool countStat = true)
+    {
+        foreach (var part in parts)
+        {
+            switch (part)
+            {
+                case "goal": _goal = Pick(MinecraftData.Goals); break;
+                case "biome": _biome = Pick(MinecraftData.Biomes); break;
+                case "rules": _rules = DrawRules(); break;
+                case "gear": _gear = DrawGear(); break;
+            }
+        }
+        _copied = false;
+        _shared = false;
+        if (countStat) Stats.Increment("minecraft");
+    }
+
+    // the slider decides how many restrictions land and how harsh they may be
+    // (plain ifs: razor misparses `< 25 =>` switch patterns as markup tags)
+    private (int Count, int MaxTier) RuleBudget()
+    {
+        if (_curse < 25) return (1, 1);
+        if (_curse < 50) return (2, 2);
+        if (_curse < 75) return (3, 3);
+        return (4, 3);
+    }
+
+    private List<McRule> DrawRules()
+    {
+        var (count, maxTier) = RuleBudget();
+        var drawn = Draw(MinecraftData.Rules.Where(r => r.Curse <= maxTier), count);
+        // fully cursed runs guarantee at least one tier-3 rule
+        if (_curse >= 75 && drawn.All(r => r.Curse < 3))
+            drawn[Random.Shared.Next(drawn.Count)] = Pick(MinecraftData.Rules.Where(r => r.Curse == 3).ToArray());
+        return drawn;
+    }
+
+    private List<McGear> DrawGear()
+    {
+        var (_, maxTier) = RuleBudget();
+        int count = _curse < 50 ? 1 : _curse < 75 ? 2 : 3;
+        return Draw(MinecraftData.Gear.Where(g => g.Curse <= maxTier), count);
+    }
+
+    private static T Pick<T>(T[] pool) => pool[Random.Shared.Next(pool.Length)];
+
+    private static List<T> Draw<T>(IEnumerable<T> pool, int count) =>
+        pool.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+
+    private string ShareUrl() =>
+        $"https://userandomize.net/minecraft?g={_goal!.Id}" +
+        $"&r={string.Join('.', _rules.Select(x => x.Id))}" +
+        $"&e={string.Join('.', _gear.Select(x => x.Id))}" +
+        $"&b={_biome!.Id}&c={_curse}";
+
+    private async Task ShareLink()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", ShareUrl());
+            _shared = true;
+        }
+        catch { }
+    }
+
+    private async Task Copy()
+    {
+        var lines = new List<string>
+        {
+            $"Minecraft Survival Bravery ({MinecraftData.CurseLabel(_curse)})",
+            $"{Loc["mc.goal"]}: {_goal!.Label} - {_goal.Text}",
+            $"{Loc["mc.biome"]}: {_biome!.Name}",
+            $"{Loc["mc.rules"]}:",
+        };
+        lines.AddRange(_rules.Select(r => $"- {r.Text}"));
+        lines.Add($"{Loc["mc.gear"]}:");
+        lines.AddRange(_gear.Select(g => $"- {g.Text}"));
+        lines.Add("via userandomize.net/minecraft");
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    private RenderFragment Reroll(string part) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini");
+        builder.AddAttribute(2, "title", Loc["mc.tip.reroll"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => RollParts(new[] { part })));
+        builder.AddMarkupContent(4, "<i class=\"bi bi-dice-5\"></i>");
+        builder.CloseElement();
+    };
+
+    private RenderFragment Lock(string part) => builder =>
+    {
+        var locked = _locked.Contains(part);
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini" + (locked ? " active" : ""));
+        builder.AddAttribute(2, "title", locked ? Loc["mc.tip.unlock"] : Loc["mc.tip.lock"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () => ToggleLock(part)));
+        builder.AddMarkupContent(4, locked ? "<i class=\"bi bi-lock-fill\"></i>" : "<i class=\"bi bi-unlock\"></i>");
+        builder.CloseElement();
+    };
+
+    private void ToggleLock(string part)
+    {
+        if (!_locked.Remove(part)) _locked.Add(part);
+    }
+}

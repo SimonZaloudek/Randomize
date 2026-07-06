@@ -68,7 +68,7 @@
     width: 420px;
     height: 420px;
     border-radius: 50%;
-    opacity: 0.14;
+    opacity: 0.09;
     will-change: transform;
 }
 
@@ -189,26 +189,43 @@ html[data-theme="forest"]   .ghub-section-valorant { --val-splash: url('https://
     mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
 }
 
+/* Minecraft rides the active accent (--game) like the other sections, so its
+   borders/hovers match the neighbouring containers; only the key-art splash
+   swaps per theme, fed into the same art-img backdrop the other games use. */
+.ghub-section-minecraft { --mc-splash: url('/brand/mc/splash.jpg'); }
+
+html[data-theme="default"] .ghub-section-minecraft { --mc-splash: url('/brand/mc/splash-default.jpg'); }
+html[data-theme="crimson"] .ghub-section-minecraft { --mc-splash: url('/brand/mc/splash-crimson.jpg'); }
+html[data-theme="forest"]  .ghub-section-minecraft { --mc-splash: url('/brand/mc/splash-forest.jpg'); }
+html[data-theme="modern"]  .ghub-section-minecraft { --mc-splash: url('/brand/mc/splash-modern.jpg'); }
+
+.ghub-section-minecraft .ghub-section-art-img {
+    background-image:
+        linear-gradient(180deg, rgba(11, 9, 15, 0.9) 0%, rgba(11, 9, 15, 0.55) 38%, rgba(11, 9, 15, 0.7) 100%),
+        var(--mc-splash);
+    background-size: cover, cover;
+}
+
 /* light theme stays plain: no champion splash, no hex honeycomb */
 html[data-theme="light"] .ghub-section-art { display: none; }
 
 /* header sits over the splash - shadow keeps it legible. Light has no splash, so
    skip it there (dark text would just pick up a muddy halo). */
-html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-section-title,
-html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-section-sub {
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant, .ghub-section-minecraft) .ghub-section-title,
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant, .ghub-section-minecraft) .ghub-section-sub {
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* over the splash, lean the cards a little more transparent and shadow the text
    so it stays readable. Light has no splash, so it keeps the base card. */
-html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card {
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant, .ghub-section-minecraft) .ghub-card {
     background: linear-gradient(155deg,
         color-mix(in srgb, var(--game) 10%, color-mix(in srgb, var(--surface-solid) 16%, transparent)) 0%,
         color-mix(in srgb, var(--surface-solid) 26%, transparent) 100%);
 }
 
-html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card-title { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
-html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .ghub-card-desc { color: #cbc6d6; }
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant, .ghub-section-minecraft) .ghub-card-title { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
+html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant, .ghub-section-minecraft) .ghub-card-desc { color: #cbc6d6; }
 
 /* ===== section watermark art - full-bleed, side to side ===== */
 .ghub-section-art {
@@ -275,9 +292,8 @@ html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .g
     border-radius: 12px;
     font-size: 1.35rem;
     color: var(--game-text);
-    background: linear-gradient(135deg, color-mix(in srgb, var(--game) 26%, transparent), color-mix(in srgb, var(--game) 6%, transparent));
-    border: 1px solid color-mix(in srgb, var(--game) 34%, transparent);
-    box-shadow: 0 0 22px color-mix(in srgb, var(--game) 16%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--game) 20%, transparent), color-mix(in srgb, var(--game) 5%, transparent));
+    border: 1px solid color-mix(in srgb, var(--game) 30%, transparent);
 }
 
 /* League logo, tinted to the section accent via a mask (monochrome source SVG) */
@@ -296,6 +312,15 @@ html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .g
 .ghub-logo-valorant {
     -webkit-mask: url('/brand/valorant.svg') center / contain no-repeat;
     mask: url('/brand/valorant.svg') center / contain no-repeat;
+}
+
+/* the real grass-block icon, not a tinted mask - keeps its own colours.
+   Must sit AFTER the .ghub-logo base or its tint background wins the cascade. */
+.ghub-logo-minecraft {
+    width: 28px;
+    height: 28px;
+    background: transparent url('/brand/mc/icon.png') center / contain no-repeat;
+    image-rendering: pixelated;
 }
 
 .ghub-section-title {
@@ -335,35 +360,20 @@ html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .g
     text-decoration: none;
     color: var(--text-primary, #fff);
     background: linear-gradient(155deg,
-        color-mix(in srgb, var(--game) 8%, color-mix(in srgb, var(--surface-solid) 22%, transparent)) 0%,
+        color-mix(in srgb, var(--game) 4%, color-mix(in srgb, var(--surface-solid) 22%, transparent)) 0%,
         color-mix(in srgb, var(--surface-solid) 30%, transparent) 100%);
-    backdrop-filter: blur(7px) saturate(140%);
-    -webkit-backdrop-filter: blur(7px) saturate(140%);
-    border: 1px solid color-mix(in srgb, var(--game) 24%, var(--surface-border));
+    backdrop-filter: blur(7px) saturate(120%);
+    -webkit-backdrop-filter: blur(7px) saturate(120%);
+    border: 1px solid color-mix(in srgb, var(--game) 20%, var(--surface-border));
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
-/* inner radial glow, lit on hover - opacity only */
-.ghub-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--game) 10%, transparent), transparent 60%);
-    opacity: 0;
-    transition: opacity 0.25s ease;
-    pointer-events: none;
-}
-
-/* hover keeps to composite-only work: lift (transform), border tint, and the
-   ::after glow fade (opacity). No box-shadow animation - that repaints. */
+/* hover is just a quiet border tint - no lift, no glow wash */
 .ghub-card:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--game) 38%, transparent);
+    border-color: color-mix(in srgb, var(--game) 34%, var(--surface-border));
 }
-
-.ghub-card:hover::after { opacity: 1; }
 
 /* the primary card in each section reads a touch louder */
 .ghub-card-feature {
@@ -382,8 +392,6 @@ html:not([data-theme="light"]) :is(.ghub-section-lol, .ghub-section-valorant) .g
             color-mix(in srgb, var(--game) 6%, transparent) 24px),
         color-mix(in srgb, var(--surface-solid) 22%, transparent);
 }
-
-.ghub-card-scaffold::after { display: none; }
 
 .ghub-card-scaffold .ghub-card-glyph {
     background: transparent;

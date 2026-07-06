@@ -1,0 +1,219 @@
+@page "/minecraft/rolls"
+@using Randomize.Web.Data
+@using Randomize.Web.Services
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@inject StatsClient Stats
+@implements IDisposable
+
+<PageTitle>@Loc["mc.rolls.title"]</PageTitle>
+
+<div class="ghub-ambient mc-shell mc-page-rolls">
+    <div class="mc-bg" aria-hidden="true"></div>
+
+    <div class="mc-page">
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+        </div>
+
+        <header class="mc-head">
+            <h2 class="page-title">@Loc["mc.rolls.title"]</h2>
+            <p class="mc-sub">@Loc["mc.rolls.sub"]</p>
+
+            <div class="mc-controls">
+                <button class="lol-roll" @onclick="RollAll">
+                    <i class="bi bi-dice-5-fill"></i> @Loc["mc.rolls.rollall"]
+                </button>
+            </div>
+        </header>
+
+        <div class="mc-hotbar">
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.block"]</span>@TileReroll(RollBlock)</div>
+                <div class="mc-tile-value">@_block</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.item"]</span>@TileReroll(RollItem)</div>
+                <div class="mc-tile-value">@_item</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.mob"]</span>@TileReroll(RollMob)</div>
+                <div class="mc-tile-value">@_mob</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.biome"]</span>@TileReroll(RollBiome)</div>
+                <div class="mc-tile-value">@_tileBiome</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.enchant"]</span>@TileReroll(RollEnchant)</div>
+                <div class="mc-tile-value">@_enchant</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.effect"]</span>@TileReroll(RollEffect)</div>
+                <div class="mc-tile-value">@_effect</div>
+            </div>
+            <div class="mc-tile">
+                <div class="mc-tile-head"><span>@Loc["mc.tile.seed"]</span>@TileReroll(RollSeed)</div>
+                <div class="mc-tile-value">
+                    <button type="button" class="mc-seed" title="@(_seedCopied ? Loc["mc.copied"] : Loc["mc.seed.copy"])" @onclick="CopySeed">
+                        @_seed @(_seedCopied ? "✓" : "")
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mc-board">
+            <section class="mc-card mc-card-grass mc-card-wide mc-notched">
+                <div class="mc-card-head">
+                    <span>@Loc["mc.smp.title"]</span>
+                    @if (_drawn.Count > 0)
+                    {
+                        <button class="lol-mini" title="@(_copied ? Loc["mc.copied"] : Loc["mc.copy"])" @onclick="CopySmp">
+                            <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
+                        </button>
+                    }
+                </div>
+                <p class="mc-sub">@Loc["mc.smp.sub"]</p>
+
+                <div class="mc-smp-controls">
+                    <span class="mc-label">@Loc["mc.smp.party"]</span>
+                    <div class="mc-stepper">
+                        <button class="mc-step-btn" disabled="@(_party <= 1)" @onclick="() => _party--">−</button>
+                        <span class="mc-step-val">@_party</span>
+                        <button class="mc-step-btn" disabled="@(_party >= 10)" @onclick="() => _party++">+</button>
+                    </div>
+
+                    <div class="mc-chip-row">
+                        <button class="mc-chip @(_diff == 0 ? "active" : "")" @onclick="() => _diff = 0">@Loc["mc.smp.any"]</button>
+                        @for (int d = 1; d <= 3; d++)
+                        {
+                            var diff = d;
+                            <button class="mc-chip @(_diff == diff ? "active" : "")" @onclick="() => _diff = diff">
+                                @MinecraftData.SmpDiffLabel(diff)
+                            </button>
+                        }
+                    </div>
+
+                    <button class="lol-roll" @onclick="DrawSmp">
+                        <i class="bi bi-dice-3-fill"></i> @Loc["mc.smp.draw"]
+                    </button>
+                </div>
+
+                @if (_drawn.Count > 0)
+                {
+                    <div class="mc-list mc-smp-list">
+                        @foreach (var c in _drawn)
+                        {
+                            <div class="mc-slot">
+                                <span><strong>@c.Label</strong>@c.Text</span>
+                                <span class="mc-pips mc-pips-@c.Diff">
+                                    @for (int i = 0; i < c.Diff; i++)
+                                    {
+                                        <span class="mc-pip"></span>
+                                    }
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _block = "";
+    private string _item = "";
+    private string _mob = "";
+    private string _tileBiome = "";
+    private string _enchant = "";
+    private string _effect = "";
+    private string _seed = "";
+    private bool _seedCopied;
+    private bool _copied;
+    private int _party = 3;
+    private int _diff;                      // 0 = any
+    private List<McSmp> _drawn = new();
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+        // land on a filled hotbar; only user actions count toward stats
+        RollAllInternal();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void RollAll()
+    {
+        RollAllInternal();
+        Stats.Increment("minecraft");
+    }
+
+    private void RollAllInternal()
+    {
+        RollBlock(); RollItem(); RollMob(); RollBiome(); RollEnchant(); RollEffect(); RollSeed();
+    }
+
+    private void RollBlock() => _block = Pick(MinecraftData.Blocks);
+    private void RollItem() => _item = Pick(MinecraftData.Items);
+    private void RollMob() => _mob = Pick(MinecraftData.Mobs);
+    private void RollBiome() => _tileBiome = Pick(MinecraftData.Biomes).Name;
+    private void RollEnchant() => _enchant = Pick(MinecraftData.Enchantments);
+    private void RollEffect() => _effect = Pick(MinecraftData.Effects);
+
+    private void RollSeed()
+    {
+        _seed = Random.Shared.NextInt64().ToString();
+        _seedCopied = false;
+    }
+
+    private static T Pick<T>(T[] pool) => pool[Random.Shared.Next(pool.Length)];
+
+    private async Task CopySeed()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", _seed);
+            _seedCopied = true;
+        }
+        catch { }
+    }
+
+    private void DrawSmp()
+    {
+        var pool = _diff == 0 ? MinecraftData.Smp : MinecraftData.Smp.Where(c => c.Diff == _diff).ToArray();
+        _drawn = pool.OrderBy(_ => Random.Shared.Next()).Take(_party).ToList();
+        _copied = false;
+        Stats.Increment("minecraft");
+    }
+
+    private async Task CopySmp()
+    {
+        var lines = new List<string> { "Minecraft SMP challenges" };
+        lines.AddRange(_drawn.Select(c => $"- {c.Label}: {c.Text}"));
+        lines.Add("via userandomize.net/minecraft/rolls");
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    private RenderFragment TileReroll(Action roll) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "lol-mini");
+        builder.AddAttribute(2, "title", Loc["mc.tip.reroll"]);
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create(this, () =>
+        {
+            roll();
+            Stats.Increment("minecraft");
+        }));
+        builder.AddMarkupContent(4, "<i class=\"bi bi-dice-5\"></i>");
+        builder.CloseElement();
+    };
+}
