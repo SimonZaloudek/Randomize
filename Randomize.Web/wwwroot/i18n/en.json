@@ -215,6 +215,8 @@
   "group.groupName": "Group",
 
   "wheel.title": "Spinning Wheel",
+  "wheel.question": "Question:",
+  "wheel.questionPh": "e.g. Who is the GOAT?",
   "wheel.spinBtn": "Spin",
   "wheel.spinning": "Spinning…",
   "wheel.winner": "Winner",

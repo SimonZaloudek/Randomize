@@ -215,6 +215,8 @@
   "group.groupName": "Grupo",
 
   "wheel.title": "Rueda de la fortuna",
+  "wheel.question": "Pregunta:",
+  "wheel.questionPh": "p. ej. ¿Quién es el GOAT?",
   "wheel.spinBtn": "Girar",
   "wheel.spinning": "Girando…",
   "wheel.winner": "Ganador",

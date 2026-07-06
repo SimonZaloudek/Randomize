@@ -215,6 +215,8 @@
   "group.groupName": "Skupina",
 
   "wheel.title": "Koleso šťastia",
+  "wheel.question": "Otázka:",
+  "wheel.questionPh": "napr. Kto je GOAT?",
   "wheel.spinBtn": "Točiť",
   "wheel.spinning": "Točí sa…",
   "wheel.winner": "Víťaz",

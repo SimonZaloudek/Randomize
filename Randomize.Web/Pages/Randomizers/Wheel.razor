@@ -11,6 +11,11 @@
 <div class="wheel-layout">
 
     <div class="wheel-stage">
+        @if (!string.IsNullOrWhiteSpace(_question))
+        {
+            <div class="wheel-question">@_question</div>
+        }
+
         <!-- tap the wheel to spin -->
         <canvas id="wheelCanvas" class="wheel-canvas" width="320" height="320" @onclick="SpinWheel"></canvas>
 
@@ -21,6 +26,10 @@
         @if (_winners.Count > 0)
         {
             <div class="wheel-result wheel-result-list" @key="_winners.Count">
+                @if (!string.IsNullOrWhiteSpace(_question))
+                {
+                    <span class="wheel-result-question">@_question</span>
+                }
                 <span class="wheel-result-label">@Loc["wheel.winners"]</span>
                 <ol class="wheel-winners">
                     @foreach (var w in _winners)
@@ -33,6 +42,10 @@
         else if (!string.IsNullOrEmpty(selectedResult))
         {
             <div class="wheel-result" @key="_spinCount">
+                @if (!string.IsNullOrWhiteSpace(_question))
+                {
+                    <span class="wheel-result-question">@_question</span>
+                }
                 <span class="wheel-result-label">@Loc["wheel.winner"]</span>
                 <span class="wheel-result-value">🎉 @selectedResult</span>
             </div>
@@ -40,6 +53,16 @@
     </div>
 
     <div class="wheel-panel tool-card">
+        <div class="option-row">
+            <label class="wheel-question-row">
+                <span class="opt-key">@Loc["wheel.question"]</span>
+                <input class="tool-input" maxlength="80"
+                       placeholder="@Loc["wheel.questionPh"]"
+                       disabled="@_spinning"
+                       @bind="_question" @bind:event="oninput" />
+            </label>
+        </div>
+
         <div class="option-row">
             <label>
                 <span class="opt-key">@Loc["wheel.options"]</span>
@@ -185,6 +208,7 @@
 
     private List<WheelItem> items = new();
     private string selectedResult = "";
+    private string _question = "";
     private bool _spinning;
     private bool _eliminate;
     private bool _weighted;
@@ -294,12 +318,20 @@
         var current = items;
         int n = _count ?? 2;
 
+        // keep each slice's identity (and thus its JS-side image) across resizes
         items = Enumerable.Range(1, n)
-            .Select(i => new WheelItem
+            .Select(i =>
             {
-                Label = current.ElementAtOrDefault(i - 1)?.Label ?? string.Empty,
-                Weight = current.ElementAtOrDefault(i - 1)?.Weight ?? 1,
-                Placeholder = $"{Loc["wheel.option"]} {i}"
+                var old = current.ElementAtOrDefault(i - 1);
+                return new WheelItem
+                {
+                    Id = old?.Id ?? _nextId++,
+                    Label = old?.Label ?? string.Empty,
+                    Weight = old?.Weight ?? 1,
+                    HasImage = old?.HasImage ?? false,
+                    ImageFileName = old?.ImageFileName,
+                    Placeholder = $"{Loc["wheel.option"]} {i}"
+                };
             })
             .ToList();
     }
@@ -447,8 +479,11 @@
     private Task ApplyPreset(string[] labels) =>
         LoadItems(labels.Select(l => (l, 1.0)).ToList());
 
-    private Task ApplySaved(SavedWheel w) =>
-        LoadItems(w.Items.Select(s => (s.Label, s.Weight)).ToList());
+    private Task ApplySaved(SavedWheel w)
+    {
+        _question = w.Question ?? "";
+        return LoadItems(w.Items.Select(s => (s.Label, s.Weight)).ToList());
+    }
 
     // fill the wheel from a label/weight set, resizing to fit (clamped 2..16)
     private async Task LoadItems(List<(string Label, double Weight)> data)
@@ -477,7 +512,7 @@
         if (name.Length == 0 || slices.Count < 2) return;
 
         _saved.RemoveAll(w => string.Equals(w.Name, name, StringComparison.OrdinalIgnoreCase));
-        _saved.Insert(0, new SavedWheel { Name = name, Items = slices });
+        _saved.Insert(0, new SavedWheel { Name = name, Items = slices, Question = _question.Trim() });
         if (_saved.Count > 12) _saved.RemoveRange(12, _saved.Count - 12);
         _saveName = "";
         await PersistSaved();
@@ -522,6 +557,7 @@
     private class SavedWheel
     {
         public string Name { get; set; } = "";
+        public string? Question { get; set; }
         public List<SavedSlice> Items { get; set; } = new();
     }
 

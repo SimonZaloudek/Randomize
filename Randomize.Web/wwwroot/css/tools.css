@@ -945,8 +945,39 @@ select.tool-input-small option {
 
 .wheel-canvas {
     display: block;
-    width: min(420px, 78vw);
-    height: min(420px, 78vw);
+    width: min(462px, 80vw);
+    height: min(462px, 80vw);
+}
+
+/* optional question shown above the wheel */
+.wheel-question {
+    max-width: min(462px, 86vw);
+    text-align: center;
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: #fff;
+    word-break: break-word;
+}
+
+.wheel-question::before,
+.wheel-question::after {
+    content: "";
+    display: inline-block;
+    width: 22px;
+    height: 1px;
+    margin: 0 10px;
+    vertical-align: middle;
+    background: var(--accent);
+    opacity: 0.7;
+}
+
+.wheel-result-question {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-text);
+    text-align: center;
+    word-break: break-word;
+    margin-bottom: 2px;
 }
 
 .wheel-spin-btn {
@@ -1012,6 +1043,18 @@ select.tool-input-small option {
 .wheel-panel {
     width: min(360px, 92vw);
     gap: 14px;
+}
+
+.wheel-question-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.wheel-question-row .tool-input {
+    flex: 1;
+    min-width: 0;
 }
 
 .wheel-labels {
