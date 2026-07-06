@@ -1,0 +1,20 @@
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/Randomize.Web.styles.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+/_framework/blazor.webassembly.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/_framework/blazor.boot.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/_framework/dotnet.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/service-worker.js
+  Cache-Control: public, max-age=0, must-revalidate
