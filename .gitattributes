@@ -1,0 +1,11 @@
+# Ignore frontend/static/vendor files in GitHub language stats
+wwwroot/lib/** linguist-vendored
+wwwroot/css/bootstrap/** linguist-vendored
+**/*.min.js linguist-vendored
+**/*.min.css linguist-vendored
+
+# Ignore generated/build-like assets
+**/bin/** linguist-generated=true
+**/obj/** linguist-generated=true
+**/*.g.cs linguist-generated=true
+**/*.generated.cs linguist-generated=true
