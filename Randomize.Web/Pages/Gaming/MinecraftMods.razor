@@ -1,0 +1,343 @@
+@page "/minecraft/mods"
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using Randomize.Web.Services
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["mc.mods.title"]</PageTitle>
+
+<div class="ghub-ambient mc-shell mc-page-mods">
+    <div class="mc-bg" aria-hidden="true"></div>
+
+    <div class="mc-page">
+        <div class="lol-topbar">
+            <NavLink href="/gamershub" class="hub-back"><i class="bi bi-arrow-left"></i> @Loc["nav.gamers"]</NavLink>
+        </div>
+
+        <header class="mc-head">
+            <h2 class="page-title">@Loc["mc.mods.title"]</h2>
+            <p class="mc-sub">@Loc["mc.mods.sub"]</p>
+            <p class="powered-credit">@Loc["mc.mods.poweredBy"] <a href="https://modrinth.com" target="_blank" rel="noopener">Modrinth</a></p>
+
+            <div class="mc-smp-controls">
+                <div class="mc-chip-row">
+                    <button class="mc-chip @(_type == "mod" ? "active" : "")" @onclick='() => SetType("mod")'>@Loc["mc.mods.type.mod"]</button>
+                    <button class="mc-chip @(_type == "modpack" ? "active" : "")" @onclick='() => SetType("modpack")'>@Loc["mc.mods.type.modpack"]</button>
+                    <button class="mc-chip @(_chaos ? "active" : "")" title="@Loc["mc.mods.chaosTitle"]" @onclick="() => _chaos = !_chaos">
+                        @Loc["mc.mods.chaos"]
+                    </button>
+                </div>
+            </div>
+
+            <div class="mc-smp-controls">
+                <div class="mc-chip-row">
+                    <button class="mc-chip @(_loader is null ? "active" : "")" @onclick="() => _loader = null">@Loc["mc.mods.any"]</button>
+                    @foreach (var l in Loaders)
+                    {
+                        var loader = l;
+                        <button class="mc-chip @(_loader == loader ? "active" : "")" disabled="@_chaos" @onclick="() => _loader = loader">
+                            @Cap(loader)
+                        </button>
+                    }
+                </div>
+
+                <select class="mc-select" @bind="_version" disabled="@_chaos" title="@Loc["mc.mods.version"]">
+                    <option value="">@Loc["mc.mods.version"] @Loc["mc.mods.any"]</option>
+                    @foreach (var v in Versions)
+                    {
+                        <option value="@v">@v</option>
+                    }
+                </select>
+
+                <select class="mc-select" @bind="_category" disabled="@_chaos" title="@Loc["mc.mods.category"]">
+                    <option value="">@Loc["mc.mods.category"] @Loc["mc.mods.any"]</option>
+                    @foreach (var c in Categories)
+                    {
+                        <option value="@c">@Cap(c)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mc-controls">
+                <button class="lol-roll" @onclick="RollOne" disabled="@Busy">
+                    <i class="bi bi-dice-5-fill"></i> @(_loadingOne ? Loc["mc.mods.rolling"] : Loc["mc.mods.roll"])
+                </button>
+            </div>
+        </header>
+
+        @if (_cooldown)
+        {
+            <div class="mc-notice">@Loc["mc.mods.cooldown"]</div>
+        }
+        else if (_error is not null)
+        {
+            <div class="mc-error">@_error</div>
+        }
+
+        @if (_mod is not null)
+        {
+            <div class="mc-board">
+                <section class="mc-card mc-card-grass mc-card-wide mc-notched">
+                    <div class="mc-card-head"><span>@(_type == "modpack" ? Loc["mc.mods.type.modpack"] : Loc["mc.mods.type.mod"])</span></div>
+                    <div class="mc-mod">
+                        @if (_mod.IconUrl is not null)
+                        {
+                            <img class="mc-mod-icon mc-pix" src="@_mod.IconUrl" alt="" loading="lazy" />
+                        }
+                        <div class="mc-mod-body">
+                            <h3 class="mc-mod-title">@_mod.Title</h3>
+                            <p class="mc-mod-desc">@_mod.Description</p>
+                            <div class="mc-mod-meta">
+                                <span>@FormatDownloads(_mod.Downloads) @Loc["mc.mods.downloads"]</span>
+                                @if (_mod.Author is not null)
+                                {
+                                    <span>@Loc["mc.mods.by"] @_mod.Author</span>
+                                }
+                                @foreach (var c in _mod.Categories)
+                                {
+                                    <span class="mc-chip">@c</span>
+                                }
+                            </div>
+                            <a class="mc-mod-link" href="@_mod.Url" target="_blank" rel="noopener">
+                                @Loc["mc.mods.open"] <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        }
+
+        <div class="mc-board">
+            <section class="mc-card mc-card-wide mc-notched">
+                <div class="mc-card-head">
+                    <span>@Loc["mc.pack.title"]</span>
+                    @if (_pack.Count > 0)
+                    {
+                        <button class="lol-mini" title="@(_copied ? Loc["mc.copied"] : Loc["mc.copy"])" @onclick="CopyPack">
+                            <i class="bi @(_copied ? "bi-check2" : "bi-clipboard")"></i>
+                        </button>
+                    }
+                </div>
+                <p class="mc-sub">@Loc["mc.pack.sub"]</p>
+
+                <div class="mc-smp-controls">
+                    <span class="mc-label">@Loc["mc.pack.size"]</span>
+                    <div class="mc-stepper">
+                        <button class="mc-step-btn" disabled="@(_packSize <= 3)" @onclick="() => _packSize--">−</button>
+                        <span class="mc-step-val">@_packSize</span>
+                        <button class="mc-step-btn" disabled="@(_packSize >= 8)" @onclick="() => _packSize++">+</button>
+                    </div>
+                    <button class="lol-roll" @onclick="RollPack" disabled="@Busy">
+                        <i class="bi bi-boxes"></i> @(_loadingPack ? Loc["mc.mods.rolling"] : Loc["mc.pack.roll"])
+                    </button>
+                </div>
+
+                @if (_pack.Count > 0)
+                {
+                    <div class="mc-modlist">
+                        @for (int i = 0; i < _pack.Count; i++)
+                        {
+                            var idx = i;
+                            var m = _pack[idx];
+                            <div class="mc-slot">
+                                @if (m.IconUrl is not null)
+                                {
+                                    <img class="mc-mod-icon mc-pix" src="@m.IconUrl" alt="" loading="lazy" />
+                                }
+                                <span><a href="@m.Url" target="_blank" rel="noopener">@m.Title</a></span>
+                                <span class="mc-mod-dl">@FormatDownloads(m.Downloads)</span>
+                                <button class="lol-mini @(_packLocked.Contains(idx) ? "active" : "")"
+                                        title="@(_packLocked.Contains(idx) ? Loc["mc.tip.unlock"] : Loc["mc.tip.lock"])"
+                                        @onclick="() => TogglePackLock(idx)">
+                                    <i class="bi @(_packLocked.Contains(idx) ? "bi-lock-fill" : "bi-unlock")"></i>
+                                </button>
+                                <button class="lol-mini" title="@Loc["mc.tip.reroll"]" disabled="@Busy"
+                                        @onclick="() => RerollPackSlot(idx)">
+                                    <i class="bi bi-dice-5"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _type = "mod";
+    private string? _loader;
+    private string _version = "";
+    private string _category = "";
+    private bool _chaos;
+    private Mod? _mod;
+    private List<Mod> _pack = new();
+    private readonly HashSet<int> _packLocked = new();
+    private int _packSize = 5;
+    private bool _loadingOne;
+    private bool _loadingPack;
+    private bool _cooldown;
+    private bool _copied;
+    private string? _error;
+
+    private static readonly string[] Loaders = { "fabric", "forge", "neoforge", "quilt" };
+    private static readonly string[] Versions = { "1.21.4", "1.21.1", "1.20.1", "1.19.2", "1.18.2", "1.16.5" };
+    private static readonly string[] Categories =
+    {
+        "adventure", "decoration", "equipment", "food", "game-mechanics", "magic",
+        "mobs", "optimization", "storage", "technology", "transportation", "utility", "worldgen",
+    };
+
+    private bool Busy => _loadingOne || _loadingPack || _cooldown;
+
+    protected override void OnInitialized() => Loc.LanguageChanged += OnLanguageChanged;
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void SetType(string t)
+    {
+        if (_type == t) return;
+        _type = t;
+        _mod = null;
+        _pack.Clear();
+        _packLocked.Clear();
+    }
+
+    private static string Cap(string s) => s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s[1..];
+
+    private static string FormatDownloads(long n) => n switch
+    {
+        >= 1_000_000 => $"{n / 1_000_000.0:0.#}M",
+        >= 1_000 => $"{n / 1_000.0:0.#}k",
+        _ => n.ToString(),
+    };
+
+    private string Query(int count)
+    {
+        var q = $"type={_type}&count={count}";
+        if (_chaos) return q + "&chaos=1";
+        if (_loader is not null) q += $"&loader={_loader}";
+        if (_version.Length > 0) q += $"&version={_version}";
+        if (_category.Length > 0) q += $"&category={_category}";
+        return q;
+    }
+
+    private async Task<List<Mod>?> Fetch(int count)
+    {
+        _error = null;
+        try
+        {
+            var res = await Http.GetAsync($"api/minecraft/mods?{Query(count)}");
+            if ((int)res.StatusCode == 429) { StartCooldown(); return null; }
+            if (!res.IsSuccessStatusCode) { _error = Loc["mc.mods.err"]; return null; }
+            var body = await res.Content.ReadFromJsonAsync<ModsResponse>();
+            if (body?.Mods is not { Count: > 0 }) { _error = Loc["mc.mods.err"]; return null; }
+            return body.Mods;
+        }
+        catch
+        {
+            _error = Loc["mc.mods.err"];
+            return null;
+        }
+    }
+
+    private async Task RollOne()
+    {
+        if (Busy) return;
+        _loadingOne = true;
+        var mods = await Fetch(1);
+        if (mods is not null) _mod = mods[0];
+        _loadingOne = false;
+    }
+
+    private async Task RollPack()
+    {
+        if (Busy) return;
+        _loadingPack = true;
+        _copied = false;
+
+        // locked rows survive the reroll; fetch replacements for the rest
+        var kept = _pack.Where((_, i) => _packLocked.Contains(i)).ToList();
+        int needed = Math.Max(0, _packSize - kept.Count);
+        if (needed > 0)
+        {
+            var mods = await Fetch(needed);
+            if (mods is not null)
+            {
+                // avoid handing out a mod that's already locked into the pack
+                var fresh = mods.Where(m => kept.All(k => k.Slug != m.Slug)).ToList();
+                _pack = kept.Concat(fresh).Take(_packSize).ToList();
+                _packLocked.Clear();
+                for (int i = 0; i < kept.Count; i++) _packLocked.Add(i);
+            }
+        }
+        else
+        {
+            _pack = kept.Take(_packSize).ToList();
+        }
+        _loadingPack = false;
+    }
+
+    private async Task RerollPackSlot(int idx)
+    {
+        if (Busy || idx < 0 || idx >= _pack.Count) return;
+        _loadingPack = true;
+        _copied = false;
+        var mods = await Fetch(3);   // small batch so a duplicate slug can be skipped
+        var pick = mods?.FirstOrDefault(m => _pack.All(p => p.Slug != m.Slug)) ?? mods?.FirstOrDefault();
+        if (pick is not null) _pack[idx] = pick;
+        _loadingPack = false;
+    }
+
+    private void TogglePackLock(int idx)
+    {
+        if (!_packLocked.Remove(idx)) _packLocked.Add(idx);
+    }
+
+    private void StartCooldown()
+    {
+        _cooldown = true;
+        StateHasChanged();
+        _ = Task.Delay(10_000).ContinueWith(_ =>
+        {
+            _cooldown = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task CopyPack()
+    {
+        var lines = new List<string> { "Minecraft modpack roll" };
+        lines.AddRange(_pack.Select(m => $"- {m.Title}: {m.Url}"));
+        lines.Add("via userandomize.net/minecraft/mods");
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", string.Join("\n", lines));
+            _copied = true;
+        }
+        catch { }
+    }
+
+    // --- models (match /api/minecraft/mods output) ---
+    private class ModsResponse
+    {
+        public List<Mod> Mods { get; set; } = new();
+    }
+
+    private class Mod
+    {
+        public string Slug { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        [JsonPropertyName("icon_url")] public string? IconUrl { get; set; }
+        public long Downloads { get; set; }
+        public string? Author { get; set; }
+        public string[] Categories { get; set; } = Array.Empty<string>();
+        public string Url { get; set; } = "";
+    }
+}

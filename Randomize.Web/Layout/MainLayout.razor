@@ -62,7 +62,7 @@
 
         <!-- Version + About -->
         <div class="sidebar-footer">
-            <span class="sidebar-version">Beta v0.90</span>
+            <span class="sidebar-version">Beta v0.95</span>
             <div class="sidebar-footer-actions">
                 <ShareButton Compact="true" />
                 <NavLink href="/about" class="sidebar-about" @onclick="CloseSidebar">@Loc["nav.about"]</NavLink>
@@ -136,7 +136,7 @@
         get
         {
             var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/').ToLowerInvariant();
-            return path.Length > 0 && path != "gamershub" && !path.StartsWith("lol");
+            return path.Length > 0 && path != "gamershub" && !path.StartsWith("lol") && !path.StartsWith("minecraft");
         }
     }
 

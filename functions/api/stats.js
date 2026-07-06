@@ -11,6 +11,7 @@ const TOOLS = [
   "movie",        // movie / TV randomizer
   "game",         // video game randomizer
   "song",         // song randomizer
+  "minecraft",    // minecraft section (bravery/builds/rolls client-side, mods server-side)
   "rps",          // rock paper scissors arena
   "rps-rock",
   "rps-paper",
