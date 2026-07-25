@@ -235,6 +235,19 @@
     margin-bottom: 14px;
 }
 
+/* "made by" badge, right side of the header, contrast to the Randomize logo */
+.sidebar-dev-badge {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+}
+
+    .sidebar-dev-badge img {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+    }
+
 .theme-switch {
     display: flex;
     gap: 3px;

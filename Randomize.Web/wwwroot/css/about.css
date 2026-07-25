@@ -372,6 +372,20 @@
 .about-legal a:hover { color: var(--accent); }
 .about-legal-dot { color: #555; }
 
+.about-madeby {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted, #8b8794);
+    font-size: 0.8rem;
+}
+
+    .about-madeby img {
+        height: 64px;
+        width: auto;
+        object-fit: contain;
+    }
+
 /* ===== legal pages (/privacy, /terms) - readable prose in about cards ===== */
 .legal .about-card { padding: 22px 26px; }
 .legal .about-card h3 { margin: 0 0 8px; color: var(--text-primary, #fff); font-size: 1.1rem; font-weight: 700; }
